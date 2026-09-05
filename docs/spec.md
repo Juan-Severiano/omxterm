@@ -533,6 +533,17 @@ application-package formats are DMG, AppImage, and NSIS respectively. A Linux
 release also includes the optional versioned AppImage desktop-installer shell
 asset and its checksum; it is not another application package format.
 
+Windows exact-installer verification is an installation side-effect boundary:
+`/D=` changes the destination but does not isolate old-version removal,
+registration, shortcuts, or processes. Verification refuses installation by
+default and on unknown inspection or conflicting live processes. Deliberate
+replacement requires an explicitly authorized disposable VM and a literal CLI
+opt-in, never an environment sentinel. Cleanup is ownership-checked, preserves
+User Configuration and other user data, and must succeed for full verification.
+Non-installing unpacked diagnostics remain explicitly partial; exact NSIS
+installation, payload, installed startup, and cleanup verification remain
+mandatory for every Windows Release Artifact.
+
 Each exact artifact requires its own recorded native automated verification and
 owner acceptance. Manual testing is optional and never a release gate. The
 maintainer exercises macOS through ordinary daily use rather than a prescribed

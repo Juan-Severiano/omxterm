@@ -207,30 +207,80 @@ in the Node.js 22 line, or Node.js 24 or newer, and the Visual C++ Redistributab
 allow script execution for npm's cmd shims, and clone with
 `core.autocrlf=false` and `core.symlinks=true` (symlinked repository files
 must check out as symlinks; Developer Mode enables unprivileged symlinks).
-Then run from the accepted source commit:
+Exact NSIS verification must run only in an explicitly authorized disposable VM
+with a recoverable snapshot. It is **not** isolated by a temporary destination:
+NSIS can uninstall an existing OMXTerm and replace registration and shortcuts.
+Do not run this installation seam on a daily-use machine. Check that no OMXTerm
+sessions or installers are running; the verifier refuses those conflicts even
+with opt-in and never closes them for you. tmux alone is not evidence that
+closing an app preserves its sessions.
+
+From the accepted source commit in that disposable VM, after separately obtaining
+permission for these install/uninstall effects, run:
 
 ```powershell
 npm ci
-npm run check:win
+npm run check:win -- --disposable-vm-allow-omxterm-replacement
 ```
+
+Without that literal CLI opt-in, `npm run check:win` fails closed at the exact
+installer seam. Environment variables do not authorize replacement. Unknown or
+inaccessible installation inspection also fails closed. Existing registration
+is checked in HKCU and HKLM, in both registry views, along with default install
+locations, shortcut conflicts, and matching running processes. Deliberate
+replacement supports only the known per-user installation; orphan, machine, or
+unexpected registration requires a clean disposable VM, not a force bypass.
+Preflight is not a guarantee against host races or installer-wide effects, so the
+disposable-VM requirement applies even when no existing installation is found.
+No credential collection, elevation or OS security-policy change is authorized.
 
 `npm run check:win` runs all portable and real-ConPTY checks, creates the
 non-published `release/OMXTerm-<version>-arm64.exe` NSIS installer, inspects
 the unpacked application's arm64 PE executables and win32-arm64 node-pty
 runtime, version, licenses, and forbidden/private-looking files, installs the
-exact installer into a throwaway directory to confirm it extracts every
-executable, then launches the unpacked application with isolated
-configuration, state, and user data. Startup must reach a running PTY and its
-Operational Event log must not contain the environment canary.
+exact installer into a transaction-owned temporary directory, compares every
+extracted payload file with the unpacked application, and verifies startup from
+both the unpacked and installed trees with isolated configuration, state, and
+user data. Startup must reach a running PTY and its Operational Event log must
+not contain the environment or launch-argument canaries. The production-Chromium
+image fixture uses its own Electron userData/sessionData directories and shows
+a non-activating native window on Windows so real image/frame progress is
+observable without weakening production CSP or renderer isolation.
 
-For packaging alone, run `npm run package:win`, followed on the same native
-host by `npm run package:verify`. The automated check installs the exact
-installer to a temporary location — its one-click `/D=` never touches the
-real per-user install — and asserts that every packaged executable and DLL
-lands, then uninstalls. A real Start Menu installation is optional; when
-installer or desktop-integration behavior changes beyond this automated seam,
-record the remaining Windows behavior as unverified rather than requiring a
-manual installation.
+For packaging alone, run `npm run package:win`. For non-installing content and
+startup diagnostics on the same native host, run:
+
+```powershell
+npm run package:verify -- --windows-unpacked-only
+```
+
+This explicitly reports **UNPACKED DIAGNOSTIC ONLY**: it neither launches the
+installer nor proves exact-installer acceptance. It does launch the unpacked
+application with an isolated test profile and a synthetic PTY command.
+Full `package:verify` requires the same disposable-VM opt-in as `check:win`:
+
+```powershell
+npm run package:verify -- --disposable-vm-allow-omxterm-replacement
+```
+
+The exact installer seam remains mandatory for release. A different application
+identity, repacked installer, or archive-only extraction is not equivalent.
+`/D=` selects the destination only; the existing OMXTerm may be removed and is
+**not restored** by the test. Registration and shortcuts are changed during
+installation. The verifier checks ownership before invoking only the new
+transaction's uninstaller in-place, waits for bounded registration/shortcut/
+process cleanup, and then removes its temporary directory. User data is not
+deleted. Cleanup errors fail verification alongside any primary error; unknown
+ownership leaves evidence for inspection rather than deleting guessed state.
+Restore/discard the VM only after preserving artifacts and evidence outside the
+snapshot's rollback scope.
+
+The inspection supports the pinned builder and reviewed packaging footprint;
+changes to those inputs require reviewing its registry identities, locations,
+shortcuts and NSIS templates together. A footprint mismatch is a refusal, not
+permission to bypass the check. A real Start Menu installation is optional;
+installer or desktop-integration behavior beyond the automated seam remains
+unverified rather than requiring manual installation.
 
 The installer carries a zip-compressed application payload rather than the
 smaller default LZMA archive. On an ARM64 build host electron-builder

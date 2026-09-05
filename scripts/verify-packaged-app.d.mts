@@ -63,7 +63,18 @@ export function signalProcessGroup(
   signal: NodeJS.Signals | 0,
 ): boolean;
 
-export function verifyPackagedApplication(applicationPath?: string): Promise<{
+export function verifyPackagedApplication(
+  applicationPath?: string,
+  options?: {
+    readonly windowsUnpackedOnly?: boolean;
+    readonly disposableVm?: boolean;
+  },
+): Promise<{
   readonly applicationPath: string;
   readonly records: number;
+  readonly verification: string;
+  readonly installerVerification?: {
+    readonly replacedExisting: boolean;
+    readonly sha256: string;
+  };
 }>;

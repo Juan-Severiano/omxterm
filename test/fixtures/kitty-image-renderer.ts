@@ -60,11 +60,13 @@ interface KittyImageFixtureResult {
 declare global {
   var __omxtermKittyResult: KittyImageFixtureResult | undefined;
   var __omxtermKittyMemoryStage: "complete" | "large-fixture" | undefined;
+  var __omxtermKittyChecks: Record<string, boolean> | undefined;
 }
 
 const terminalContainer = requiredElement<HTMLElement>("#terminal");
 
 const checks: Record<string, boolean> = {};
+globalThis.__omxtermKittyChecks = checks;
 const adapterWrites: string[] = [];
 const terminalSizes: TerminalSize[] = [];
 let sessionHandlers: TerminalSessionHandlers | undefined;
@@ -522,7 +524,9 @@ async function waitFor(
     if (predicate()) return;
     await new Promise((resolve) => setTimeout(resolve, 20));
   }
-  throw new Error(`Timed out waiting for fixture state: ${terminalText()}`);
+  throw new Error(
+    `Timed out waiting for fixture state: completedChecks=${Object.keys(checks).length}`,
+  );
 }
 
 async function nextFrames(count: number): Promise<void> {

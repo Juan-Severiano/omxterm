@@ -24,7 +24,7 @@
     "package:verify": "node scripts/verify-packaged-app.mjs",
     "check": "npm run check:portable && npm run package:mac && npm run package:verify",
     "check:linux": "npm run check:portable && npm run package:linux && npm run package:verify",
-    "check:win": "npm run check:portable && npm run package:win && npm run package:verify",
+    "check:win": "node scripts/check-windows.mjs",
     "dev": "npm run build && electron ."
   },
   "engines": {

@@ -48,6 +48,14 @@ interface FixtureResult {
     readonly peakWorkingSetKilobytes: number;
     readonly platform: string;
   };
+  readonly fixtureSecurity?: {
+    readonly sandbox: boolean;
+    readonly contextIsolation: boolean;
+    readonly nodeIntegration: boolean;
+    readonly webSecurity: boolean;
+    readonly isolatedProfiles: boolean;
+    readonly nativeVisible: boolean;
+  };
   readonly error?: string;
 }
 
@@ -65,10 +73,7 @@ describe("Kitty images in production Chromium", () => {
       const result = resultLine
         ? (JSON.parse(resultLine.slice(resultPrefix.length)) as FixtureResult)
         : undefined;
-      if (process.env["OMXTERM_REPORT_KITTY_MEMORY"] === "1")
-        process.stdout.write(
-          `Kitty Electron characterization: ${JSON.stringify({ jsHeap: result?.memory, rendererProcess: result?.rendererProcessMemory })}\n`,
-        );
+      reportCharacterization(result);
 
       expect(
         execution.exitCode,
@@ -76,6 +81,14 @@ describe("Kitty images in production Chromium", () => {
       ).toBe(0);
       expect(result?.error).toBeUndefined();
       expect(result?.ok).toBe(true);
+      expect(result?.fixtureSecurity).toEqual({
+        sandbox: true,
+        contextIsolation: true,
+        nodeIntegration: false,
+        webSecurity: true,
+        isolatedProfiles: true,
+        nativeVisible: process.platform === "win32",
+      });
       expect(Object.values(result?.checks ?? {})).not.toContain(false);
       expect(result?.cellSizeResponse).toMatch(/^\u001b\[6;\d+;\d+t$/u);
       expect(result?.largeFixture).toEqual({
@@ -101,6 +114,13 @@ describe("Kitty images in production Chromium", () => {
     }
   }, 300_000);
 });
+
+function reportCharacterization(result: FixtureResult | undefined): void {
+  if (process.env["OMXTERM_REPORT_KITTY_MEMORY"] !== "1") return;
+  process.stdout.write(
+    `Kitty Electron characterization: ${JSON.stringify({ checks: Object.keys(result?.checks ?? {}).length, allPassed: Object.values(result?.checks ?? {}).every(Boolean), security: result?.fixtureSecurity, jsHeap: result?.memory, rendererProcess: result?.rendererProcessMemory })}\n`,
+  );
+}
 
 async function buildFixture(fixtureRoot: string): Promise<void> {
   const rendererOutput = path.join(fixtureRoot, "renderer.js");
@@ -169,7 +189,13 @@ function electronMainSource(): string {
   return `
 const { app, BrowserWindow } = require("electron");
 const path = require("node:path");
+const fs = require("node:fs");
 
+for (const name of ["userData", "sessionData"]) {
+  const directory = path.join(__dirname, name);
+  fs.mkdirSync(directory, { recursive: true });
+  app.setPath(name, directory);
+}
 app.commandLine.appendSwitch("enable-precise-memory-info");
 app.whenReady().then(async () => {
   const window = new BrowserWindow({
@@ -184,14 +210,22 @@ app.whenReady().then(async () => {
       webSecurity: true,
     },
   });
+  // Real image traffic starves frame progress in a hidden Windows native window.
+  // Showing without activation preserves the user's focus and all security settings.
+  if (process.platform === "win32") window.showInactive();
+  window.webContents.once("render-process-gone", (_event, details) => {
+    process.stderr.write("Kitty fixture renderer exited: " + details.reason + "\\n");
+    app.exit(1);
+  });
   await window.loadFile(path.join(__dirname, "index.html"));
   const deadline = Date.now() + ${fixtureDeadlineMilliseconds};
   const rendererPid = window.webContents.getOSProcessId();
   let peakWorkingSetKilobytes = 0;
   let result;
+  let progress = null;
   while (Date.now() < deadline) {
     const state = await window.webContents.executeJavaScript(
-      "({ result: globalThis.__omxtermKittyResult ?? null, stage: globalThis.__omxtermKittyMemoryStage ?? null })",
+      "({ result: globalThis.__omxtermKittyResult ?? null, stage: globalThis.__omxtermKittyMemoryStage ?? null, completedChecks: Object.keys(globalThis.__omxtermKittyChecks ?? {}).length })",
       true,
     );
     if (state.stage === "large-fixture") {
@@ -201,11 +235,21 @@ app.whenReady().then(async () => {
         metric ? metric.memory.workingSetSize : 0,
       );
     }
+    progress = { stage: state.stage, completedChecks: state.completedChecks };
     result = state.result;
     if (result) break;
     await new Promise((resolve) => setTimeout(resolve, 20));
   }
-  if (!result) result = { ok: false, error: "Electron fixture timed out" };
+  if (!result) result = { ok: false, error: "Electron fixture timed out", progress };
+  const preferences = window.webContents.getLastWebPreferences();
+  result.fixtureSecurity = {
+    sandbox: preferences.sandbox,
+    contextIsolation: preferences.contextIsolation,
+    nodeIntegration: preferences.nodeIntegration,
+    webSecurity: preferences.webSecurity,
+    isolatedProfiles: ["userData", "sessionData"].every((name) => app.getPath(name) === path.join(__dirname, name)),
+    nativeVisible: window.isVisible(),
+  };
   result.rendererProcessMemory = {
     architecture: process.arch,
     electronVersion: process.versions.electron,
