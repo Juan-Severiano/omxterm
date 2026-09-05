@@ -15,6 +15,10 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import { linuxHelperName } from "./package-linux-assets.mjs";
+import {
+  inspectLinuxAppRun,
+  verifyLinuxRendererSandbox,
+} from "./verify-linux-sandbox.mjs";
 
 const execFile = promisify(execFileCallback);
 const projectRoot = path.resolve(
@@ -697,6 +701,7 @@ export async function verifyPackagedApplication(applicationPath) {
         maxBuffer: 16 * 1024 * 1024,
       });
       applicationRoot = path.join(extractionRoot, "squashfs-root");
+      inspectLinuxAppRun(await readFile(path.join(applicationRoot, "AppRun")));
       const forbidden = inspectForbiddenPackagedEntries(
         await listTreeEntries(applicationRoot),
       );
@@ -931,7 +936,7 @@ export async function verifyPackagedApplication(applicationPath) {
       // The packaged Linux app relaunches itself onto X11 when Electron seeds
       // a Wayland session backend (ADR 0020), and this harness cannot follow a
       // relaunch. Pin the backend explicitly; default-backend selection is
-      // covered by unit tests and the manual exact-artifact checklist.
+      // covered by unit tests; this explicit override does not prove native defaults.
       const child = spawn(launchPath, launchArguments, {
         detached: true,
         env: {
@@ -964,6 +969,12 @@ export async function verifyPackagedApplication(applicationPath) {
           child,
           () => stderr.trim(),
         );
+        if (platform === "linux") {
+          const rendererCount = await verifyLinuxRendererSandbox(child.pid);
+          console.log(
+            `Verified Linux renderer OS sandbox (${rendererCount} renderer(s), ${runtimeArguments.length === 0 ? "kernel-FUSE" : "extract-and-run"})`,
+          );
+        }
         const logText = await readFile(logFile, "utf8");
         const diagnostics = `${logText}\n${stderr}`;
         const privateLaunchValues = [

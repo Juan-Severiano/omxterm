@@ -109,6 +109,17 @@ If kernel FUSE mounting is unavailable, use the supported fallback:
 Linux needs the `fontconfig` utilities. OMXTerm defaults to X11, so Wayland
 sessions must provide XWayland; native Wayland rendering is not claimed.
 
+For current-source development builds, Linux also requires a non-root session
+where host policy permits Electron's unprivileged user-namespace sandbox.
+Sandbox initialization failure stops startup; the launcher does not silently
+turn sandboxing off. Extraction addresses FUSE mounting only. Do not use
+sandbox-disabling flags, grant setuid privileges, disable AppArmor, or weaken
+global host protections as a workaround. An administrator must review any
+application-specific policy needed by the host. See the
+[Linux prerequisites and verification](docs/release.md#linux-arm64).
+This describes current source, not a retroactive verification claim for the
+published assets above.
+
 To add the verified AppImage to the desktop without administrator access,
 ensure the helper's `file` command prerequisite is installed, then verify the
 optional helper separately before running it:

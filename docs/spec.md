@@ -14,7 +14,13 @@ The initial Supported Platforms are macOS arm64, Linux arm64, and Windows
 arm64. Linux rendering defaults to X11 and requires XWayland when the desktop
 session is Wayland; native Wayland rendering is not currently claimed. An
 explicit Electron `--ozone-platform` switch overrides the Linux default for
-diagnosis. x64, Intel macOS, and other operating systems are deferred rather
+diagnosis. Linux requires a non-root session where host policy permits Electron's
+unprivileged user-namespace sandbox. The AppImage launcher does not add
+sandbox-disabling flags when prerequisites are unavailable: Electron must
+initialize its sandbox or terminate with its startup diagnostic. Kernel-FUSE
+mounting and extract-and-run have the same sandbox prerequisite; extraction
+only addresses mounting. OMXTerm does not install a privileged sandbox helper
+or change host security policy. x64, Intel macOS, and other operating systems are deferred rather
 than current support commitments.
 
 ## Product scope
@@ -556,6 +562,15 @@ restrictions, log redaction/rotation, renderer IPC boundaries, and packaged
 startup. Every exact
 release candidate receives native automated package, architecture, content,
 version, startup, PTY, and applicable contract verification on its target.
+Linux package verification also rejects unexpected AppRun bytes before startup
+and requires observed renderer OS sandbox evidence in every available installed
+launch mode: a single-UID user namespace distinct from the verifier's map,
+nested PID namespace membership, no effective capabilities, no-new-privileges,
+and seccomp filter mode for every observed renderer thread. Inaccessible or
+missing evidence fails verification. This is a bounded startup observation,
+not a security audit, proof of filter contents, or guarantee about future
+renderer processes; PTY readiness and configured window preferences alone do
+not establish effective Linux renderer sandboxing.
 
 Release evidence is risk-based. Each release records the boundaries changed
 since the previous version and maps each to existing automation. A material

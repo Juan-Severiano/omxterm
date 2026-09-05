@@ -61,6 +61,13 @@ utilities for exact configured font-family validation. The statically linked
 AppImage runtime needs neither zlib development headers nor a system `libfuse2`
 library. Normal AppImage mounting uses kernel FUSE support; the
 `--appimage-extract-and-run` fallback remains available when mounting is not.
+Linux also requires a non-root session where host policy permits Electron's
+unprivileged user-namespace sandbox. A sandbox initialization error is a blocked
+startup, not permission to disable sandboxing or grant setuid privileges.
+AppImage extraction solves mounting only. Keep AppArmor and global protections
+intact; application-specific policy changes require administrator review.
+See the [Linux release procedure](docs/release.md#linux-arm64) for the exact
+sandbox evidence required by native verification.
 Linux rendering uses X11 and requires XWayland under a Wayland session; native
 Wayland is not currently claimed. Launching OMXTerm — including the packaged launch
 inside `npm run package:verify` and `npm run check:linux` — needs a running
