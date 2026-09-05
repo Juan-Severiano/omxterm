@@ -1,3 +1,34 @@
+import type { App } from "electron";
+import { spawn } from "node:child_process";
+import { withSwitchBeforeLaunchRequest } from "./launch-request";
+
+export function applyLinuxDisplayBackendDefault(
+  app: Pick<App, "commandLine" | "exit">,
+): void {
+  const action = planLinuxDisplayBackendDefault(
+    app.commandLine.getSwitchValue("ozone-platform"),
+  );
+  if (action === "append-x11") {
+    app.commandLine.appendSwitch("ozone-platform", "x11");
+  } else if (action === "relaunch-x11") {
+    // Chromium's relauncher lives inside the FUSE mount, which disappears on
+    // exit. Spawn the persistent outer AppImage (or on-disk executable) instead.
+    try {
+      spawn(
+        process.env["APPIMAGE"] ?? process.execPath,
+        withSwitchBeforeLaunchRequest(
+          process.argv.slice(1),
+          "--ozone-platform=x11",
+        ),
+        { detached: true, stdio: "ignore" },
+      ).unref();
+      app.exit(0);
+    } catch {
+      // Preserve the existing fallback to the seeded backend if spawning fails.
+    }
+  }
+}
+
 export type LinuxDisplayBackendAction = "none" | "append-x11" | "relaunch-x11";
 
 const OZONE_BACKEND_SWITCHES = ["--ozone-platform", "--ozone-platform-hint"];

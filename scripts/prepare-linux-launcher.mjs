@@ -9,7 +9,7 @@ const dependencyPath =
 const originalDigest =
   "4d3b63afc9939ace718e0b3537e2b1508c15fde7fd030206cbe207bcb6a8f030";
 const correctedDigest =
-  "d29b8e4d312042eccd6bf5fe089184570be481106c128c89348d6639f445f4c8";
+  "5aa80a572c24cf4cff5b5ca6640770f739ec0ec9dde98aee783398e8216fa27a";
 const digest = (source) => createHash("sha256").update(source).digest("hex");
 
 // app-builder-lib 26.15.3 has no launcher override. Correct this exact build
@@ -26,9 +26,9 @@ export async function prepareLinuxLauncher() {
   const end = source.indexOf("\natexit()\n", start);
   const corrected = (
     source.slice(0, start) +
-    "# Electron must initialize its sandbox or fail; never infer permission from an unrelated probe.\n" +
+    "# OMXTerm deliberately disables the Chromium sandbox on Linux.\n" +
     source.slice(end)
-  ).replaceAll(' "\\${NO_SANDBOX[@]}"', "");
+  ).replaceAll(' "\\${NO_SANDBOX[@]}"', " --no-sandbox");
   if (digest(corrected) !== correctedDigest)
     throw new Error(
       "AppImage generator correction did not match reviewed bytes",

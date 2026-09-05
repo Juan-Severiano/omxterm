@@ -61,13 +61,10 @@ utilities for exact configured font-family validation. The statically linked
 AppImage runtime needs neither zlib development headers nor a system `libfuse2`
 library. Normal AppImage mounting uses kernel FUSE support; the
 `--appimage-extract-and-run` fallback remains available when mounting is not.
-Linux also requires a non-root session where host policy permits Electron's
-unprivileged user-namespace sandbox. A sandbox initialization error is a blocked
-startup, not permission to disable sandboxing or grant setuid privileges.
-AppImage extraction solves mounting only. Keep AppArmor and global protections
-intact; application-specific policy changes require administrator review.
-See the [Linux release procedure](docs/release.md#linux-arm64) for the exact
-sandbox evidence required by native verification.
+Run as an ordinary user. OMXTerm deliberately disables Chromium sandboxing on
+Linux; no administrator sandbox setup is required. See the
+[Linux launch policy](docs/adr/0024-disable-the-chromium-sandbox-on-linux.md).
+Simple, reproducible contributions for sandboxed Linux support are welcome.
 Linux rendering uses X11 and requires XWayland under a Wayland session; native
 Wayland is not currently claimed. Launching OMXTerm — including the packaged launch
 inside `npm run package:verify` and `npm run check:linux` — needs a running
@@ -133,8 +130,9 @@ one of those needs attention, request it in the issue or pull request.
 
 Preserve the runtime boundaries in the specification: privileged capabilities
 belong to Electron main, preload exposes a minimal typed bridge, the renderer
-remains sandboxed, and the portable Terminal Surface does not import Electron
-or `node-pty`.
+keeps context isolation and disabled Node integration, and the portable Terminal
+Surface does not import Electron or `node-pty`. macOS and Windows retain Chromium
+sandboxing; the explicit Linux exception does not authorize other boundary changes.
 
 Write code, documentation, issue and pull-request text, and commit messages in
 English. Use clear, focused modules, strict types at public and IPC boundaries,

@@ -109,16 +109,12 @@ If kernel FUSE mounting is unavailable, use the supported fallback:
 Linux needs the `fontconfig` utilities. OMXTerm defaults to X11, so Wayland
 sessions must provide XWayland; native Wayland rendering is not claimed.
 
-For current-source development builds, Linux also requires a non-root session
-where host policy permits Electron's unprivileged user-namespace sandbox.
-Sandbox initialization failure stops startup; the launcher does not silently
-turn sandboxing off. Extraction addresses FUSE mounting only. Do not use
-sandbox-disabling flags, grant setuid privileges, disable AppArmor, or weaken
-global host protections as a workaround. An administrator must review any
-application-specific policy needed by the host. See the
-[Linux prerequisites and verification](docs/release.md#linux-arm64).
-This describes current source, not a retroactive verification claim for the
-published assets above.
+Starting with 0.11.0, OMXTerm runs with `--no-sandbox` on Linux to avoid
+startup incompatibilities in some environments. Context isolation and the
+minimal preload bridge remain enabled, but do not replace the Chromium sandbox.
+Sandboxed Linux support is outside the current maintenance scope; simple,
+reproducible contributions are welcome. Run OMXTerm as an ordinary user;
+no administrator sandbox setup is needed. See [the launch policy](docs/adr/0024-disable-the-chromium-sandbox-on-linux.md).
 
 To add the verified AppImage to the desktop without administrator access,
 ensure the helper's `file` command prerequisite is installed, then verify the
@@ -194,9 +190,10 @@ The terminal is the product. AI assistance, SSH brokering, splits, saved or
 reconnectable sessions, Shell Integration, automatic updates, and remote
 terminal features are outside the current product contract.
 
-Privileged capabilities stay in the Electron main process. The renderer remains
-sandboxed with context isolation and no Node integration, and a minimal typed
-preload bridge validates IPC. Terminal Payload, clipboard data, configuration
+Privileged capabilities stay in the Electron main process. The renderer uses
+context isolation and no Node integration, and a minimal typed preload bridge
+validates IPC. Chromium sandboxing remains enabled on macOS and Windows;
+Linux uses the launch policy described above. Terminal Payload, clipboard data, configuration
 contents, commands, arguments, titles, and transcripts are excluded from
 Operational Events. OMXTerm itself makes no telemetry, analytics, crash-report,
 update-check, or remote-log network requests; processes launched in a Live

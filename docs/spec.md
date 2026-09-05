@@ -14,14 +14,13 @@ The initial Supported Platforms are macOS arm64, Linux arm64, and Windows
 arm64. Linux rendering defaults to X11 and requires XWayland when the desktop
 session is Wayland; native Wayland rendering is not currently claimed. An
 explicit Electron `--ozone-platform` switch overrides the Linux default for
-diagnosis. Linux requires a non-root session where host policy permits Electron's
-unprivileged user-namespace sandbox. The AppImage launcher does not add
-sandbox-disabling flags when prerequisites are unavailable: Electron must
-initialize its sandbox or terminate with its startup diagnostic. Kernel-FUSE
-mounting and extract-and-run have the same sandbox prerequisite; extraction
-only addresses mounting. OMXTerm does not install a privileged sandbox helper
-or change host security policy. x64, Intel macOS, and other operating systems are deferred rather
-than current support commitments.
+diagnosis. Linux deliberately uses `--no-sandbox` as an unconditional launch
+policy for ordinary-user runtime, direct AppImage, extraction, desktop entry
+and X11 relaunch. It is not a fallback or configurable mode. OMXTerm does not
+install a privileged sandbox helper or change host security policy. Sandboxed
+Linux support is outside the current maintenance scope (ADR 0024). x64, Intel
+macOS, and other operating systems are deferred rather than current support
+commitments.
 
 ## Product scope
 
@@ -506,9 +505,11 @@ no mode discovery.
 ## Architecture boundaries
 
 Electron main owns native windows, PTYs, filesystem access, configuration,
-logs, clipboard capabilities, and external-link opening. The renderer is
-sandboxed with context isolation and no Node integration. A minimal typed
-preload bridge validates every IPC message and sender.
+logs, clipboard capabilities, and external-link opening. The renderer keeps
+context isolation and no Node integration. A minimal typed preload bridge
+validates every IPC message and sender. Chromium sandboxing remains enabled on
+macOS and Windows and is disabled on Linux. The retained isolation and bridge
+controls do not provide equivalent protection to the Chromium sandbox.
 
 The framework-independent DOM+xterm Terminal Surface is the portable deep
 Module. Its small Interface hides xterm setup, addons, text and Kitty image
@@ -573,15 +574,12 @@ restrictions, log redaction/rotation, renderer IPC boundaries, and packaged
 startup. Every exact
 release candidate receives native automated package, architecture, content,
 version, startup, PTY, and applicable contract verification on its target.
-Linux package verification also rejects unexpected AppRun bytes before startup
-and requires observed renderer OS sandbox evidence in every available installed
-launch mode: a single-UID user namespace distinct from the verifier's map,
-nested PID namespace membership, no effective capabilities, no-new-privileges,
-and seccomp filter mode for every observed renderer thread. Inaccessible or
-missing evidence fails verification. This is a bounded startup observation,
-not a security audit, proof of filter contents, or guarantee about future
-renderer processes; PTY readiness and configured window preferences alone do
-not establish effective Linux renderer sandboxing.
+Linux package verification rejects unexpected AppRun bytes before startup and
+exercises the explicit no-sandbox policy through every available installed
+launch mode. Launcher regressions preserve literal command arguments and prove
+that host namespace-probe results do not change the policy. Chromium image tests
+use the same platform policy while retaining context isolation, disabled Node
+integration and the production CSP.
 
 Release evidence is risk-based. Each release records the boundaries changed
 since the previous version and maps each to existing automation. A material

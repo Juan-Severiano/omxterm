@@ -13,6 +13,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 import { describe, expect, it } from "vitest";
+import { applyChromiumSandboxPolicy } from "../../src/main/chromium-sandbox-policy";
 
 const projectRoot = fileURLToPath(new URL("../..", import.meta.url));
 const fixtureEntry = path.join(
@@ -50,6 +51,7 @@ interface FixtureResult {
   };
   readonly fixtureSecurity?: {
     readonly sandbox: boolean;
+    readonly chromiumSandboxDisabled: boolean;
     readonly contextIsolation: boolean;
     readonly nodeIntegration: boolean;
     readonly webSecurity: boolean;
@@ -83,6 +85,7 @@ describe("Kitty images in production Chromium", () => {
       expect(result?.ok).toBe(true);
       expect(result?.fixtureSecurity).toEqual({
         sandbox: true,
+        chromiumSandboxDisabled: process.platform === "linux",
         contextIsolation: true,
         nodeIntegration: false,
         webSecurity: true,
@@ -246,6 +249,7 @@ app.whenReady().then(async () => {
   const preferences = window.webContents.getLastWebPreferences();
   result.fixtureSecurity = {
     sandbox: preferences.sandbox,
+    chromiumSandboxDisabled: app.commandLine.hasSwitch("no-sandbox"),
     contextIsolation: preferences.contextIsolation,
     nodeIntegration: preferences.nodeIntegration,
     webSecurity: preferences.webSecurity,
@@ -273,7 +277,13 @@ async function runElectronFixture(fixtureRoot: string): Promise<{
   readonly stderr: string;
   readonly stdout: string;
 }> {
-  const child = spawn(electronExecutable, [fixtureRoot], {
+  const chromiumArguments: string[] = [];
+  applyChromiumSandboxPolicy({
+    appendSwitch(name) {
+      chromiumArguments.push(`--${name}`);
+    },
+  });
+  const child = spawn(electronExecutable, [...chromiumArguments, fixtureRoot], {
     cwd: fixtureRoot,
     detached: process.platform !== "win32",
     env: {

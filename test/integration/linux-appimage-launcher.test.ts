@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { prepareLinuxLauncher } from "../../scripts/prepare-linux-launcher.mjs";
-import { inspectLinuxAppRun } from "../../scripts/verify-linux-sandbox.mjs";
+import { inspectLinuxAppRun } from "../../scripts/verify-linux-launcher.mjs";
 
 await prepareLinuxLauncher();
 const { generateAppRunScript } =
@@ -18,18 +18,20 @@ const launcher = generateAppRunScript({
 });
 
 // Real generated launcher, isolated fake OS probe and application executable.
-// The executable models Electron refusing unavailable sandbox prerequisites.
+// The executable reports whether the launch policy needs sandbox prerequisites.
 describe.skipIf(process.platform === "win32")("generated Linux AppRun", () => {
-  it.each(["denied", "missing"])(
-    "preserves sandbox initialization failure with a %s namespace probe",
+  it.each(["allowed", "denied", "missing"])(
+    "disables the sandbox unconditionally with a %s namespace probe",
     (probe) => {
       const root = mkdtempSync(path.join(tmpdir(), "omxterm-launcher-"));
       try {
         writeFileSync(path.join(root, "AppRun"), launcher);
-        if (probe === "denied")
-          writeFileSync(path.join(root, "unshare"), "#!/bin/sh\nexit 1\n", {
-            mode: 0o755,
-          });
+        if (probe !== "missing")
+          writeFileSync(
+            path.join(root, "unshare"),
+            `#!/bin/sh\nexit ${probe === "allowed" ? 0 : 1}\n`,
+            { mode: 0o755 },
+          );
         writeFileSync(
           path.join(root, "omxterm"),
           `#!/bin/sh
@@ -46,8 +48,8 @@ exit 78
           encoding: "utf8",
         });
         expect(result.error).toBeUndefined();
-        expect(result.status).toBe(78);
-        expect(result.stderr).toContain("No usable sandbox");
+        expect(result.status).toBe(0);
+        expect(result.stderr).toBe("");
       } finally {
         rmSync(root, { recursive: true, force: true });
       }
@@ -85,7 +87,7 @@ exit 78
         },
       );
       expect(result.status).toBe(0);
-      expect(result.stdout).toBe(args.join("\n") + "\n");
+      expect(result.stdout).toBe(["--no-sandbox", ...args].join("\n") + "\n");
       expect(result.stderr).toBe("");
     } finally {
       rmSync(root, { recursive: true, force: true });

@@ -142,13 +142,9 @@ shared folder. Install Node.js 22.13 or later in the Node.js 22 line, or
 Node.js 24 or newer, plus `python3`, `make`, a C++ compiler
 (`build-essential` on Ubuntu), `readelf` (`binutils` on Ubuntu), the `fontconfig`
 utilities, and an X11 display or XWayland in a Wayland session. Native Wayland
-is not currently claimed. Run as a non-root user with host policy permitting
-Electron's unprivileged user-namespace sandbox. Restricted distributions may
-require an administrator-reviewed application-specific policy; do not disable
-AppArmor or global namespace restrictions, grant setuid privileges, use an
-unrelated application's profile, or add sandbox-disabling flags to make a
-check pass. A successful unrelated `unshare` probe is not proof that Electron
-is permitted to initialize its sandbox. Then run from the accepted source commit:
+is not currently claimed. Run as an ordinary user. OMXTerm uses an unconditional
+Linux-only `--no-sandbox` policy (ADR 0024); no administrator sandbox setup or
+host-policy changes are required. Then run from the accepted source commit:
 
 ```sh
 npm ci
@@ -170,15 +166,9 @@ host's installation-time probe establishes that direct seam is available. Each
 available startup path must reach a running PTY, and its Operational Event logs
 must not contain the environment canary; an unavailable direct seam is not
 inferred as passing. Before startup, the extracted AppRun must match the exact
-reviewed launcher. After PTY readiness, each available mode also requires
-Linux `/proc` evidence from renderer processes in that launch's process group:
-a distinct single-UID user namespace map, nested PID namespace membership,
-and zero effective capabilities, no-new-privileges, and seccomp filter mode
-for every observed renderer thread. No renderer, an unreadable entry, or a
-failed observation blocks verification. Only counts and launch mode are
-reported, never command lines or raw process state. This observes sandbox
-mechanisms at startup, not the contents of seccomp filters or all future
-processes. A running PTY alone is not sandbox evidence.
+reviewed launcher with its unconditional `--no-sandbox` flag. Chromium image
+coverage uses the same Linux policy and retains the production CSP and renderer
+isolation settings; it does not claim Chromium sandbox protection.
 
 For packaging alone, run `npm run package:linux`, followed on the same native
 host by `npm run package:verify`. The Linux packaging command first applies a
@@ -196,12 +186,9 @@ fallback is:
 ./release/OMXTerm-<version>-arm64.AppImage --appimage-extract-and-run
 ```
 
-Extraction does not bypass the sandbox prerequisite. If Electron reports
-`No usable sandbox` or a sandbox-helper initialization error, stop: the host
-has not established a supported sandboxed startup path. A passing fail-closed
-launcher regression does not establish native sandboxed success. Keep native
-verification and acceptance blocked until that success is observed without
-weakening host protections.
+Extraction addresses FUSE mounting only; both launch paths use the same
+no-sandbox policy. Release notes must disclose this Linux limitation and link
+to the [launch decision](adr/0024-disable-the-chromium-sandbox-on-linux.md).
 
 The AppImage is intentionally unsigned and provides no verified publisher
 identity. It is not a release candidate until all automated checks pass and
@@ -399,7 +386,9 @@ seam. State the affected platform, the unobserved outcome, and the user-facing
 risk in the exact-artifact record or release notes. The absence of a report is
 not evidence that the boundary passed.
 
-Security protections are never disabled to manufacture a result. An optional
+Verification uses the shipped platform policy, including Linux's documented
+Chromium sandbox exception. It never relaxes additional security protections
+to manufacture a result. An optional
 observation may be recorded factually, but it does not become a reusable release
 gate or imply coverage of another artifact.
 

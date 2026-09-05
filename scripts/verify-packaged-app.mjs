@@ -17,10 +17,7 @@ import { promisify } from "node:util";
 import { linuxHelperName } from "./package-linux-assets.mjs";
 import { verifyExactWindowsInstaller } from "./windows-installer-transaction.mjs";
 import { windowsVerificationOptions } from "./windows-verification-options.mjs";
-import {
-  inspectLinuxAppRun,
-  verifyLinuxRendererSandbox,
-} from "./verify-linux-sandbox.mjs";
+import { inspectLinuxAppRun } from "./verify-linux-launcher.mjs";
 
 const execFile = promisify(execFileCallback);
 const projectRoot = path.resolve(
@@ -961,12 +958,6 @@ export async function verifyPackagedApplication(
             child,
             () => stderr.trim(),
           );
-          if (platform === "linux") {
-            const rendererCount = await verifyLinuxRendererSandbox(child.pid);
-            console.log(
-              `Verified Linux renderer OS sandbox (${rendererCount} renderer(s), ${runtimeArguments.length === 0 ? "kernel-FUSE" : "extract-and-run"})`,
-            );
-          }
           const logText = await readFile(logFile, "utf8");
           const diagnostics = `${logText}\n${stderr}`;
           const privateLaunchValues = [

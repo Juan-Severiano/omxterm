@@ -182,8 +182,9 @@ issue or PR is unfinished work.
   Electron main, preload, renderer, and the portable Terminal Surface.
 - Preserve the boundaries in the spec: privileged capabilities belong to the
   Electron main process; preload exposes a minimal typed bridge; the renderer
-  remains sandboxed; the Terminal Surface does not import Electron or
-  `node-pty`.
+  keeps context isolation and disabled Node integration; Chromium sandboxing
+  remains enabled except for the explicit Linux policy in ADR 0024. The Terminal
+  Surface does not import Electron or `node-pty`.
 - Keep modules focused and interfaces small. Wrap a dependency only at a real
   seam or when project-owned validation, defaults, or cleanup justify it.
 - Prefer clear searchable names and explicit control flow. Avoid generic dumping

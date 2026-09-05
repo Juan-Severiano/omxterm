@@ -8,7 +8,6 @@ import {
   shell,
 } from "electron";
 import * as nodePty from "node-pty";
-import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { userInfo } from "node:os";
 import path from "node:path";
@@ -24,10 +23,10 @@ import { createDefaultShellResolver, defaultShellName } from "./default-shell";
 import {
   MalformedLaunchRequestError,
   startupLaunchRequest,
-  withSwitchBeforeLaunchRequest,
 } from "./launch-request";
 import { createLocalTerminalSession } from "./local-terminal-session";
-import { planLinuxDisplayBackendDefault } from "./linux-display-backend";
+import { applyLinuxDisplayBackendDefault } from "./linux-display-backend";
+import { applyChromiumSandboxPolicy } from "./chromium-sandbox-policy";
 import {
   isFilePathPlatform,
   readClipboardPathInsertion,
@@ -97,30 +96,9 @@ const linuxWindowIconPath =
 let terminalApplication: TerminalApplication<BrowserWindow> | undefined;
 let operationalEvents: OperationalEventLog | undefined;
 
-const displayBackendAction = planLinuxDisplayBackendDefault(
-  app.commandLine.getSwitchValue("ozone-platform"),
-);
-if (displayBackendAction === "append-x11") {
-  app.commandLine.appendSwitch("ozone-platform", "x11");
-} else if (displayBackendAction === "relaunch-x11") {
-  // app.relaunch cannot escape an AppImage: Chromium's relauncher helper
-  // runs from the FUSE mount, which unmounts when this process exits, so
-  // the helper dies before starting the target. Spawn the persistent outer
-  // AppImage (or the on-disk executable) directly, then exit.
-  try {
-    spawn(
-      process.env["APPIMAGE"] ?? process.execPath,
-      withSwitchBeforeLaunchRequest(
-        process.argv.slice(1),
-        "--ozone-platform=x11",
-      ),
-      { detached: true, stdio: "ignore" },
-    ).unref();
-    app.exit(0);
-  } catch {
-    // Keep running on the seeded backend rather than exiting into nothing.
-  }
-}
+applyChromiumSandboxPolicy(app.commandLine);
+
+applyLinuxDisplayBackendDefault(app);
 
 app.on("before-quit", (event) => {
   operationalEvents?.flush();

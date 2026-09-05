@@ -33,8 +33,11 @@ describe("Linux release assets", () => {
 
   it("materializes the exact helper and both checksum assets", async () => {
     const output = await mkdtemp(path.join(tmpdir(), "omxterm-linux-assets-"));
-    const appImageName = linuxAppImageName("0.11.0-dev.0");
-    const helperName = linuxHelperName("0.11.0-dev.0");
+    const { version } = JSON.parse(
+      await readFile(new URL("../../package.json", import.meta.url), "utf8"),
+    ) as { version: string };
+    const appImageName = linuxAppImageName(version);
+    const helperName = linuxHelperName(version);
     try {
       await writeFile(path.join(output, appImageName), "appimage");
       await packageLinuxAssets(output);
@@ -43,7 +46,7 @@ describe("Linux release assets", () => {
         await readFile(path.join(output, `${appImageName}.sha256`), "utf8"),
       ).toContain(`  ${appImageName}\n`);
       expect(await readFile(path.join(output, helperName), "utf8")).toContain(
-        "VERSION='0.11.0-dev.0'",
+        `VERSION='${version}'`,
       );
       expect(
         await readFile(path.join(output, `${helperName}.sha256`), "utf8"),
