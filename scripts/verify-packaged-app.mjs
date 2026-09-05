@@ -558,6 +558,41 @@ async function waitForStartup(logFile, readinessFile, child, stderrText) {
   );
 }
 
+export async function verifyPackagedStartupWithCleanup({
+  verify,
+  stop,
+  removeProfile,
+}) {
+  const failures = [];
+  let result;
+  try {
+    result = await verify();
+  } catch (cause) {
+    failures.push(cause);
+  }
+  let stopped = false;
+  try {
+    await stop();
+    stopped = true;
+  } catch (cause) {
+    failures.push(cause);
+  }
+  // An unconfirmed process tree may still use its profile; retain it for diagnosis.
+  if (stopped) {
+    try {
+      await removeProfile();
+    } catch (cause) {
+      failures.push(cause);
+    }
+  }
+  if (failures.length)
+    throw new AggregateError(
+      failures,
+      `Packaged startup or cleanup failed: ${failures.map((error) => (error instanceof Error ? error.message : String(error))).join("; ")}`,
+    );
+  return result;
+}
+
 export async function verifyPackagedApplication(
   applicationPath,
   { windowsUnpackedOnly = false, disposableVm = false } = {},
@@ -912,48 +947,50 @@ export async function verifyPackagedApplication(
         if (stderr.length < 16_384) stderr += chunk;
       });
 
-      try {
-        const logFile = path.join(
-          stateRoot,
-          "omxterm",
-          "logs",
-          "omxterm.jsonl",
-        );
-        const records = await waitForStartup(
-          logFile,
-          readinessFile,
-          child,
-          () => stderr.trim(),
-        );
-        if (platform === "linux") {
-          const rendererCount = await verifyLinuxRendererSandbox(child.pid);
-          console.log(
-            `Verified Linux renderer OS sandbox (${rendererCount} renderer(s), ${runtimeArguments.length === 0 ? "kernel-FUSE" : "extract-and-run"})`,
+      verifiedRecords += await verifyPackagedStartupWithCleanup({
+        async verify() {
+          const logFile = path.join(
+            stateRoot,
+            "omxterm",
+            "logs",
+            "omxterm.jsonl",
           );
-        }
-        const logText = await readFile(logFile, "utf8");
-        const diagnostics = `${logText}\n${stderr}`;
-        const privateLaunchValues = [
-          canary,
-          argumentCanary,
-          explicitCommand.executable,
-          ...explicitCommand.arguments,
-        ];
-        if (privateLaunchValues.some((value) => diagnostics.includes(value)))
-          throw new Error(
-            "Packaged startup diagnostics disclosed explicit launch data",
+          const records = await waitForStartup(
+            logFile,
+            readinessFile,
+            child,
+            () => stderr.trim(),
           );
-        verifiedRecords += records.length;
-      } finally {
-        await stopProcessGroup(child);
+          if (platform === "linux") {
+            const rendererCount = await verifyLinuxRendererSandbox(child.pid);
+            console.log(
+              `Verified Linux renderer OS sandbox (${rendererCount} renderer(s), ${runtimeArguments.length === 0 ? "kernel-FUSE" : "extract-and-run"})`,
+            );
+          }
+          const logText = await readFile(logFile, "utf8");
+          const diagnostics = `${logText}\n${stderr}`;
+          const privateLaunchValues = [
+            canary,
+            argumentCanary,
+            explicitCommand.executable,
+            ...explicitCommand.arguments,
+          ];
+          if (privateLaunchValues.some((value) => diagnostics.includes(value)))
+            throw new Error(
+              "Packaged startup diagnostics disclosed explicit launch data",
+            );
+          return records.length;
+        },
+        stop: () => stopProcessGroup(child),
         // Windows releases the stopped tree's file locks asynchronously.
-        await rm(temporaryRoot, {
-          recursive: true,
-          force: true,
-          maxRetries: 10,
-          retryDelay: 200,
-        });
-      }
+        removeProfile: () =>
+          rm(temporaryRoot, {
+            recursive: true,
+            force: true,
+            maxRetries: 10,
+            retryDelay: 200,
+          }),
+      });
     }
     let installerVerification;
     if (platform === "win32" && !windowsUnpackedOnly) {

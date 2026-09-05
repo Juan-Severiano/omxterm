@@ -8,7 +8,48 @@ import {
   inspectIcnsRepresentations,
   packagedExplicitCommand,
   signalProcessGroup,
+  verifyPackagedStartupWithCleanup,
 } from "../../scripts/verify-packaged-app.mjs";
+
+describe("packaged startup failure preservation", () => {
+  it("preserves startup and profile cleanup failures after successful termination", async () => {
+    const startup = new Error("privacy assertion failed");
+    const profile = new Error("profile cleanup failed");
+    await expect(
+      verifyPackagedStartupWithCleanup({
+        verify: vi.fn().mockRejectedValue(startup),
+        stop: vi.fn().mockResolvedValue(undefined),
+        removeProfile: vi.fn().mockRejectedValue(profile),
+      }),
+    ).rejects.toMatchObject({ errors: [startup, profile] });
+  });
+  it("returns startup evidence only after successful termination and profile cleanup", async () => {
+    const stop = vi.fn().mockResolvedValue(undefined);
+    const removeProfile = vi.fn().mockResolvedValue(undefined);
+    await expect(
+      verifyPackagedStartupWithCleanup({
+        verify: async () => 7,
+        stop,
+        removeProfile,
+      }),
+    ).resolves.toBe(7);
+    expect(stop).toHaveBeenCalledOnce();
+    expect(removeProfile).toHaveBeenCalledOnce();
+  });
+  it("retains startup and termination failures without deleting an uncertain profile", async () => {
+    const startup = new Error("startup timed out");
+    const termination = new Error("termination failed");
+    const removeProfile = vi.fn();
+    await expect(
+      verifyPackagedStartupWithCleanup({
+        verify: vi.fn().mockRejectedValue(startup),
+        stop: vi.fn().mockRejectedValue(termination),
+        removeProfile,
+      }),
+    ).rejects.toMatchObject({ errors: [startup, termination] });
+    expect(removeProfile).not.toHaveBeenCalled();
+  });
+});
 
 const requiredEntries = [
   "/dist/main/index.js",

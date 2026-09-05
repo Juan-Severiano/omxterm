@@ -63,6 +63,12 @@ export function signalProcessGroup(
   signal: NodeJS.Signals | 0,
 ): boolean;
 
+export function verifyPackagedStartupWithCleanup<T>(operations: {
+  verify(): Promise<T>;
+  stop(): Promise<unknown>;
+  removeProfile(): Promise<unknown>;
+}): Promise<T>;
+
 export function verifyPackagedApplication(
   applicationPath?: string,
   options?: {

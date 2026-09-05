@@ -169,7 +169,12 @@ export async function verifyExactWindowsInstaller({
           throw new Error("Installer identity changed before launch");
         // The pinned NSIS process check embeds INSTDIR in a PowerShell literal.
         // Reject paths that cannot survive that dependency's quoting boundary.
-        if (unsafeNsisPath.test(temporaryDirectory))
+        // NSIS's /D= parser takes a raw unquoted tail; ordinary Windows argv
+        // quoting would leave a trailing quote when this destination has spaces.
+        if (
+          unsafeNsisPath.test(temporaryDirectory) ||
+          temporaryDirectory.includes(" ")
+        )
           throw new Error(
             "Unsafe NSIS temporary path; use a clean disposable VM",
           );

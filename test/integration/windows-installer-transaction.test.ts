@@ -203,8 +203,8 @@ describe("exact NSIS transaction side-effect refusal", () => {
   it("refuses the transaction destination's process footprint before installer or cleanup", async () => {
     await refusedTransaction(undefined, "safe", undefined, /process/i, true);
   });
-  it.each(["\u2018", "\u2019", "\u201a", "\u201b"])(
-    "refuses a PowerShell quote in the temporary path: %s",
+  it.each(["\u2018", "\u2019", "\u201a", "\u201b", " "])(
+    "refuses unsupported NSIS temporary-path quoting: %s",
     async (quote) => {
       await refusedTransaction(
         { registrations: [], paths: [], processes: false },
