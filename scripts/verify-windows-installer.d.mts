@@ -28,6 +28,7 @@ export function inspectWindowsInstallation(
     args: string[],
     options: { timeout: number; maxBuffer: number },
   ) => Promise<{ stdout: string }>,
+  transactionRoot?: string,
 ): Promise<WindowsInstallationState>;
 export function verifyWindowsInstaller(options: {
   readonly disposableVm?: boolean;

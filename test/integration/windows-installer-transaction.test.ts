@@ -14,13 +14,25 @@ async function refusedTransaction(
   suffix = "safe",
   localAppData = "C:\\fixture\\Local",
   expected = /unowned/i,
+  transactionRootConflict = false,
 ) {
   const root = await mkdtemp(path.join(tmpdir(), "omxterm-nsis-regression-"));
   const temporaryDirectory = path.join(root, suffix);
   const installer = path.join(root, "synthetic-installer.exe");
   const launches: string[] = [];
   const execute = vi.fn(async (file: string, args: string[]) => {
-    if (args.includes("-Guid")) return { stdout: JSON.stringify(observation) };
+    if (args.includes("-Guid"))
+      return {
+        stdout: JSON.stringify(
+          transactionRootConflict
+            ? {
+                registrations: [],
+                paths: [],
+                processes: args.includes("-TransactionRoot"),
+              }
+            : observation,
+        ),
+      };
     launches.push(file);
     throw new Error("Unexpected installer or uninstaller launch");
   });
@@ -45,6 +57,9 @@ async function refusedTransaction(
 }
 
 describe("exact NSIS transaction side-effect refusal", () => {
+  it("refuses the transaction destination's process footprint before installer or cleanup", async () => {
+    await refusedTransaction(undefined, "safe", undefined, /process/i, true);
+  });
   it.each(["\u2018", "\u2019", "\u201a", "\u201b"])(
     "refuses a PowerShell quote in the temporary path: %s",
     async (quote) => {

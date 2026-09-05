@@ -15,6 +15,21 @@ function adapter() {
 }
 
 describe("exact Windows installer verification", () => {
+  it("inspects the transaction destination's NSIS process footprint", async () => {
+    const execute = vi.fn(async (_file: string, args: string[]) => ({
+      stdout: JSON.stringify({
+        registrations: [],
+        paths: [],
+        processes: args.includes("C:\\fixture\\omxterm-installed-unique"),
+      }),
+    }));
+    await expect(
+      inspectWindowsInstallation(
+        execute,
+        "C:\\fixture\\omxterm-installed-unique",
+      ),
+    ).resolves.toMatchObject({ processes: true });
+  });
   it("rejects changed packaging identity or builder before interpreting Windows state", () => {
     expect(() =>
       inspectWindowsInstallerInputs("changed config", "26.15.3"),

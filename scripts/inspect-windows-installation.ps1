@@ -1,4 +1,4 @@
-param([Parameter(Mandatory=$true)][string]$Guid)
+param([Parameter(Mandatory=$true)][string]$Guid, [string]$TransactionRoot = '')
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 # Read-only. Missing is distinct from denied, malformed, or failed inspection.
@@ -55,7 +55,17 @@ try {
       $paths += @{ path=$target; kind=$kind; scope=$scope; target=$destination }
     } catch [System.Management.Automation.ItemNotFoundException] { }
   }
-  $processes = @(Get-CimInstance -ClassName Win32_Process -ErrorAction Stop | Where-Object { $_.Name -match '^(OMXTerm(?:-.*)?|Uninstall OMXTerm|Au_.*)\.exe$' }).Count -gt 0
+  $terminationRoots = @($registrations | Where-Object { $_.kind -eq 'install' -and $_.location -is [string] } | ForEach-Object { $_.location })
+  if ($TransactionRoot) { $terminationRoots += $TransactionRoot }
+  $processes = $false
+  foreach ($process in @(Get-CimInstance -ClassName Win32_Process -ErrorAction Stop)) {
+    if ($process.Name -match '^(OMXTerm(?:-.*)?|Uninstall OMXTerm|Au_.*)\.exe$') { $processes = $true }
+    foreach ($installationRoot in $terminationRoots) {
+      # Mirror NSIS's actual CurrentCultureIgnoreCase prefix, NOT a directory
+      # boundary: even omxterm-tools\worker.exe can be targeted by that dependency.
+      if ($process.ExecutablePath -and $process.ExecutablePath.StartsWith($installationRoot, [StringComparison]::CurrentCultureIgnoreCase)) { $processes = $true }
+    }
+  }
   @{ registrations=@($registrations); paths=@($paths); processes=$processes } | ConvertTo-Json -Depth 5 -Compress
 } catch {
   # Do not serialize registry values, command lines, or user paths on failure.

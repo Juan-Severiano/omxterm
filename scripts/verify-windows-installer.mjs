@@ -29,7 +29,10 @@ export function inspectWindowsInstallerInputs(configuration, builderVersion) {
     );
 }
 
-export async function inspectWindowsInstallation(execute = execFile) {
+export async function inspectWindowsInstallation(
+  execute = execFile,
+  transactionRoot,
+) {
   const powershell = path.win32.join(
     process.env.SystemRoot ?? "C:\\Windows",
     "System32",
@@ -47,6 +50,7 @@ export async function inspectWindowsInstallation(execute = execFile) {
       inspectionScript,
       "-Guid",
       installerGuid,
+      ...(transactionRoot ? ["-TransactionRoot", transactionRoot] : []),
     ],
     { timeout: 30_000, maxBuffer: 64 * 1024 },
   );

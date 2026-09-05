@@ -229,7 +229,11 @@ inaccessible installation inspection also fails closed. Existing registration
 is checked in HKCU and HKLM, in both registry views, along with default install
 locations, shortcut conflicts, and matching running processes. Existing paths
 must belong to the accepted per-user installation: path-only, machine-location,
-reparse-point, or differently targeted shortcut conflicts are refused. Paths
+reparse-point, or differently targeted shortcut conflicts are refused. Process
+inspection mirrors both NSIS's name-based fallback and its case-insensitive path
+prefix for registered installations and the new transaction destination. The
+pinned dependency can target a sibling path sharing that prefix; the verifier
+refuses that conflict rather than terminating the unrelated process. Paths
 that break the pinned installer's PowerShell quoting are refused too. Deliberate
 replacement supports only the known per-user installation; orphan, machine, or
 unexpected registration requires a clean disposable VM, not a force bypass.

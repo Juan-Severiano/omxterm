@@ -136,6 +136,10 @@ export async function verifyExactWindowsInstaller({
         installRoot = await mkdtemp(
           path.join(temporaryDirectory, "omxterm-installed-"),
         );
+        if ((await inspectWindowsInstallation(execute, installRoot)).processes)
+          throw new Error(
+            "Conflicting NSIS path-prefix processes; installer not launched, temporary evidence retained",
+          );
         console.warn(
           "WARNING: authorized disposable VM exact NSIS test may remove existing OMXTerm and replace its registration/shortcuts. /D is NOT isolation. User data is not deleted.",
         );
@@ -146,7 +150,7 @@ export async function verifyExactWindowsInstaller({
       },
       async verify() {
         assertOwnedRegistration(
-          await inspectWindowsInstallation(execute),
+          await inspectWindowsInstallation(execute, installRoot),
           installRoot,
         );
         await comparePayload(unpackedRoot, installRoot);
@@ -157,7 +161,7 @@ export async function verifyExactWindowsInstaller({
       async uninstall() {
         if (!entered) return;
         assertOwnedRegistration(
-          await inspectWindowsInstallation(execute),
+          await inspectWindowsInstallation(execute, installRoot),
           installRoot,
         );
         const uninstaller = path.join(installRoot, "Uninstall OMXTerm.exe");
@@ -171,7 +175,7 @@ export async function verifyExactWindowsInstaller({
         );
         const deadline = Date.now() + 20_000;
         for (;;) {
-          const after = await inspectWindowsInstallation(execute);
+          const after = await inspectWindowsInstallation(execute, installRoot);
           if (!after.existing && !after.processes) break;
           if (Date.now() >= deadline)
             throw new Error(
