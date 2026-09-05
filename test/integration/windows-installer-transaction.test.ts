@@ -200,6 +200,33 @@ describe("exact NSIS transaction side-effect refusal", () => {
       await rm(root, { recursive: true, force: true });
     }
   });
+  it("refuses orphan registration before installer or cleanup", async () => {
+    const location = "C:\\fixture\\Local\\Programs\\omxterm";
+    await refusedTransaction({
+      processes: false,
+      paths: [],
+      registrations: [
+        {
+          hive: "CurrentUser",
+          view: "Registry64",
+          kind: "install",
+          location,
+          uninstall: null,
+          shortcut: "OMXTerm",
+          menu: null,
+        },
+        {
+          hive: "CurrentUser",
+          view: "Registry64",
+          kind: "uninstall",
+          location: null,
+          uninstall: `"${location}\\Uninstall OMXTerm.exe" /currentuser`,
+          shortcut: null,
+          menu: null,
+        },
+      ],
+    });
+  });
   it("refuses the transaction destination's process footprint before installer or cleanup", async () => {
     await refusedTransaction(undefined, "safe", undefined, /process/i, true);
   });

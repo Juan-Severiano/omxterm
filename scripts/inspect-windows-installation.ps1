@@ -3,6 +3,7 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 # Read-only. Missing is distinct from denied, malformed, or failed inspection.
 try {
+  . "$PSScriptRoot\windows-installation-tree.ps1"
   if ($Guid -notmatch '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$') { throw 'Unknown installer identity' }
   $registrations = @()
   foreach ($hive in @('CurrentUser', 'LocalMachine')) {
@@ -37,23 +38,34 @@ try {
     }
     $target = Join-Path $root $suffix
     # Get-Item distinguishes absent entries from access/inspection errors.
-    try {
-      $item = Get-Item -LiteralPath $target -Force
-      if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Unknown reparse point ownership' }
-      $kind = if ($suffix -eq 'OMXTerm.lnk') { 'shortcut' } else { 'install' }
-      $scope = if ($folder -in @('LocalApplicationData', 'Programs', 'DesktopDirectory')) { 'user' } else { 'machine' }
-      $destination = $null
-      if ($kind -eq 'shortcut') {
-        # Opening an existing link and reading TargetPath does not save/change it.
-        $shell = New-Object -ComObject WScript.Shell
-        $link = $shell.CreateShortcut($target)
-        try { $destination = $link.TargetPath } finally {
-          $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($link)
-          $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($shell)
-        }
+    try { $item = Get-Item -LiteralPath $target -Force }
+    catch [System.Management.Automation.ItemNotFoundException] { continue }
+    if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Unknown reparse point ownership' }
+    $kind = if ($suffix -eq 'OMXTerm.lnk') { 'shortcut' } else { 'install' }
+    $scope = if ($folder -in @('LocalApplicationData', 'Programs', 'DesktopDirectory')) { 'user' } else { 'machine' }
+    $destination = $null
+    if ($kind -eq 'install') {
+      $registered = @($registrations | Where-Object { $_.kind -eq 'install' -and $_.location -is [string] -and $_.location -ieq $target }).Count -gt 0
+      Assert-OmxtermInstallationTree -Root $target -RequireBinaries:$registered
+    }
+    if ($kind -eq 'shortcut') {
+      # Opening an existing link and reading TargetPath does not save/change it.
+      $shell = New-Object -ComObject WScript.Shell
+      $link = $shell.CreateShortcut($target)
+      try { $destination = $link.TargetPath } finally {
+        $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($link)
+        $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($shell)
       }
-      $paths += @{ path=$target; kind=$kind; scope=$scope; target=$destination }
-    } catch [System.Management.Automation.ItemNotFoundException] { }
+    }
+    $paths += @{ path=$target; kind=$kind; scope=$scope; target=$destination }
+  }
+  if ($TransactionRoot) {
+    try { $item = Get-Item -LiteralPath $TransactionRoot -Force }
+    catch [System.Management.Automation.ItemNotFoundException] { $item = $null }
+    if ($null -ne $item) {
+      $registered = @($registrations | Where-Object { $_.kind -eq 'install' -and $_.location -is [string] -and $_.location -ieq $TransactionRoot }).Count -gt 0
+      Assert-OmxtermInstallationTree -Root $TransactionRoot -RequireBinaries:$registered
+    }
   }
   # The pinned builder always caches its exact installer here, even without
   # application auto-updates. Inspect the directory itself before any write.

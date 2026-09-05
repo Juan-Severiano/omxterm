@@ -164,6 +164,16 @@ export async function verifyExactWindowsInstaller({
             "omxterm",
           );
           assertOwnedRegistration(current, previousRoot);
+          if (
+            !current.paths.some(
+              (entry) =>
+                entry.kind === "install" &&
+                entry.path.toLowerCase() === previousRoot.toLowerCase(),
+            )
+          )
+            throw new Error(
+              "Unowned orphan Windows registration; previous installation is absent",
+            );
         }
         if ((await digest(installer)) !== installerDigest)
           throw new Error("Installer identity changed before launch");

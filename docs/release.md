@@ -237,7 +237,11 @@ inaccessible installation inspection also fails closed. Existing registration
 is checked in HKCU and HKLM, in both registry views, along with default install
 locations, shortcut conflicts, and matching running processes. Existing paths
 must belong to the accepted per-user installation: path-only, machine-location,
-reparse-point, or differently targeted shortcut conflicts are refused. Process
+reparse-point, or differently targeted shortcut conflicts are refused. Existing
+installation trees and the transaction tree are inspected without following
+reparse points, including their directory ancestors. Unreadable or oversized
+trees fail closed. Matching registry pairs are insufficient: the previous
+directory and its regular application/uninstaller files must exist. Process
 inspection mirrors both NSIS's name-based fallback and its case-insensitive path
 prefix for registered installations and the new transaction destination. The
 pinned dependency can target a sibling path sharing that prefix; the verifier
