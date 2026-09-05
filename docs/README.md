@@ -59,27 +59,23 @@ but they do not replace the maintained product contract.
 
 ## Release status
 
-### Current published release: 0.10.0
+### Current release: 0.11.0
 
-- [0.10.0 release notes](releases/0.10.0.md) describe the current published
-  release, exact accepted artifact identities, native and changed-boundary
-  verification evidence, exact-install observations, compatibility, and known
-  limitations.
-- The canonical publication record is the
-  [v0.10.0 GitHub Release](https://github.com/luizomf/omxterm/releases/tag/v0.10.0).
+- [0.11.0 release notes](releases/0.11.0.md) describe Chafa support, the Linux
+  launch policy, the Windows transport fix, exact accepted artifact identities,
+  native verification and remaining limitations.
+- [v0.11.0 GitHub Release](https://github.com/luizomf/omxterm/releases/tag/v0.11.0)
+  contains the unchanged owner-accepted artifacts and checksums.
 
-The exact ARM64 artifacts were built and verified natively from source commit
-`2711f502d45cd86056ce76bffba22e1f8f92499d`, owner-accepted, and published
-unchanged. The tagged source differs from that artifact build commit only
-through the eligible non-packaged Markdown paths named in the release record.
-The canonical repository remains private, so unauthenticated availability is
-not claimed.
+All three ARM64 builds use source `741a1cc67597bfdbe5aacf4933a01760c658f352`.
+Only eligible non-packaged Markdown differs between that commit and the tag;
+see the release record. Repository visibility remains private.
 
-### Previous immutable published release: 0.9.0
+### Previous immutable published release: 0.10.0
 
-- [0.9.0 release notes](releases/0.9.0.md) preserve the exact accepted artifact
+- [0.10.0 release notes](releases/0.10.0.md) preserve the exact artifact
   identities and historical evidence.
-- [v0.9.0 GitHub Release](https://github.com/luizomf/omxterm/releases/tag/v0.9.0)
+- [v0.10.0 GitHub Release](https://github.com/luizomf/omxterm/releases/tag/v0.10.0)
   remains the immutable previous publication record.
 
 ## Earlier immutable published release history
@@ -92,7 +88,8 @@ the current release or development baseline:
 - [0.3.0](releases/0.3.0.md) — Terminal Tabs;
 - [0.4.0](releases/0.4.0.md) — first macOS, Linux, and Windows ARM64 release;
 - [0.4.1](releases/0.4.1.md) — macOS bundle-integrity packaging fix; and
-- [0.8.0](releases/0.8.0.md) — earlier published release.
+- [0.8.0](releases/0.8.0.md) — earlier published release;
+- [0.9.0](releases/0.9.0.md) — earlier published release.
 
 ## Legal
 

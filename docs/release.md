@@ -73,6 +73,16 @@ immutable: never move their tags, replace their artifacts or checksums, or reuse
 their GitHub Releases. Later documentation corrections ship from `main` or with
 a future release without rewriting the published one.
 
+## Accepted 0.11.0 artifacts
+
+The [0.11.0 release record](releases/0.11.0.md) binds all three native builds to
+`741a1cc67597bfdbe5aacf4933a01760c658f352`, records passing automated checks,
+exact filenames/sizes/checksums, completed verifier cleanup, remaining platform
+risk, owner acceptance and separate publication authorization. Publish those
+unchanged files; release documentation and squash integration do not rebuild
+them. The tag retains the build commit's ancestry with only eligible Markdown
+changes, and the squash-integrated source tree must match the tagged tree.
+
 ## Version selection and consistency
 
 Select the release version under the [versioning policy](versioning.md) in an
