@@ -227,7 +227,10 @@ Without that literal CLI opt-in, `npm run check:win` fails closed at the exact
 installer seam. Environment variables do not authorize replacement. Unknown or
 inaccessible installation inspection also fails closed. Existing registration
 is checked in HKCU and HKLM, in both registry views, along with default install
-locations, shortcut conflicts, and matching running processes. Deliberate
+locations, shortcut conflicts, and matching running processes. Existing paths
+must belong to the accepted per-user installation: path-only, machine-location,
+reparse-point, or differently targeted shortcut conflicts are refused. Paths
+that break the pinned installer's PowerShell quoting are refused too. Deliberate
 replacement supports only the known per-user installation; orphan, machine, or
 unexpected registration requires a clean disposable VM, not a force bypass.
 Preflight is not a guarantee against host races or installer-wide effects, so the

@@ -11,7 +11,12 @@ export interface WindowsInstallationState {
   readonly existing: boolean;
   readonly processes: boolean;
   readonly registrations: readonly WindowsInstallationRegistration[];
-  readonly paths: readonly string[];
+  readonly paths: readonly {
+    readonly path: string;
+    readonly scope: "user" | "machine";
+    readonly kind: "install" | "shortcut";
+    readonly target: string | null;
+  }[];
 }
 export function inspectWindowsInstallerInputs(
   configuration: string,

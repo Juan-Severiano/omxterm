@@ -60,7 +60,16 @@ export async function inspectWindowsInstallation(execute = execFile) {
       observation.paths.length > 7 ||
       typeof observation.processes !== "boolean" ||
       observation.paths.some(
-        (value) => typeof value !== "string" || !path.win32.isAbsolute(value),
+        (entry) =>
+          !entry ||
+          typeof entry.path !== "string" ||
+          !path.win32.isAbsolute(entry.path) ||
+          !["user", "machine"].includes(entry.scope) ||
+          !["install", "shortcut"].includes(entry.kind) ||
+          (entry.kind === "install"
+            ? entry.target !== null
+            : typeof entry.target !== "string" ||
+              !path.win32.isAbsolute(entry.target)),
       ) ||
       observation.registrations.some(
         (entry) =>

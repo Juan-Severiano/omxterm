@@ -78,7 +78,9 @@ describe("exact Windows installer verification", () => {
       const execute = vi.fn().mockResolvedValue({
         stdout: JSON.stringify({
           registrations: [],
-          paths: [target],
+          paths: [
+            { path: target, kind: "install", scope: "user", target: null },
+          ],
           processes: false,
         }),
       });

@@ -38,8 +38,21 @@ try {
     $target = Join-Path $root $suffix
     # Get-Item distinguishes absent entries from access/inspection errors.
     try {
-      $null = Get-Item -LiteralPath $target -Force
-      $paths += $target
+      $item = Get-Item -LiteralPath $target -Force
+      if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Unknown reparse point ownership' }
+      $kind = if ($suffix -eq 'OMXTerm.lnk') { 'shortcut' } else { 'install' }
+      $scope = if ($folder -in @('LocalApplicationData', 'Programs', 'DesktopDirectory')) { 'user' } else { 'machine' }
+      $destination = $null
+      if ($kind -eq 'shortcut') {
+        # Opening an existing link and reading TargetPath does not save/change it.
+        $shell = New-Object -ComObject WScript.Shell
+        $link = $shell.CreateShortcut($target)
+        try { $destination = $link.TargetPath } finally {
+          $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($link)
+          $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($shell)
+        }
+      }
+      $paths += @{ path=$target; kind=$kind; scope=$scope; target=$destination }
     } catch [System.Management.Automation.ItemNotFoundException] { }
   }
   $processes = @(Get-CimInstance -ClassName Win32_Process -ErrorAction Stop | Where-Object { $_.Name -match '^(OMXTerm(?:-.*)?|Uninstall OMXTerm|Au_.*)\.exe$' }).Count -gt 0

@@ -13,6 +13,8 @@ import {
 
 const execFile = promisify(execFileCallback);
 const require = createRequire(import.meta.url);
+// PowerShell treats U+2018–U+201B as single-quote delimiters too.
+const unsafeNsisPath = /[\u0000-\u001f'"\u2018-\u201b]/u;
 
 async function digest(file) {
   return createHash("sha256")
@@ -40,12 +42,25 @@ export function assertOwnedRegistration(state, root) {
   if (
     state.processes ||
     !path.win32.isAbsolute(root) ||
-    /[\u0000-\u001f'"\r\n]/u.test(root) ||
+    unsafeNsisPath.test(root) ||
     !registrations.length ||
     registrations.some((entry) => entry.hive !== "CurrentUser")
   )
     throw new Error(
       "Installer transaction ownership is not established; retain VM evidence without executing cleanup",
+    );
+  const expectedExecutable = path.win32.join(root, "OMXTerm.exe");
+  if (
+    (state.paths ?? []).some(
+      (entry) =>
+        entry.scope !== "user" ||
+        (entry.kind === "install"
+          ? entry.path.toLowerCase() !== root.toLowerCase()
+          : entry.target.toLowerCase() !== expectedExecutable.toLowerCase()),
+    )
+  )
+    throw new Error(
+      "Unowned Windows installation path or shortcut; retain VM evidence without executing installer or cleanup",
     );
   for (const view of new Set(registrations.map((entry) => entry.view))) {
     const entries = registrations.filter((entry) => entry.view === view);
@@ -72,6 +87,9 @@ export async function verifyExactWindowsInstaller({
   projectRoot,
   disposableVm,
   verifyInstalled,
+  execute = execFile,
+  temporaryDirectory = tmpdir(),
+  localAppData = process.env.LOCALAPPDATA,
 }) {
   inspectWindowsInstallerInputs(
     await readFile(path.join(projectRoot, "electron-builder.yml"), "utf8"),
@@ -83,45 +101,52 @@ export async function verifyExactWindowsInstaller({
   const result = await verifyWindowsInstaller({
     disposableVm,
     io: {
-      inspect: inspectWindowsInstallation,
+      inspect: () => inspectWindowsInstallation(execute),
       async install() {
         // Recheck immediately at the side-effect boundary, not before a long build.
-        const current = await inspectWindowsInstallation();
+        const current = await inspectWindowsInstallation(execute);
         if (current.processes)
           throw new Error(
             "Conflicting OMXTerm processes; installer not launched",
           );
+        if (current.paths.length && !current.registrations.length)
+          throw new Error(
+            "Unowned Windows installation path; use a clean disposable VM",
+          );
         if (current.registrations.length) {
-          const localData = process.env.LOCALAPPDATA;
-          if (!localData || !path.win32.isAbsolute(localData))
+          if (!localAppData || !path.win32.isAbsolute(localAppData))
             throw new Error("Unknown per-user install location");
           // Deliberate replacement supports the known per-user installation only;
           // orphan/machine/unknown registration is not permission to execute its commands.
-          assertOwnedRegistration(
-            current,
-            path.win32.join(localData, "Programs", "omxterm"),
+          const previousRoot = path.win32.join(
+            localAppData,
+            "Programs",
+            "omxterm",
           );
+          assertOwnedRegistration(current, previousRoot);
         }
         if ((await digest(installer)) !== installerDigest)
           throw new Error("Installer identity changed before launch");
         // The pinned NSIS process check embeds INSTDIR in a PowerShell literal.
         // Reject paths that cannot survive that dependency's quoting boundary.
-        if (/[\u0000-\u001f'"\r\n]/u.test(tmpdir()))
+        if (unsafeNsisPath.test(temporaryDirectory))
           throw new Error(
             "Unsafe NSIS temporary path; use a clean disposable VM",
           );
-        installRoot = await mkdtemp(path.join(tmpdir(), "omxterm-installed-"));
+        installRoot = await mkdtemp(
+          path.join(temporaryDirectory, "omxterm-installed-"),
+        );
         console.warn(
           "WARNING: authorized disposable VM exact NSIS test may remove existing OMXTerm and replace its registration/shortcuts. /D is NOT isolation. User data is not deleted.",
         );
         entered = true;
-        await execFile(installer, ["/S", `/D=${installRoot}`], {
+        await execute(installer, ["/S", `/D=${installRoot}`], {
           timeout: 120_000,
         });
       },
       async verify() {
         assertOwnedRegistration(
-          await inspectWindowsInstallation(),
+          await inspectWindowsInstallation(execute),
           installRoot,
         );
         await comparePayload(unpackedRoot, installRoot);
@@ -132,21 +157,21 @@ export async function verifyExactWindowsInstaller({
       async uninstall() {
         if (!entered) return;
         assertOwnedRegistration(
-          await inspectWindowsInstallation(),
+          await inspectWindowsInstallation(execute),
           installRoot,
         );
         const uninstaller = path.join(installRoot, "Uninstall OMXTerm.exe");
         await stat(uninstaller);
         // _?= runs the owned uninstaller in-place, avoiding its detached copy.
         // NSIS leaves that running file for us to remove only after verified cleanup.
-        await execFile(
+        await execute(
           uninstaller,
           ["/S", "/currentuser", `_?=${installRoot}`],
           { timeout: 120_000 },
         );
         const deadline = Date.now() + 20_000;
         for (;;) {
-          const after = await inspectWindowsInstallation();
+          const after = await inspectWindowsInstallation(execute);
           if (!after.existing && !after.processes) break;
           if (Date.now() >= deadline)
             throw new Error(
