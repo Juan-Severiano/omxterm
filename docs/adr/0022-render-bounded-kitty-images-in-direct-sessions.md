@@ -17,6 +17,12 @@ placement IDs, SIXEL, iTerm2 Inline Image Protocol, animation,
 remote or filesystem image sources, and persistence are not part of this
 decision.
 
+On Windows, the PTY Adapter selects the ConPTY DLL already shipped with
+`node-pty`. The operating-system ConPTY can consume Kitty APC sequences before
+the renderer receives them. A real-PTY regression verifies that a complete image
+sequence survives the Adapter; renderer-only image fixtures cannot prove this
+transport boundary. This requires no user setting or additional dependency.
+
 The portable Terminal Surface owns protocol parsing, browser decoding, canvas
 rendering, cell anchoring, resize and font-rescaling behavior, and cleanup. It
 loads the mutually compatible exact beta pair `@xterm/xterm`
