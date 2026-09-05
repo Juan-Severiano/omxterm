@@ -1,6 +1,7 @@
 import { execFile as execFileCallback } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtemp, readFile, readdir, rm, stat } from "node:fs/promises";
+import { constants } from "node:fs";
+import { copyFile, mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { createRequire } from "node:module";
@@ -165,11 +166,32 @@ export async function verifyExactWindowsInstaller({
           installRoot,
         );
         const uninstaller = path.join(installRoot, "Uninstall OMXTerm.exe");
-        await stat(uninstaller);
-        // _?= runs the owned uninstaller in-place, avoiding its detached copy.
-        // NSIS leaves that running file for us to remove only after verified cleanup.
-        await execute(
+        const uninstallerDigest = await digest(uninstaller);
+        // NSIS's PowerShell process check would terminate an in-place uninstaller
+        // itself. Relocate identical bytes outside INSTDIR's termination prefix.
+        // _?= then keeps this relocated process synchronous and selects only our root.
+        const cleanupRoot = await mkdtemp(
+          path.join(temporaryDirectory, "omxterm-uninstaller-"),
+        );
+        const relocatedUninstaller = path.join(
+          cleanupRoot,
+          "Uninstall OMXTerm.exe",
+        );
+        await copyFile(
           uninstaller,
+          relocatedUninstaller,
+          constants.COPYFILE_EXCL,
+        );
+        if ((await digest(relocatedUninstaller)) !== uninstallerDigest)
+          throw new Error(
+            "Owned uninstaller copy differs; retain transaction evidence",
+          );
+        assertOwnedRegistration(
+          await inspectWindowsInstallation(execute, installRoot),
+          installRoot,
+        );
+        await execute(
+          relocatedUninstaller,
           ["/S", "/currentuser", `_?=${installRoot}`],
           { timeout: 120_000 },
         );
@@ -183,12 +205,13 @@ export async function verifyExactWindowsInstaller({
             );
           await new Promise((resolve) => setTimeout(resolve, 200));
         }
-        await rm(installRoot, {
-          recursive: true,
-          force: true,
-          maxRetries: 10,
-          retryDelay: 200,
-        });
+        for (const directory of [installRoot, cleanupRoot])
+          await rm(directory, {
+            recursive: true,
+            force: true,
+            maxRetries: 10,
+            retryDelay: 200,
+          });
       },
     },
   });

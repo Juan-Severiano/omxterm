@@ -1,4 +1,11 @@
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import {
+  mkdtemp,
+  mkdir,
+  readFile,
+  readdir,
+  rm,
+  writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -57,6 +64,98 @@ async function refusedTransaction(
 }
 
 describe("exact NSIS transaction side-effect refusal", () => {
+  it("completes installation and cleanup without the uninstaller targeting itself", async () => {
+    const root = await mkdtemp(path.join(tmpdir(), "omxterm-nsis-success-"));
+    const installer = path.join(root, "synthetic-installer.exe");
+    const unpackedRoot = path.join(root, "payload");
+    let installedRoot = "";
+    let registered = false;
+    let cleanupExecutable = "";
+    const verifyInstalled = vi.fn(async () => {});
+    const execute = async (file: string, args: string[]) => {
+      if (args.includes("-Guid"))
+        return {
+          stdout: JSON.stringify({
+            paths: [],
+            processes: false,
+            registrations: registered
+              ? [
+                  {
+                    hive: "CurrentUser",
+                    view: "Registry64",
+                    kind: "install",
+                    location: installedRoot,
+                    uninstall: null,
+                    shortcut: "OMXTerm",
+                    menu: null,
+                  },
+                  {
+                    hive: "CurrentUser",
+                    view: "Registry64",
+                    kind: "uninstall",
+                    location: null,
+                    uninstall: `"${path.win32.join(installedRoot, "Uninstall OMXTerm.exe")}" /currentuser`,
+                    shortcut: null,
+                    menu: null,
+                  },
+                ]
+              : [],
+          }),
+        };
+      if (file === installer) {
+        installedRoot = args
+          .find((argument) => argument.startsWith("/D="))!
+          .slice(3);
+        await writeFile(
+          path.join(installedRoot, "OMXTerm.exe"),
+          "synthetic payload",
+        );
+        await writeFile(
+          path.join(installedRoot, "Uninstall OMXTerm.exe"),
+          "synthetic owned uninstaller",
+        );
+        registered = true;
+      } else {
+        cleanupExecutable = file;
+        if (file.toLowerCase().startsWith(installedRoot.toLowerCase()))
+          throw new Error("NSIS uninstaller targets itself");
+        expect(await readFile(file, "utf8")).toBe(
+          "synthetic owned uninstaller",
+        );
+        expect(args).toContain(`_?=${installedRoot}`);
+        registered = false;
+        await rm(installedRoot, { recursive: true });
+      }
+      return { stdout: "" };
+    };
+    try {
+      await mkdir(unpackedRoot);
+      await writeFile(installer, "synthetic installer");
+      await writeFile(
+        path.join(unpackedRoot, "OMXTerm.exe"),
+        "synthetic payload",
+      );
+      await expect(
+        verifyExactWindowsInstaller({
+          installer,
+          unpackedRoot,
+          projectRoot,
+          disposableVm: true,
+          verifyInstalled,
+          execute,
+          temporaryDirectory: root,
+        }),
+      ).resolves.toMatchObject({ replacedExisting: false });
+      expect(verifyInstalled).toHaveBeenCalledOnce();
+      expect(cleanupExecutable).not.toBe("");
+      expect((await readdir(root)).sort()).toEqual([
+        "payload",
+        "synthetic-installer.exe",
+      ]);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
   it("refuses the transaction destination's process footprint before installer or cleanup", async () => {
     await refusedTransaction(undefined, "safe", undefined, /process/i, true);
   });

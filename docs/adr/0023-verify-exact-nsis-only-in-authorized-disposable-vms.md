@@ -22,7 +22,10 @@ VM requirement also applies to an apparently clean host.
 
 The transaction binds installer bytes to their digest, compares installed
 payload bytes, verifies installed startup, and invokes only its owned new
-uninstaller after confirming registration ownership. Bounded cleanup must remove
+uninstaller after confirming registration ownership. A byte-identical copy runs
+outside the install-path termination prefix, with `_?=` selecting the owned root
+and preventing a detached relaunch. This avoids NSIS terminating its own
+in-place uninstaller through its PowerShell process check. Bounded cleanup must remove
 registration, shortcuts and processes before temporary files are removed.
 Failures preserve primary and cleanup errors and retain uncertain state for
 inspection. User data is never selected for deletion. The old application is

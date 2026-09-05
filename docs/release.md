@@ -275,8 +275,11 @@ identity, repacked installer, or archive-only extraction is not equivalent.
 `/D=` selects the destination only; the existing OMXTerm may be removed and is
 **not restored** by the test. Registration and shortcuts are changed during
 installation. The verifier checks ownership before invoking only the new
-transaction's uninstaller in-place, waits for bounded registration/shortcut/
-process cleanup, and then removes its temporary directory. User data is not
+transaction's byte-identical uninstaller from a separate owned directory outside
+the install-path termination prefix. Its `_?=` argument selects the transaction
+root without spawning a detached copy, so completion stays observable. The
+verifier waits for bounded registration/shortcut/process cleanup, then removes
+both owned temporary directories. User data is not
 deleted. Cleanup errors fail verification alongside any primary error; unknown
 ownership leaves evidence for inspection rather than deleting guessed state.
 Restore/discard the VM only after preserving artifacts and evidence outside the
