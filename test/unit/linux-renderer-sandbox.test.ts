@@ -17,9 +17,20 @@ describe("Linux renderer OS sandbox evidence", () => {
       "No Linux renderer",
     );
   });
+  it("accepts a UID-preserving single-user namespace", () => {
+    expect(
+      inspectLinuxRendererSandbox(
+        [{ ...isolated, uidMap: "1000 1000 1\n" }],
+        hostUidMap,
+      ),
+    ).toBe(1);
+  });
   it.each([
     { ...isolated, uidMap: hostUidMap },
     { ...isolated, uidMap: "" },
+    { ...isolated, uidMap: "invalid 1000 1" },
+    { ...isolated, uidMap: "1000 invalid 1" },
+    { ...isolated, uidMap: "4294967295 1000 1" },
     { ...isolated, uidMap: "0 1000 65536" },
     { ...isolated, statuses: [] },
     { ...isolated, statuses: [""] },

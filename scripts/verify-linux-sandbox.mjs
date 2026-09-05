@@ -28,7 +28,11 @@ export function inspectLinuxRendererSandbox(renderers, hostUidMap) {
       ) ||
       renderer.uidMap.trim() === hostUidMap.trim() ||
       uidMap.length !== 3 ||
-      uidMap[0] !== "0" ||
+      uidMap
+        .slice(0, 2)
+        .some(
+          (uid) => !/^[0-9]+$/u.test(uid) || Number(uid) >= 4_294_967_295,
+        ) ||
       uidMap[2] !== "1" ||
       renderer.statuses.length === 0 ||
       renderer.statuses.some(

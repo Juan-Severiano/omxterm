@@ -20,35 +20,39 @@ const launcher = generateAppRunScript({
 // Real generated launcher, isolated fake OS probe and application executable.
 // The executable models Electron refusing unavailable sandbox prerequisites.
 describe.skipIf(process.platform === "win32")("generated Linux AppRun", () => {
-  it("preserves a sandbox initialization failure when user namespaces are denied", () => {
-    const root = mkdtempSync(path.join(tmpdir(), "omxterm-launcher-"));
-    try {
-      writeFileSync(path.join(root, "AppRun"), launcher);
-      writeFileSync(path.join(root, "unshare"), "#!/bin/sh\nexit 1\n", {
-        mode: 0o755,
-      });
-      writeFileSync(
-        path.join(root, "omxterm"),
-        `#!/bin/sh
+  it.each(["denied", "missing"])(
+    "preserves sandbox initialization failure with a %s namespace probe",
+    (probe) => {
+      const root = mkdtempSync(path.join(tmpdir(), "omxterm-launcher-"));
+      try {
+        writeFileSync(path.join(root, "AppRun"), launcher);
+        if (probe === "denied")
+          writeFileSync(path.join(root, "unshare"), "#!/bin/sh\nexit 1\n", {
+            mode: 0o755,
+          });
+        writeFileSync(
+          path.join(root, "omxterm"),
+          `#!/bin/sh
 for arg do
   if [ "$arg" = --no-sandbox ]; then exit 0; fi
 done
 printf '%s\\n' 'No usable sandbox!' >&2
 exit 78
 `,
-        { mode: 0o755 },
-      );
-      const result = spawnSync("/bin/bash", [path.join(root, "AppRun")], {
-        env: { PATH: "/usr/bin:/bin", APPDIR: root },
-        encoding: "utf8",
-      });
-      expect(result.error).toBeUndefined();
-      expect(result.status).toBe(78);
-      expect(result.stderr).toContain("No usable sandbox");
-    } finally {
-      rmSync(root, { recursive: true, force: true });
-    }
-  });
+          { mode: 0o755 },
+        );
+        const result = spawnSync("/bin/bash", [path.join(root, "AppRun")], {
+          env: { PATH: root, APPDIR: root },
+          encoding: "utf8",
+        });
+        expect(result.error).toBeUndefined();
+        expect(result.status).toBe(78);
+        expect(result.stderr).toContain("No usable sandbox");
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    },
+  );
   it("requires exact reviewed launcher bytes before packaged startup", () => {
     expect(() => inspectLinuxAppRun(launcher)).not.toThrow();
     expect(() =>
