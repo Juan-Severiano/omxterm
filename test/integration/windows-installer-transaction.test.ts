@@ -68,6 +68,7 @@ describe("exact NSIS transaction side-effect refusal", () => {
     const root = await mkdtemp(path.join(tmpdir(), "omxterm-nsis-success-"));
     const installer = path.join(root, "synthetic-installer.exe");
     const unpackedRoot = path.join(root, "payload");
+    const cacheRoot = path.join(root, "omxterm-updater");
     let installedRoot = "";
     let registered = false;
     let cleanupExecutable = "";
@@ -76,7 +77,16 @@ describe("exact NSIS transaction side-effect refusal", () => {
       if (args.includes("-Guid"))
         return {
           stdout: JSON.stringify({
-            paths: [],
+            paths: (await readdir(root)).includes("omxterm-updater")
+              ? [
+                  {
+                    path: cacheRoot,
+                    kind: "cache",
+                    scope: "user",
+                    target: null,
+                  },
+                ]
+              : [],
             processes: false,
             registrations: registered
               ? [
@@ -114,6 +124,11 @@ describe("exact NSIS transaction side-effect refusal", () => {
           path.join(installedRoot, "Uninstall OMXTerm.exe"),
           "synthetic owned uninstaller",
         );
+        await mkdir(cacheRoot);
+        await writeFile(
+          path.join(cacheRoot, "installer.exe"),
+          "synthetic installer",
+        );
         registered = true;
       } else {
         cleanupExecutable = file;
@@ -144,6 +159,7 @@ describe("exact NSIS transaction side-effect refusal", () => {
           verifyInstalled,
           execute,
           temporaryDirectory: root,
+          localAppData: root,
         }),
       ).resolves.toMatchObject({ replacedExisting: false });
       expect(verifyInstalled).toHaveBeenCalledOnce();
@@ -213,6 +229,12 @@ describe("exact NSIS transaction side-effect refusal", () => {
       scope: "user",
       kind: "shortcut",
       target: "C:\\OtherApp\\app.exe",
+    },
+    {
+      path: "C:\\fixture\\Local\\omxterm-updater",
+      scope: "user",
+      kind: "cache",
+      target: null,
     },
     {
       path: "C:\\Program Files\\OMXTerm",

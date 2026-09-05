@@ -18,7 +18,12 @@ inspection and live process conflicts remain refusals even with consent.
 Intentional replacement supports only known per-user registration; it never
 executes an arbitrary registry-supplied command itself. Inspection is necessary
 but does not eliminate host races or installer-wide effects, so the disposable
-VM requirement also applies to an apparently clean host.
+VM requirement also applies to an apparently clean host. The pinned NSIS
+installer writes an installer cache independently of `/D=` and despite the lack
+of application auto-updates. A pre-existing cache is refused rather than assigned
+to this transaction or overwritten. A newly created cached installer is checked
+against the exact installer digest and only that unchanged file and its empty
+directory are removed; unknown or additional cache state is preserved.
 
 The transaction binds installer bytes to their digest, compares installed
 payload bytes, verifies installed startup, and invokes only its owned new

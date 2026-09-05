@@ -14,7 +14,7 @@ export interface WindowsInstallationState {
   readonly paths: readonly {
     readonly path: string;
     readonly scope: "user" | "machine";
-    readonly kind: "install" | "shortcut";
+    readonly kind: "install" | "shortcut" | "cache";
     readonly target: string | null;
   }[];
 }

@@ -55,6 +55,14 @@ try {
       $paths += @{ path=$target; kind=$kind; scope=$scope; target=$destination }
     } catch [System.Management.Automation.ItemNotFoundException] { }
   }
+  # The pinned builder always caches its exact installer here, even without
+  # application auto-updates. Inspect the directory itself before any write.
+  $cache = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'omxterm-updater'
+  try {
+    $item = Get-Item -LiteralPath $cache -Force
+    if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Unknown cache reparse point ownership' }
+    $paths += @{ path=$cache; kind='cache'; scope='user'; target=$null }
+  } catch [System.Management.Automation.ItemNotFoundException] { }
   $terminationRoots = @($registrations | Where-Object { $_.kind -eq 'install' -and $_.location -is [string] } | ForEach-Object { $_.location })
   if ($TransactionRoot) { $terminationRoots += $TransactionRoot }
   $processes = $false

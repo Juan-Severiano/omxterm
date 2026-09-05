@@ -18,6 +18,7 @@ export function assertOwnedRegistration(
     }[];
   },
   root: string,
+  cacheDirectory?: string,
 ): void;
 export function verifyExactWindowsInstaller(options: {
   readonly installer: string;
@@ -32,4 +33,8 @@ export function verifyExactWindowsInstaller(options: {
   ) => Promise<{ stdout: string }>;
   readonly temporaryDirectory?: string;
   readonly localAppData?: string;
-}): Promise<{ replacedExisting: boolean; sha256: string }>;
+}): Promise<{
+  replacedExisting: boolean;
+  sha256: string;
+  installerCacheRemoved: boolean;
+}>;

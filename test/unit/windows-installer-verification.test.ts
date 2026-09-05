@@ -15,6 +15,25 @@ function adapter() {
 }
 
 describe("exact Windows installer verification", () => {
+  it("recognizes the persistent NSIS cache as existing installation state", async () => {
+    const execute = vi.fn().mockResolvedValue({
+      stdout: JSON.stringify({
+        registrations: [],
+        paths: [
+          {
+            path: "C:\\fixture\\Local\\omxterm-updater",
+            kind: "cache",
+            scope: "user",
+            target: null,
+          },
+        ],
+        processes: false,
+      }),
+    });
+    await expect(inspectWindowsInstallation(execute)).resolves.toMatchObject({
+      existing: true,
+    });
+  });
   it("inspects the transaction destination's NSIS process footprint", async () => {
     const execute = vi.fn(async (_file: string, args: string[]) => ({
       stdout: JSON.stringify({

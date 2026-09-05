@@ -1,7 +1,16 @@
 import { execFile as execFileCallback } from "node:child_process";
 import { createHash } from "node:crypto";
 import { constants } from "node:fs";
-import { copyFile, mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import {
+  copyFile,
+  lstat,
+  mkdtemp,
+  readFile,
+  readdir,
+  rm,
+  rmdir,
+  unlink,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { createRequire } from "node:module";
@@ -38,7 +47,26 @@ async function comparePayload(source, installed) {
   }
 }
 
-export function assertOwnedRegistration(state, root) {
+async function inspectOwnedInstallerCache(directory, installerDigest) {
+  const installer = path.join(directory, "installer.exe");
+  const [folder, file] = await Promise.all([
+    lstat(directory),
+    lstat(installer),
+  ]);
+  if (
+    !folder.isDirectory() ||
+    folder.isSymbolicLink() ||
+    !file.isFile() ||
+    file.isSymbolicLink() ||
+    (await digest(installer)) !== installerDigest
+  )
+    throw new Error(
+      "NSIS installer cache ownership or bytes differ; retain cache and transaction evidence",
+    );
+  return installer;
+}
+
+export function assertOwnedRegistration(state, root, cacheDirectory) {
   const registrations = state.registrations;
   if (
     state.processes ||
@@ -55,9 +83,12 @@ export function assertOwnedRegistration(state, root) {
     (state.paths ?? []).some(
       (entry) =>
         entry.scope !== "user" ||
-        (entry.kind === "install"
-          ? entry.path.toLowerCase() !== root.toLowerCase()
-          : entry.target.toLowerCase() !== expectedExecutable.toLowerCase()),
+        (entry.kind === "cache"
+          ? !cacheDirectory ||
+            entry.path.toLowerCase() !== cacheDirectory.toLowerCase()
+          : entry.kind === "install"
+            ? entry.path.toLowerCase() !== root.toLowerCase()
+            : entry.target.toLowerCase() !== expectedExecutable.toLowerCase()),
     )
   )
     throw new Error(
@@ -98,6 +129,7 @@ export async function verifyExactWindowsInstaller({
   );
   const installerDigest = await digest(installer);
   let installRoot;
+  let cacheDirectory;
   let entered = false;
   const result = await verifyWindowsInstaller({
     disposableVm,
@@ -110,13 +142,18 @@ export async function verifyExactWindowsInstaller({
           throw new Error(
             "Conflicting OMXTerm processes; installer not launched",
           );
+        if (!localAppData || !path.win32.isAbsolute(localAppData))
+          throw new Error("Unknown local application data directory");
+        cacheDirectory = path.join(localAppData, "omxterm-updater");
+        if (current.paths.some((entry) => entry.kind === "cache"))
+          throw new Error(
+            "Unowned pre-existing NSIS installer cache; preserve it and use a clean disposable VM",
+          );
         if (current.paths.length && !current.registrations.length)
           throw new Error(
             "Unowned Windows installation path; use a clean disposable VM",
           );
         if (current.registrations.length) {
-          if (!localAppData || !path.win32.isAbsolute(localAppData))
-            throw new Error("Unknown per-user install location");
           // Deliberate replacement supports the known per-user installation only;
           // orphan/machine/unknown registration is not permission to execute its commands.
           const previousRoot = path.win32.join(
@@ -137,9 +174,17 @@ export async function verifyExactWindowsInstaller({
         installRoot = await mkdtemp(
           path.join(temporaryDirectory, "omxterm-installed-"),
         );
-        if ((await inspectWindowsInstallation(execute, installRoot)).processes)
+        const beforeLaunch = await inspectWindowsInstallation(
+          execute,
+          installRoot,
+        );
+        if (beforeLaunch.processes)
           throw new Error(
             "Conflicting NSIS path-prefix processes; installer not launched, temporary evidence retained",
+          );
+        if (beforeLaunch.paths.some((entry) => entry.kind === "cache"))
+          throw new Error(
+            "Unowned pre-existing NSIS installer cache; installer not launched, temporary evidence retained",
           );
         console.warn(
           "WARNING: authorized disposable VM exact NSIS test may remove existing OMXTerm and replace its registration/shortcuts. /D is NOT isolation. User data is not deleted.",
@@ -153,7 +198,9 @@ export async function verifyExactWindowsInstaller({
         assertOwnedRegistration(
           await inspectWindowsInstallation(execute, installRoot),
           installRoot,
+          cacheDirectory,
         );
+        await inspectOwnedInstallerCache(cacheDirectory, installerDigest);
         await comparePayload(unpackedRoot, installRoot);
         await verifyInstalled(installRoot);
         if ((await digest(installer)) !== installerDigest)
@@ -164,7 +211,9 @@ export async function verifyExactWindowsInstaller({
         assertOwnedRegistration(
           await inspectWindowsInstallation(execute, installRoot),
           installRoot,
+          cacheDirectory,
         );
+        await inspectOwnedInstallerCache(cacheDirectory, installerDigest);
         const uninstaller = path.join(installRoot, "Uninstall OMXTerm.exe");
         const uninstallerDigest = await digest(uninstaller);
         // NSIS's PowerShell process check would terminate an in-place uninstaller
@@ -189,12 +238,19 @@ export async function verifyExactWindowsInstaller({
         assertOwnedRegistration(
           await inspectWindowsInstallation(execute, installRoot),
           installRoot,
+          cacheDirectory,
         );
         await execute(
           relocatedUninstaller,
           ["/S", "/currentuser", `_?=${installRoot}`],
           { timeout: 120_000 },
         );
+        // Pre-existing caches were refused. Remove only our unchanged exact copy;
+        // never recursively delete cache contents or discard newly arrived files.
+        await unlink(
+          await inspectOwnedInstallerCache(cacheDirectory, installerDigest),
+        );
+        await rmdir(cacheDirectory);
         const deadline = Date.now() + 20_000;
         for (;;) {
           const after = await inspectWindowsInstallation(execute, installRoot);
@@ -215,5 +271,5 @@ export async function verifyExactWindowsInstaller({
       },
     },
   });
-  return { ...result, sha256: installerDigest };
+  return { ...result, sha256: installerDigest, installerCacheRemoved: true };
 }

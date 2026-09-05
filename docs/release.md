@@ -234,7 +234,12 @@ inspection mirrors both NSIS's name-based fallback and its case-insensitive path
 prefix for registered installations and the new transaction destination. The
 pinned dependency can target a sibling path sharing that prefix; the verifier
 refuses that conflict rather than terminating the unrelated process. Paths
-that break the pinned installer's PowerShell quoting are refused too. Deliberate
+that break the pinned installer's PowerShell quoting are refused too. The pinned
+NSIS installer also writes `%LOCALAPPDATA%\\omxterm-updater\\installer.exe`, even
+though OMXTerm has no automatic updates. Any pre-existing cache directory/file
+or cache reparse point is refused even with opt-in; do not delete guessed cache
+contents to bypass this guard. Use a clean disposable VM or separately coordinate
+preservation of the existing cache. Deliberate
 replacement supports only the known per-user installation; orphan, machine, or
 unexpected registration requires a clean disposable VM, not a force bypass.
 Preflight is not a guarantee against host races or installer-wide effects, so the
@@ -279,8 +284,11 @@ transaction's byte-identical uninstaller from a separate owned directory outside
 the install-path termination prefix. Its `_?=` argument selects the transaction
 root without spawning a detached copy, so completion stays observable. The
 verifier waits for bounded registration/shortcut/process cleanup, then removes
-both owned temporary directories. User data is not
-deleted. Cleanup errors fail verification alongside any primary error; unknown
+both owned temporary directories. It also verifies the newly created cached
+installer against the exact installer digest and removes only that unchanged
+file and its empty cache directory, never pre-existing or unrelated cache data.
+A changed cache or nonempty directory fails cleanup and retains uncertain state.
+User data is not deleted. Cleanup errors fail verification alongside any primary error; unknown
 ownership leaves evidence for inspection rather than deleting guessed state.
 Restore/discard the VM only after preserving artifacts and evidence outside the
 snapshot's rollback scope.

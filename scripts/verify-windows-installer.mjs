@@ -61,7 +61,7 @@ export async function inspectWindowsInstallation(
       !Array.isArray(observation.registrations) ||
       observation.registrations.length > 8 ||
       !Array.isArray(observation.paths) ||
-      observation.paths.length > 7 ||
+      observation.paths.length > 8 ||
       typeof observation.processes !== "boolean" ||
       observation.paths.some(
         (entry) =>
@@ -69,8 +69,8 @@ export async function inspectWindowsInstallation(
           typeof entry.path !== "string" ||
           !path.win32.isAbsolute(entry.path) ||
           !["user", "machine"].includes(entry.scope) ||
-          !["install", "shortcut"].includes(entry.kind) ||
-          (entry.kind === "install"
+          !["install", "shortcut", "cache"].includes(entry.kind) ||
+          (entry.kind !== "shortcut"
             ? entry.target !== null
             : typeof entry.target !== "string" ||
               !path.win32.isAbsolute(entry.target)),
