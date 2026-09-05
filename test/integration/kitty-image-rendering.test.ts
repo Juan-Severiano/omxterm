@@ -87,8 +87,10 @@ describe("Kitty images in production Chromium", () => {
         nodeIntegration: false,
         webSecurity: true,
         isolatedProfiles: true,
-        nativeVisible: process.platform === "win32",
+        nativeVisible:
+          process.platform === "win32" || process.platform === "linux",
       });
+      expect(Object.keys(result?.checks ?? {})).toHaveLength(63);
       expect(Object.values(result?.checks ?? {})).not.toContain(false);
       expect(result?.cellSizeResponse).toMatch(/^\u001b\[6;\d+;\d+t$/u);
       expect(result?.largeFixture).toEqual({
@@ -210,9 +212,9 @@ app.whenReady().then(async () => {
       webSecurity: true,
     },
   });
-  // Real image traffic starves frame progress in a hidden Windows native window.
+  // Hidden Windows/Linux native windows can stall real image-frame progress.
   // Showing without activation preserves the user's focus and all security settings.
-  if (process.platform === "win32") window.showInactive();
+  if (process.platform === "win32" || process.platform === "linux") window.showInactive();
   window.webContents.once("render-process-gone", (_event, details) => {
     process.stderr.write("Kitty fixture renderer exited: " + details.reason + "\\n");
     app.exit(1);

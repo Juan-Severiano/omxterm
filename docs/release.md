@@ -93,6 +93,14 @@ filename, and checksum must identify the same version.
 
 ## Build and automated verification
 
+Portable checks include the production-Chromium image fixture with its own
+Electron userData/sessionData directories. On Windows and Linux it shows a
+non-activating native window before loading the fixture; macOS keeps it hidden.
+Hidden Windows/Linux windows can stall real image-frame progress even with
+background throttling disabled. All 63 original checks, real animation frames,
+deadlines, production CSP and renderer isolation remain required; visibility is
+a test-harness requirement, not a Terminal Surface behavior change.
+
 ### macOS arm64
 
 Use an accepted release commit for `X.Y.Z`, with `vX.Y.Z` recorded as the
@@ -258,10 +266,7 @@ exact installer into a transaction-owned temporary directory, compares every
 extracted payload file with the unpacked application, and verifies startup from
 both the unpacked and installed trees with isolated configuration, state, and
 user data. Startup must reach a running PTY and its Operational Event log must
-not contain the environment or launch-argument canaries. The production-Chromium
-image fixture uses its own Electron userData/sessionData directories and shows
-a non-activating native window on Windows so real image/frame progress is
-observable without weakening production CSP or renderer isolation.
+not contain the environment or launch-argument canaries.
 
 For packaging alone, run `npm run package:win`. For non-installing content and
 startup diagnostics on the same native host, run:
