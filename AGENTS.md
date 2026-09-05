@@ -94,8 +94,24 @@ relevant formatting and diff checks.
 6. Merge PRs with squash after required reviews and checks pass. Use the PR
    title as the conventional squash commit subject.
 7. After integration, verify issue closure, remove the associated worktree, and
-   delete the merged issue branch both locally and remotely. Preserve active,
-   unmerged, or unrelated branches.
+   delete the merged issue branch both locally and remotely. Include task-owned
+   prerequisite branches and worktrees once their useful changes are integrated.
+   Check for uncommitted work and retained artifacts first; preserve active,
+   unmerged, or unrelated work. After a squash merge, verify the PR's merged state
+   and included changes rather than relying only on commit ancestry.
+
+### Build delivery and cleanup
+
+- Build inside each platform's working copy, but collect maintainer-facing
+  artifacts and matching checksums directly in the primary checkout's `release/`.
+  This directory is Git-ignored; extra delivery subdirectories are not required.
+  Never overwrite an artifact still under test or awaiting acceptance.
+- After merge, clean task-owned temporary checkouts, build copies and verification
+  resources on local and native build machines once they have no active consumers.
+  Retain exact candidate artifacts, checksums and required verification evidence
+  through acceptance and publication. Remove obsolete duplicates only after the
+  retained copy is verified. Do not blanket-delete `release/`, `.scratch/`, VM
+  snapshots or unrelated work.
 
 Keep tracker state accurate. A delivered change that is not reflected in its
 issue or PR is unfinished work.
