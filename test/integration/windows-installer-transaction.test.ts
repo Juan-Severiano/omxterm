@@ -1,4 +1,5 @@
 import {
+  copyFile,
   mkdtemp,
   mkdir,
   readFile,
@@ -64,6 +65,33 @@ async function refusedTransaction(
 }
 
 describe("exact NSIS transaction side-effect refusal", () => {
+  it("refuses changed package cache identity before any native command", async () => {
+    const root = await mkdtemp(path.join(tmpdir(), "omxterm-nsis-identity-"));
+    const execute = vi.fn();
+    try {
+      await copyFile(
+        path.join(projectRoot, "electron-builder.yml"),
+        path.join(root, "electron-builder.yml"),
+      );
+      await writeFile(
+        path.join(root, "package.json"),
+        JSON.stringify({ name: "other-product" }),
+      );
+      await expect(
+        verifyExactWindowsInstaller({
+          projectRoot: root,
+          installer: path.join(root, "not-launched.exe"),
+          unpackedRoot: root,
+          disposableVm: true,
+          verifyInstalled: vi.fn(),
+          execute,
+        }),
+      ).rejects.toThrow(/footprint/i);
+      expect(execute).not.toHaveBeenCalled();
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
   it("completes installation and cleanup without the uninstaller targeting itself", async () => {
     const root = await mkdtemp(path.join(tmpdir(), "omxterm-nsis-success-"));
     const installer = path.join(root, "synthetic-installer.exe");

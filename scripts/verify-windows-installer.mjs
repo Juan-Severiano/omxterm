@@ -12,7 +12,11 @@ const inspectionScript = fileURLToPath(
   new URL("./inspect-windows-installation.ps1", import.meta.url),
 );
 
-export function inspectWindowsInstallerInputs(configuration, builderVersion) {
+export function inspectWindowsInstallerInputs(
+  configuration,
+  builderVersion,
+  packageName,
+) {
   // This safety inspection deliberately supports only the reviewed installer footprint.
   // Revisit identities, registry views, locations, shortcuts and NSIS templates together
   // when changing packaging inputs; an unrecognized footprint must never mean absent.
@@ -21,6 +25,7 @@ export function inspectWindowsInstallerInputs(configuration, builderVersion) {
     .digest("hex");
   if (
     builderVersion !== "26.15.3" ||
+    packageName !== "omxterm" ||
     digest !==
       "c811379191ff1f1992060d522bbcdbc80af761f98d0440d3453bc0a5b7895991"
   )

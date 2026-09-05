@@ -21,6 +21,7 @@ export interface WindowsInstallationState {
 export function inspectWindowsInstallerInputs(
   configuration: string,
   builderVersion: string,
+  packageName: string,
 ): void;
 export function inspectWindowsInstallation(
   execute?: (

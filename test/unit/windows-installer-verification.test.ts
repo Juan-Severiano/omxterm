@@ -51,7 +51,7 @@ describe("exact Windows installer verification", () => {
   });
   it("rejects changed packaging identity or builder before interpreting Windows state", () => {
     expect(() =>
-      inspectWindowsInstallerInputs("changed config", "26.15.3"),
+      inspectWindowsInstallerInputs("changed config", "26.15.3", "omxterm"),
     ).toThrow(/footprint/i);
   });
   it.each([
