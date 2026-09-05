@@ -41,6 +41,46 @@ describe("native Linux packaged sandbox observation", () => {
   it("observes only this startup's renderers and all their threads", async () => {
     await expect(verifyLinuxRendererSandbox(123)).resolves.toBe(1);
   });
+  it("observes a renderer with Chromium's flattened process title and NUL padding", async () => {
+    files["/proc/124/cmdline"] = "omxterm --type=renderer --lang=en-US\0\0\0";
+    await expect(verifyLinuxRendererSandbox(123)).resolves.toBe(1);
+  });
+  it.each([
+    "--no-sandbox",
+    "--no-sandbox=true",
+    "--disable-namespace-sandbox",
+    "--disable-seccomp-filter-sandbox=true",
+    "--disable-setuid-sandbox",
+  ])("rejects a flattened renderer with %s", async (flag) => {
+    files["/proc/124/cmdline"] =
+      `omxterm\0 --type=renderer\t${flag}\n--lang=en-US\0\0`;
+    await expect(verifyLinuxRendererSandbox(123)).rejects.toThrow(
+      "OS sandbox evidence",
+    );
+  });
+  it.each([
+    "--type=renderer-extra",
+    "prefix--type=renderer",
+    "--type=renderer=true",
+    "--label=--type=renderer",
+  ])("does not select a flattened role lookalike %s", async (role) => {
+    files["/proc/124/cmdline"] = `omxterm ${role}\0\0`;
+    await expect(verifyLinuxRendererSandbox(123)).rejects.toThrow(
+      "No Linux renderer",
+    );
+  });
+  it("does not reject switch lookalikes as sandbox-disabling tokens", async () => {
+    files["/proc/124/cmdline"] =
+      "omxterm --type=renderer --no-sandbox-extra --label=--no-sandbox --disable-seccomp-filter-sandbox-extra\0";
+    await expect(verifyLinuxRendererSandbox(123)).resolves.toBe(1);
+  });
+  it("does not select a flattened renderer outside the startup group", async () => {
+    files["/proc/124/cmdline"] = "omxterm --type=zygote\0";
+    files["/proc/900/cmdline"] = "omxterm --type=renderer\0";
+    await expect(verifyLinuxRendererSandbox(123)).rejects.toThrow(
+      "No Linux renderer",
+    );
+  });
   it("rejects a running but unsandboxed renderer", async () => {
     files["/proc/124/uid_map"] = files["/proc/self/uid_map"]!;
     await expect(verifyLinuxRendererSandbox(123)).rejects.toThrow(

@@ -68,7 +68,11 @@ export async function verifyLinuxRendererSandbox(processGroupId) {
       .slice(processStat.lastIndexOf(")") + 2)
       .split(" ");
     if (Number(fields[2]) !== processGroupId) continue;
-    const args = (await readFile(`/proc/${pid}/cmdline`, "utf8")).split("\0");
+    // Chromium may rewrite argv as one whitespace-separated process title.
+    // Use the same bounded tokens for role selection and forbidden switches.
+    const args = (await readFile(`/proc/${pid}/cmdline`, "utf8"))
+      .split(/[\0\s]+/u)
+      .filter(Boolean);
     if (!args.includes("--type=renderer")) continue;
     const statuses = await Promise.all(
       (await readdir(`/proc/${pid}/task`)).map((tid) =>
