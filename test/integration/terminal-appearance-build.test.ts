@@ -33,7 +33,7 @@ const expectedAssets = {
   "JetBrainsMonoNerdFontMono-Regular.ttf":
     "f01031f40e48dc29e1112e6b0b0450a2c6cd097f3f35cfff05c55cb311f8034c",
   "NerdFonts-glyphs.txt":
-    "96df75e31ab343f5316c13abc44098dc7703c64e968050d5c7fb6b52f18e6dc2",
+    "c67e7c17fa4fa1f894b8f4a1bb1ca4bbbce19cbea1eb80d5b0c400cf0e2ec332",
 } as const;
 
 describe("Terminal appearance build", () => {

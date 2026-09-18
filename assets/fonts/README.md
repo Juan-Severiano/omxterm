@@ -56,14 +56,18 @@ regular and synthetically bold text. OMXTerm never downloads fonts at runtime.
 Both Nerd Fonts faces include the patched icon sets listed by the pinned Nerd
 Fonts releases. Their MIT, OFL 1.1, CC BY 4.0 and Apache 2.0 notices and upstream
 copyrights are preserved together in `NerdFonts-glyphs.txt`; SHA-256:
-`96df75e31ab343f5316c13abc44098dc7703c64e968050d5c7fb6b52f18e6dc2`.
+`c67e7c17fa4fa1f894b8f4a1bb1ca4bbbce19cbea1eb80d5b0c400cf0e2ec332`.
 The combined notice was reconciled against these exact primary tag sources:
 
 - `https://raw.githubusercontent.com/ryanoasis/nerd-fonts/v3.5.1/LICENSE`
 - `https://raw.githubusercontent.com/ryanoasis/nerd-fonts/v3.5.1/license-audit.md`
 - `https://raw.githubusercontent.com/ryanoasis/nerd-fonts/v3.5.1/src/glyphs/README.md`
-- the seven license files under that tag's `src/glyphs/` named inside the
-  combined notice; those files are byte-identical at `v3.4.0`.
+- the seven top-level license files under that tag's `src/glyphs/`, plus
+  `src/glyphs/weather-icons/OFL.txt` (including its upstream placeholders),
+  reconciled with `v3.4.0`;
+- Devicon's MIT notice at
+  `https://raw.githubusercontent.com/devicons/devicon/v2.17.0/LICENSE`,
+  retaining the `Copyright (c) 2015 konpa` statement.
 
 The `v3.5.1` GitHub release reports the same FiraCode archive digest recorded
 above. Directly downloaded `v3.4.0` `JetBrainsMono.zip` and both extracted font
