@@ -63,20 +63,21 @@ but they do not replace the maintained product contract.
 
 ## Release status
 
-### Upcoming release preparation: 0.12.0
+### Accepted release awaiting publication: 0.12.0
 
-- [0.12.0 preparation record](releases/0.12.0.md) describes the candidate
-  source, migration guidance, changed-boundary automation and exact qualified
-  macOS/Linux identities.
-- 0.12.0 is **not published**. Exact-artifact acceptance is pending and
-  publication is blocked pending separate owner decisions; its filenames are
-  not download links.
-- The 0.12.0-specific preparation omits Windows after its native gate failed.
-  Windows ARM64 remains a Supported Platform, and its latest available version
-  is [0.11.0](releases/0.11.0.md) from the existing
+- [0.12.0 prepublication record](releases/0.12.0.md) describes migration,
+  changed-boundary automation and the exact six owner-accepted macOS/Linux file
+  identities.
+- The owner separately authorized manual publication in
+  [issue #311](https://github.com/luizomf/omxterm/issues/311), but 0.12.0 is
+  **not published yet**: there is no tag or GitHub Release, and its filenames
+  are not download links.
+- The 0.12.0 platform exception contains no Windows candidate or qualification.
+  Windows ARM64 remains a Supported Platform, and its unchanged latest published
+  version is [0.11.0](releases/0.11.0.md) from the existing
   [v0.11.0 GitHub Release](https://github.com/luizomf/omxterm/releases/tag/v0.11.0).
 
-### Current published release: 0.11.0
+### Current published downloads: 0.11.0
 
 - [0.11.0 release notes](releases/0.11.0.md) describe Chafa support, the Linux
   launch policy, the Windows transport fix, exact accepted artifact identities,
@@ -84,9 +85,10 @@ but they do not replace the maintained product contract.
 - [v0.11.0 GitHub Release](https://github.com/luizomf/omxterm/releases/tag/v0.11.0)
   contains the unchanged owner-accepted artifacts and checksums.
 
-All three ARM64 builds use source `741a1cc67597bfdbe5aacf4933a01760c658f352`.
-Only eligible non-packaged Markdown differs between that commit and the tag;
-see the release record. Repository visibility remains private.
+All three 0.11.0 ARM64 builds use source
+`741a1cc67597bfdbe5aacf4933a01760c658f352`. Only eligible non-packaged Markdown
+differs between that commit and the tag; see the release record. Repository
+visibility remains private, and unauthenticated access is not claimed.
 
 ### Previous immutable published release: 0.10.0
 

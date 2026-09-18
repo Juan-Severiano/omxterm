@@ -19,9 +19,10 @@ not current support commitments.
 
 ## Release status
 
-### Current release: 0.11.0
+### Current published release: 0.11.0
 
-Download from the [v0.11.0 GitHub Release](https://github.com/luizomf/omxterm/releases/tag/v0.11.0).
+The current downloads remain on the authenticated
+[v0.11.0 GitHub Release](https://github.com/luizomf/omxterm/releases/tag/v0.11.0).
 The [release notes](docs/releases/0.11.0.md) describe changes, exact artifact
 hashes and native verification. All three platforms use the same verified build
 source, `741a1cc67597bfdbe5aacf4933a01760c658f352`.
@@ -37,25 +38,28 @@ The packages carry no verified publisher identity. The macOS app has a verified
 ad-hoc integrity seal, but no Apple Developer ID signature or notarization.
 Previous [0.10.0 release notes](docs/releases/0.10.0.md) remain immutable history.
 
-### Upcoming 0.12.0 preparation
+### Accepted 0.12.0 files awaiting publication
 
-[0.12.0 release preparation](docs/releases/0.12.0.md) records qualified macOS
-and Linux candidates. **0.12.0 is not published:** exact-artifact acceptance is
-pending, publication is blocked, and the filenames below are not download
-links. Until those separate gates complete, 0.11.0 above remains the current
-published release and the installation commands below remain current.
+The owner has accepted the exact six macOS/Linux 0.12.0 files in the
+[prepublication record](docs/releases/0.12.0.md) and separately authorized their
+manual publication in
+[issue #311](https://github.com/luizomf/omxterm/issues/311). **Publication has
+not happened yet:** there is no `v0.12.0` tag or GitHub Release, and the 0.12.0
+filenames below are not download links. Until the authorized publication is
+completed and verified, the v0.11.0 links above and installation commands below
+remain current.
 
-This release-specific preparation omits a Windows 0.12.0 candidate after its
-native gate failed; diagnosis is deferred to
-[#310](https://github.com/luizomf/omxterm/issues/310). Windows ARM64 remains a
-Supported Platform, with 0.11.0 its latest available version.
+There is no Windows 0.12.0 candidate after its native gate failed; diagnosis is
+deferred to [#310](https://github.com/luizomf/omxterm/issues/310). Windows ARM64
+remains a Supported Platform, with the published 0.11.0 installer unchanged and
+no 0.12.0 qualification or feature claim.
 
-| Platform                         | Prepared or available package                                                                                  | Status / checksum                                                                                              |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| macOS ARM64                      | `OMXTerm-0.12.0-arm64.dmg`                                                                                     | Pending acceptance and publication; no download                                                                |
-| Linux ARM64                      | `OMXTerm-0.12.0-arm64.AppImage`                                                                                | Pending acceptance and publication; no download                                                                |
-| Linux optional desktop installer | `OMXTerm-0.12.0-arm64.AppImage-installer.sh`                                                                   | Pending acceptance and publication; no download                                                                |
-| Windows ARM64                    | [0.11.0 NSIS installer](https://github.com/luizomf/omxterm/releases/download/v0.11.0/OMXTerm-0.11.0-arm64.exe) | [0.11.0 SHA-256](https://github.com/luizomf/omxterm/releases/download/v0.11.0/OMXTerm-0.11.0-arm64.exe.sha256) |
+| Platform                         | Accepted or currently published package                                                                        | Status / checksum                                                                                                          |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| macOS ARM64                      | `OMXTerm-0.12.0-arm64.dmg`                                                                                     | Owner accepted; authorized publication pending; SHA-256 `ed17cba1f77b6d2250f734ef4df4faa4637dc3d74635f1cff4584e3f20fcccb0` |
+| Linux ARM64                      | `OMXTerm-0.12.0-arm64.AppImage`                                                                                | Owner accepted; authorized publication pending; SHA-256 `7dcd33b76495a707918daebae23c1707a90f512af0c18a33b976d4da3116eb4c` |
+| Linux optional desktop installer | `OMXTerm-0.12.0-arm64.AppImage-installer.sh`                                                                   | Owner accepted; authorized publication pending; SHA-256 `181f2c4ff1ba93536328cd026272c64c435f320695aa2cf21f08a28676e5b936` |
+| Windows ARM64                    | [0.11.0 NSIS installer](https://github.com/luizomf/omxterm/releases/download/v0.11.0/OMXTerm-0.11.0-arm64.exe) | [0.11.0 SHA-256](https://github.com/luizomf/omxterm/releases/download/v0.11.0/OMXTerm-0.11.0-arm64.exe.sha256)             |
 
 ### Publication visibility
 
@@ -67,8 +71,8 @@ has not been validated and is not claimed.
 
 ## Installation
 
-The commands below apply to the 0.11.0 assets. Keep each package and
-its matching `.sha256` file in the same directory, verify the checksum before
+The commands below apply to the currently published 0.11.0 assets. Keep each
+package and its matching `.sha256` file in the same directory, verify the checksum before
 opening the package, and do not install an artifact whose check fails.
 
 ### macOS

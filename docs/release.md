@@ -99,8 +99,35 @@ changed-boundary evidence, exact checksums, cleanup, owner acceptance and
 separate publication authorization. A Windows 0.12.0 file must not be attached,
 and no macOS or Linux result may be presented as Windows qualification. The
 only intended 0.12.0 attachment set is the DMG, AppImage and versioned Linux
-installer plus their three matching checksum files. Until separately authorized
-publication occurs, all publicly available platform downloads remain 0.11.0.
+installer plus their three matching checksum files. Until publication actually
+occurs, all available platform downloads remain 0.11.0.
+
+## Accepted 0.12.0 artifacts and publication authority
+
+The owner has **ACCEPTED** these exact six canonical macOS/Linux identities and,
+separately, **AUTHORIZED** their manual publication through
+[issue #311](https://github.com/luizomf/omxterm/issues/311). Publication has not
+yet occurred: `v0.12.0` and its GitHub Release do not exist. Acceptance and
+authorization do not turn local filenames into downloads or permit a rebuild,
+replacement, Windows 0.12.0 attachment, or automatic publication.
+
+| File                                                |     Bytes | SHA-256                                                            |
+| --------------------------------------------------- | --------: | ------------------------------------------------------------------ |
+| `OMXTerm-0.12.0-arm64.dmg`                          | 127519162 | `ed17cba1f77b6d2250f734ef4df4faa4637dc3d74635f1cff4584e3f20fcccb0` |
+| `OMXTerm-0.12.0-arm64.dmg.sha256`                   |        91 | `464bba3863dad485137c97986a6da7a3b74680900ef5e0736239cf51696c3131` |
+| `OMXTerm-0.12.0-arm64.AppImage`                     | 124262587 | `7dcd33b76495a707918daebae23c1707a90f512af0c18a33b976d4da3116eb4c` |
+| `OMXTerm-0.12.0-arm64.AppImage.sha256`              |        96 | `347ab1f815e31b10b0493000d3da47e97646301acaa08e7b88047a1dc3ca8e11` |
+| `OMXTerm-0.12.0-arm64.AppImage-installer.sh`        |      6215 | `181f2c4ff1ba93536328cd026272c64c435f320695aa2cf21f08a28676e5b936` |
+| `OMXTerm-0.12.0-arm64.AppImage-installer.sh.sha256` |       109 | `14eb1c670126f1f618f66500acafea3acb3adcf989511de9f33c3dd3ff83ad69` |
+
+The canonical [0.12.0 prepublication record](releases/0.12.0.md) preserves the
+native evidence, migration guidance, limitations, and source mapping. The
+planned tag must point to the final independently reviewed prepublication source
+that retains artifact-build commit
+`87aa8eb44ce355c6ae967eee17c2ddb9e1b6762a` in its ancestry and whose tree is
+identical to the squash-integrated publication-documentation tree. Record the
+exact final tag commit and integrated commit in issue #311 after integration;
+do not predict a future commit ID or tag the squash-only ancestry.
 
 ## Version selection and consistency
 
