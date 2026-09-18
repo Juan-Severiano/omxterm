@@ -13,6 +13,9 @@ regular and synthetically bold text. OMXTerm never downloads fonts at runtime.
 - Source: Nerd Fonts release `v3.5.1`, `FiraCode.zip`
 - Upstream: `https://github.com/ryanoasis/nerd-fonts/releases/tag/v3.5.1`
 - Base font: Fira Code 6.2
+- Release archive: `https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/FiraCode.zip`
+- Release archive SHA-256:
+  `239395baf60c89b2eaf4862b6b09db0ef95605cd3e8eef51c00345822a81a665`
 - Variants: `Mono` regular and bold, preserving patched glyphs within terminal
   cells
 - `FiraCodeNerdFontMono-Regular.ttf` SHA-256:
@@ -47,3 +50,23 @@ regular and synthetically bold text. OMXTerm never downloads fonts at runtime.
 - `JetBrainsMono-OFL.txt` SHA-256:
   `30f0c136e3c88e422d0791acd97238870f9054a9729bc34cf2ff0d4ed8cac4ad`
 - License: SIL Open Font License 1.1
+
+## Nerd Fonts patched glyph provenance
+
+Both Nerd Fonts faces include the patched icon sets listed by the pinned Nerd
+Fonts releases. Their MIT, OFL 1.1, CC BY 4.0 and Apache 2.0 notices and upstream
+copyrights are preserved together in `NerdFonts-glyphs.txt`; SHA-256:
+`96df75e31ab343f5316c13abc44098dc7703c64e968050d5c7fb6b52f18e6dc2`.
+The combined notice was reconciled against these exact primary tag sources:
+
+- `https://raw.githubusercontent.com/ryanoasis/nerd-fonts/v3.5.1/LICENSE`
+- `https://raw.githubusercontent.com/ryanoasis/nerd-fonts/v3.5.1/license-audit.md`
+- `https://raw.githubusercontent.com/ryanoasis/nerd-fonts/v3.5.1/src/glyphs/README.md`
+- the seven license files under that tag's `src/glyphs/` named inside the
+  combined notice; those files are byte-identical at `v3.4.0`.
+
+The `v3.5.1` GitHub release reports the same FiraCode archive digest recorded
+above. Directly downloaded `v3.4.0` `JetBrainsMono.zip` and both extracted font
+faces match the recorded archive and bundled-face digests. These pinned source
+and byte identities, not an unpinned latest-release URL, are the release
+reverification anchors.

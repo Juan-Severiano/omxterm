@@ -63,7 +63,16 @@ but they do not replace the maintained product contract.
 
 ## Release status
 
-### Current release: 0.11.0
+### Upcoming release preparation: 0.12.0
+
+- [0.12.0 preparation record](releases/0.12.0.md) describes the candidate
+  source, migration guidance, changed-boundary automation and pending exact
+  artifact slots.
+- 0.12.0 is **not published**. Exact-artifact acceptance is pending and
+  publication is blocked pending separate owner decisions; no 0.12.0 download
+  is claimed.
+
+### Current published release: 0.11.0
 
 - [0.11.0 release notes](releases/0.11.0.md) describe Chafa support, the Linux
   launch policy, the Windows transport fix, exact accepted artifact identities,

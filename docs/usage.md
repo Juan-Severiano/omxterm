@@ -12,6 +12,18 @@ A quick status key:
   change its default or shortcut.
 - **Deferred** means it is intentionally not a current feature.
 
+## Terminal Surface requirements
+
+**Current:** Restty and its pinned Ghostty core are the sole Terminal Surface.
+A working WebGL2 backend and the bundled fonts/core must initialize before
+OMXTerm starts that tab's shell. There is no renderer selector, software
+renderer or fallback Surface. Initialization failure leaves no invisible shell;
+irrecoverable WebGL context loss reports a persistent failure and closes only
+the affected Surface and Live Terminal Session.
+
+Native glyph rasterization can vary by Supported Platform and GPU. OMXTerm does
+not claim pixel-identical output or a total process-memory ceiling.
+
 ## Windows, tabs, and sessions
 
 **Current:** Starting OMXTerm opens one Terminal Window with one selected
@@ -357,9 +369,11 @@ ringing tab while its window is focused, or interacting with that selected
 session, also clears its marker. A marker on another, unselected tab remains
 until that session receives attention.
 
-If the ringing session's window is unfocused, OMXTerm requests Dock attention
-once. Further bells do not repeat that request until focus or interaction
-resets the attention state.
+On macOS, if the ringing session's window is unfocused, OMXTerm requests Dock
+attention once. Further bells do not repeat that request until focus or
+interaction resets the attention state. Linux and Windows retain the title
+marker but currently have no equivalent native attention request; cross-platform
+attention remains tracked in issue #135.
 
 See the normative [window and session behavior](spec.md#window-and-session-behavior).
 

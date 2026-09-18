@@ -478,33 +478,14 @@ async function stopProcessGroup(child) {
 export function packagedExplicitCommand(
   platform,
   argumentCanary,
-  systemRoot = process.env.SystemRoot ?? "C:\\Windows",
+  nodeExecutable = process.execPath,
 ) {
-  if (platform === "win32")
-    return {
-      executable: path.win32.join(
-        systemRoot,
-        "System32",
-        "WindowsPowerShell",
-        "v1.0",
-        "powershell.exe",
-      ),
-      arguments: [
-        "-NoLogo",
-        "-NoProfile",
-        "-Command",
-        "& { param($firstArgument, $secondArgument) $ok = $PWD.Path -eq $env:OMXTERM_PACKAGE_EXPECTED_HOME -and $env:TERM -eq 'xterm-256color' -and $env:COLORTERM -eq 'truecolor' -and $env:TERM_PROGRAM -eq 'OMXTerm' -and $env:TERM_PROGRAM_VERSION -and $firstArgument -eq '--literal-option-looking-argument' -and $secondArgument -eq $env:OMXTERM_PACKAGE_ARGUMENT_CANARY; if (-not $ok) { exit 23 }; New-Item -ItemType File -Path $env:OMXTERM_PACKAGE_READINESS_FILE -Force | Out-Null; Start-Sleep -Seconds 30 }",
-        "--literal-option-looking-argument",
-        argumentCanary,
-      ],
-    };
-
+  if (platform !== "darwin" && platform !== "linux" && platform !== "win32")
+    throw new Error(`Unsupported packaged output probe platform: ${platform}`);
   return {
-    executable: "/bin/sh",
+    executable: nodeExecutable,
     arguments: [
-      "-c",
-      'test "$PWD" = "$OMXTERM_PACKAGE_EXPECTED_HOME" && test "$TERM" = xterm-256color && test "$COLORTERM" = truecolor && test "$TERM_PROGRAM" = OMXTerm && test -n "$TERM_PROGRAM_VERSION" && test "$1" = --literal-option-looking-argument && test "$2" = "$OMXTERM_PACKAGE_ARGUMENT_CANARY" && : > "$OMXTERM_PACKAGE_READINESS_FILE"; exec sleep 30',
-      "omxterm-packaged-verifier",
+      path.join(projectRoot, "test", "fixtures", "packaged-output-probe.mjs"),
       "--literal-option-looking-argument",
       argumentCanary,
     ],
@@ -546,7 +527,7 @@ async function waitForStartup(logFile, readinessFile, child, stderrText) {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
   throw new Error(
-    `Timed out waiting for packaged startup events: ${[...requiredEvents].join(", ")}: ${stderrText()}`,
+    `Timed out waiting for packaged startup events and output proof: ${[...requiredEvents].join(", ")}: ${stderrText()}`,
   );
 }
 
@@ -810,6 +791,19 @@ export async function verifyPackagedApplication(
       assertSameFile(
         path.join(projectRoot, "assets", "fonts", "JetBrainsMono-OFL.txt"),
         path.join(resources, "licenses", "JetBrainsMono-OFL.txt"),
+      ),
+      assertSameFile(
+        path.join(projectRoot, "assets", "fonts", "NerdFonts-glyphs.txt"),
+        path.join(resources, "licenses", "NerdFonts-glyphs.txt"),
+      ),
+      assertSameFile(
+        path.join(
+          projectRoot,
+          "assets",
+          "licenses",
+          "xterm-visible-links-MIT.txt",
+        ),
+        path.join(resources, "licenses", "xterm-visible-links.txt"),
       ),
       assertSameFile(
         path.join(projectRoot, "node_modules", "node-pty", "LICENSE"),

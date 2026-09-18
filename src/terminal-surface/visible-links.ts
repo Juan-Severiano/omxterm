@@ -1,5 +1,7 @@
-// This is the lowercase-only form of the previously pinned xterm provider's
-// strict URL expression. Restty uses it only over core-proven visible text.
+// This is the lowercase-only form of @xterm/addon-web-links 0.12.0's strict
+// URL expression (xterm.js f447274f430fd22513f6adbf9862d19524471c04).
+// Restty uses it only over core-proven visible text; the retained MIT notice is
+// packaged even though xterm.js is no longer a runtime dependency.
 const visibleUrlRegex =
   /(?:https?:[/]{2}|file:[/]{3}(?![/]))[^\s"'!*(){}|\\\^<>`]*[^\s"':,.!?{}|\\\^~\[\]`()<>]/;
 

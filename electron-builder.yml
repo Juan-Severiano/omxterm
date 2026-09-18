@@ -27,6 +27,10 @@ extraResources:
     to: licenses/DejaVu.txt
   - from: assets/fonts/JetBrainsMono-OFL.txt
     to: licenses/JetBrainsMono-OFL.txt
+  - from: assets/fonts/NerdFonts-glyphs.txt
+    to: licenses/NerdFonts-glyphs.txt
+  - from: assets/licenses/xterm-visible-links-MIT.txt
+    to: licenses/xterm-visible-links.txt
   - from: node_modules/node-pty/LICENSE
     to: licenses/node-pty.txt
   - from: assets/licenses/restty-MIT.txt

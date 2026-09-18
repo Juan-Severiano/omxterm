@@ -119,6 +119,18 @@ backend or irrecoverable context loss must visibly fail and clean only its owned
 session while another session remains usable. Synthetic DOM coverage or another
 operating system cannot substitute for this native seam.
 
+Release candidates additionally use a fresh `npm ci` and explicitly rerun the
+existing checksum-guarded node-pty and Restty preparation scripts before the
+complete native command. This bounded release procedure rejects unknown
+installed bytes and avoids reusing a stale prepared runtime; it is not a new
+runtime-prevention framework. Packaged verification then starts the actual
+packaged application with a synthetic owned PTY command. That command prints a
+visible marker and sends `CSI 16 t`; only a positive cell-size reply from the
+packaged Terminal Surface creates the proof file. Startup events and a live
+shell are still required, but cannot substitute for this parsed-output proof.
+The probe uses no user shell, configuration, Terminal Payload or persistent
+profile and its owned state is removed after verified process termination.
+
 ### macOS arm64
 
 Use an accepted release commit for `X.Y.Z`, with `vX.Y.Z` recorded as the
@@ -129,6 +141,8 @@ without local or private files, and run:
 
 ```sh
 npm ci
+node scripts/prepare-node-pty-runtime.mjs
+node scripts/prepare-restty-runtime.mjs
 npm run check
 ```
 
@@ -166,6 +180,8 @@ host-policy changes are required. Then run from the accepted source commit:
 
 ```sh
 npm ci
+node scripts/prepare-node-pty-runtime.mjs
+node scripts/prepare-restty-runtime.mjs
 npm run check:linux
 ```
 
@@ -233,6 +249,8 @@ permission for these install/uninstall effects, run:
 
 ```powershell
 npm ci
+node scripts/prepare-node-pty-runtime.mjs
+node scripts/prepare-restty-runtime.mjs
 npm run check:win -- --disposable-vm-allow-omxterm-replacement
 ```
 
@@ -380,8 +398,8 @@ The record binds each result to source commit, filename, byte size, and SHA-256.
 At minimum the command must establish formatting and type safety, portable and
 native tests, package construction, target architecture, packaged contents and
 licenses, embedded version agreement, package extraction or installation seam,
-startup, PTY readiness, required Operational Events, and cleanup of verifier
-state.
+startup, PTY readiness, synthetic parsed output from the actual packaged
+Terminal Surface, required Operational Events, and cleanup of verifier state.
 
 No release requires a human replay after all three native commands pass. Owner
 acceptance remains explicit but does not represent manual exercise of every

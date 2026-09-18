@@ -1,6 +1,8 @@
 # OMXTerm
 
-OMXTerm is an open-source personal desktop terminal.
+OMXTerm is an open-source personal desktop terminal. Its Terminal Surface is
+powered by [Restty](https://github.com/wiedymi/restty) and Restty's pinned
+[Ghostty](https://github.com/ghostty-org/ghostty) core.
 
 <p align="center">
   <img src="docs/images/omxterm-hero.png" alt="OMXTerm icon: a light blue terminal prompt on a dark rounded square" width="480" />
@@ -34,6 +36,15 @@ source, `741a1cc67597bfdbe5aacf4933a01760c658f352`.
 The packages carry no verified publisher identity. The macOS app has a verified
 ad-hoc integrity seal, but no Apple Developer ID signature or notarization.
 Previous [0.10.0 release notes](docs/releases/0.10.0.md) remain immutable history.
+
+### Upcoming 0.12.0 preparation
+
+[0.12.0 release preparation](docs/releases/0.12.0.md) documents the reviewed
+source changes and pending native artifact slots. **0.12.0 is not published:**
+there are no 0.12.0 download links, owner-accepted artifact identities or
+publication authorization. Until those separate gates complete, 0.11.0 above
+remains the current release and the installation commands below remain the
+published instructions.
 
 ### Publication visibility
 
@@ -149,7 +160,9 @@ or other system-wide Windows security protections.
 
 Launch OMXTerm to open one Terminal Window and one Terminal Tab running the
 Default Shell in your home directory. New tabs and windows run independent Live
-Terminal Sessions; closing one terminates its session.
+Terminal Sessions; closing one terminates its session. The Terminal Surface
+requires working WebGL2; there is no software or second-renderer fallback, and a
+Surface initialization failure starts no shell.
 
 - Learn tabs, controls, shortcuts, copy and paste, file-path insertion, and
   privacy-safe local logs in [Everyday OMXTerm use](docs/usage.md).

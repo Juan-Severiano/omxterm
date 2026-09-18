@@ -7,17 +7,26 @@ and Windows application layouts. Direct dependency versions are locked in
 `package-lock.json`; exact versions of code bundled inside a dependency are
 identified below.
 
-| Component                                   | License                   | Packaged notice                  |
-| ------------------------------------------- | ------------------------- | -------------------------------- |
-| Electron                                    | MIT                       | `LICENSE.electron.txt`           |
-| Chromium and Electron transitive components | See component notices     | `LICENSES.chromium.html`         |
-| `node-pty`                                  | MIT                       | `licenses/node-pty.txt`          |
-| Restty 0.3.0                                | MIT                       | `licenses/restty.txt`            |
-| `text-shaper` 0.1.28                        | MIT                       | `licenses/text-shaper.txt`       |
-| Ghostty/libghostty-vt (`0309af1`)           | MIT                       | `licenses/ghostty.txt`           |
-| FiraCode Nerd Font Mono                     | SIL Open Font License 1.1 | `licenses/FiraCode-OFL.txt`      |
-| DejaVu Sans Mono                            | Bitstream/DejaVu/Arev     | `licenses/DejaVu.txt`            |
-| JetBrainsMono Nerd Font Mono                | SIL Open Font License 1.1 | `licenses/JetBrainsMono-OFL.txt` |
+| Component                                              | License                         | Packaged notice                    |
+| ------------------------------------------------------ | ------------------------------- | ---------------------------------- |
+| Electron                                               | MIT                             | `LICENSE.electron.txt`             |
+| Chromium and Electron transitive components            | See component notices           | `LICENSES.chromium.html`           |
+| `node-pty`                                             | MIT                             | `licenses/node-pty.txt`            |
+| Restty 0.3.0                                           | MIT                             | `licenses/restty.txt`              |
+| `text-shaper` 0.1.28 and FreeType-derived portions     | MIT and upstream attribution    | `licenses/text-shaper.txt`         |
+| Ghostty/libghostty-vt (`0309af1`)                      | MIT                             | `licenses/ghostty.txt`             |
+| xterm.js visible-link expression (retained derivative) | MIT                             | `licenses/xterm-visible-links.txt` |
+| FiraCode Nerd Font Mono                                | SIL Open Font License 1.1       | `licenses/FiraCode-OFL.txt`        |
+| DejaVu Sans Mono                                       | Bitstream/DejaVu/Arev           | `licenses/DejaVu.txt`              |
+| JetBrainsMono Nerd Font Mono                           | SIL Open Font License 1.1       | `licenses/JetBrainsMono-OFL.txt`   |
+| Nerd Fonts patched glyph sets                          | MIT, OFL, CC BY 4.0, Apache 2.0 | `licenses/NerdFonts-glyphs.txt`    |
+
+The visible-link expression remains derived from `@xterm/addon-web-links`
+0.12.0 even though xterm.js is no longer a runtime dependency; its notice must
+therefore remain packaged. The `text-shaper` notice is the exact 0.1.28 license
+and includes its FreeType-derived rasterizer copyright statement. The Nerd Fonts
+notice records both pinned releases, glyph-set provenance and their full
+available license texts.
 
 The repository preserves each bundled font's source, version, checksums, and
 license details in `assets/fonts/README.md` and the adjacent license files.

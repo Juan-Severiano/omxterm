@@ -66,6 +66,14 @@ exact problem without changing the file. During a manual reload, an invalid
 file keeps the complete last valid in-memory configuration active. Fix the
 reported problem and reload again.
 
+### Compatibility with 0.11.0
+
+OMXTerm 0.12.0 keeps User Configuration schema `"version": 1` and Terminal
+Theme schema `"version": 1`. Existing 0.11.0 files remain valid. The optional
+`font.ligatures` key is new in 0.12.0; because 0.11.0 rejects unknown keys,
+remove `font.ligatures` before downgrading. OMXTerm never rewrites or migrates
+the file in either direction.
+
 ## Add one display change
 
 Once the minimal file loads, try changing only the font size. The bundled font

@@ -196,6 +196,20 @@ font contents or runtime diagnostic API is needed.
   and bundled regular-face SHA-256
   `f01031f40e48dc29e1112e6b0b0450a2c6cd097f3f35cfff05c55cb311f8034c`.
 
+The retained lowercase visible-link expression derives from
+`@xterm/addon-web-links` 0.12.0 at xterm.js commit
+`f447274f430fd22513f6adbf9862d19524471c04`; its primary
+`addons/addon-web-links/src/WebLinkProvider.ts` SHA-256 is
+`5cf83214d2bd19dd06a2492eefe7686d1bd66cbe61fea490513335f630bb8b8a`,
+and the packaged source-repository MIT notice SHA-256 is
+`b569f629d00f2626a8100df2a1798210535621e42164dfd426a6fe5aac7b0ccd`.
+The exact `text-shaper` 0.1.28 source/npm license SHA-256 is
+`bc88ce083d2187e9577451f5d38a36227c05e3069f9320320c3d2282249a8f87`;
+it includes the FreeType-derived rasterizer copyright. The bundled Nerd Fonts
+release archives, extracted faces and glyph-license sources are recorded in
+`assets/fonts/README.md`. Packaging preserves all three notice groups and the
+package verifier compares their bytes with the tracked sources.
+
 `assets/restty-sources.json` records the npm registry's package-to-commit
 `gitHead`, tarball integrity and SHA-1 metadata together with Restty's source
 tree and exact submodule entries. To audit the mapping independently, compare
