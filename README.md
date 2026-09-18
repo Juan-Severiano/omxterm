@@ -39,12 +39,23 @@ Previous [0.10.0 release notes](docs/releases/0.10.0.md) remain immutable histor
 
 ### Upcoming 0.12.0 preparation
 
-[0.12.0 release preparation](docs/releases/0.12.0.md) documents the reviewed
-source changes and pending native artifact slots. **0.12.0 is not published:**
-there are no 0.12.0 download links, owner-accepted artifact identities or
-publication authorization. Until those separate gates complete, 0.11.0 above
-remains the current release and the installation commands below remain the
-published instructions.
+[0.12.0 release preparation](docs/releases/0.12.0.md) records qualified macOS
+and Linux candidates. **0.12.0 is not published:** exact-artifact acceptance is
+pending, publication is blocked, and the filenames below are not download
+links. Until those separate gates complete, 0.11.0 above remains the current
+published release and the installation commands below remain current.
+
+This release-specific preparation omits a Windows 0.12.0 candidate after its
+native gate failed; diagnosis is deferred to
+[#310](https://github.com/luizomf/omxterm/issues/310). Windows ARM64 remains a
+Supported Platform, with 0.11.0 its latest available version.
+
+| Platform                         | Prepared or available package                                                                                  | Status / checksum                                                                                              |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| macOS ARM64                      | `OMXTerm-0.12.0-arm64.dmg`                                                                                     | Pending acceptance and publication; no download                                                                |
+| Linux ARM64                      | `OMXTerm-0.12.0-arm64.AppImage`                                                                                | Pending acceptance and publication; no download                                                                |
+| Linux optional desktop installer | `OMXTerm-0.12.0-arm64.AppImage-installer.sh`                                                                   | Pending acceptance and publication; no download                                                                |
+| Windows ARM64                    | [0.11.0 NSIS installer](https://github.com/luizomf/omxterm/releases/download/v0.11.0/OMXTerm-0.11.0-arm64.exe) | [0.11.0 SHA-256](https://github.com/luizomf/omxterm/releases/download/v0.11.0/OMXTerm-0.11.0-arm64.exe.sha256) |
 
 ### Publication visibility
 

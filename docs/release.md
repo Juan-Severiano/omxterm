@@ -83,6 +83,25 @@ unchanged files; release documentation and squash integration do not rebuild
 them. The tag retains the build commit's ancestry with only eligible Markdown
 changes, and the squash-integrated source tree must match the tagged tree.
 
+## 0.12.0 release-specific platform exception
+
+The maintainer has authorized 0.12.0 preparation with only the macOS ARM64 DMG
+and Linux ARM64 AppImage plus optional installer. Windows ARM64 remains a
+Supported Platform, but there is no Windows 0.12.0 candidate: its native gate
+failed before packaging, and diagnosis is deferred to issue #310. The latest
+available Windows download therefore remains the unchanged 0.11.0 NSIS
+installer and checksum from the existing `v0.11.0` GitHub Release.
+
+This exception changes neither the general three-platform release policy nor
+the verification requirements for an artifact that is included. The 0.12.0
+macOS and Linux identities still require their complete native commands,
+changed-boundary evidence, exact checksums, cleanup, owner acceptance and
+separate publication authorization. A Windows 0.12.0 file must not be attached,
+and no macOS or Linux result may be presented as Windows qualification. The
+only intended 0.12.0 attachment set is the DMG, AppImage and versioned Linux
+installer plus their three matching checksum files. Until separately authorized
+publication occurs, all publicly available platform downloads remain 0.11.0.
+
 ## Version selection and consistency
 
 Select the release version under the [versioning policy](versioning.md) in an
@@ -94,9 +113,10 @@ Before building a release candidate, confirm that `package.json` and
 `package-lock.json` contain the same accepted `X.Y.Z` version. The application
 version, intended `vX.Y.Z` tag, `TERM_PROGRAM_VERSION`, native artifact
 filenames, checksum filenames, and GitHub Release must all identify that same
-version. The intended tag points to every artifact build commit directly or to
+version. The intended tag points to every included artifact build commit directly or to
 a descendant that differs from it only through the documentation-only exception
-above. The package names are `OMXTerm-X.Y.Z-arm64.dmg`,
+above. Except for a recorded release-specific omission such as 0.12.0 Windows,
+the package names are `OMXTerm-X.Y.Z-arm64.dmg`,
 `OMXTerm-X.Y.Z-arm64.AppImage`, and `OMXTerm-X.Y.Z-arm64.exe`. Linux also
 produces `OMXTerm-X.Y.Z-arm64.AppImage-installer.sh`; its embedded `--version`,
 filename, and checksum must identify the same version.
@@ -401,9 +421,11 @@ licenses, embedded version agreement, package extraction or installation seam,
 startup, PTY readiness, synthetic parsed output from the actual packaged
 Terminal Surface, required Operational Events, and cleanup of verifier state.
 
-No release requires a human replay after all three native commands pass. Owner
-acceptance remains explicit but does not represent manual exercise of every
-artifact.
+No release requires a human replay after every native command required for its
+included artifacts passes. Ordinarily that means all three platform commands;
+the recorded 0.12.0 exception requires macOS and Linux only and makes no Windows
+0.12.0 claim. Owner acceptance remains explicit but does not represent manual
+exercise of every artifact.
 
 ### 3. Record optional observations and unverified risk
 
@@ -576,19 +598,22 @@ separately authorizes publication:
    DMG, AppImage, installer, and checksums still match their accepted records;
    and `vX.Y.Z` points to each recorded artifact build commit or differs from it
    only through paths eligible for the documentation-only exception above;
-2. create the canonical GitHub Release for that exact tag with the Gatekeeper
-   and SmartScreen provenance notes above; summarize material changes, identify
+2. create the canonical GitHub Release for that exact tag with the applicable
+   provenance notes above (Gatekeeper for macOS and SmartScreen only when a
+   Windows installer is attached); summarize material changes, identify
    incompatible changes and migration or state that there are none, and record
    relevant known limitations;
-3. attach exactly `OMXTerm-<version>-arm64.dmg`,
+3. for an ordinary three-platform release, attach exactly
+   `OMXTerm-<version>-arm64.dmg`,
    `OMXTerm-<version>-arm64.dmg.sha256`,
    `OMXTerm-<version>-arm64.AppImage`,
    `OMXTerm-<version>-arm64.AppImage.sha256`,
    `OMXTerm-<version>-arm64.AppImage-installer.sh`,
    `OMXTerm-<version>-arm64.AppImage-installer.sh.sha256`,
    `OMXTerm-<version>-arm64.exe`, and
-   `OMXTerm-<version>-arm64.exe.sha256` manually;
-4. download all eight attachments, verify every checksum again on any trustworthy
+   `OMXTerm-<version>-arm64.exe.sha256` manually. Under the recorded 0.12.0
+   exception, attach only the first six macOS/Linux files and no Windows file;
+4. download every attachment, verify every checksum again on any trustworthy
    byte-verification host, and preserve the final release URL with the accepted
    evidence.
 
