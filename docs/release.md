@@ -176,6 +176,20 @@ They do not rebuild the packages or retarget the tag. The exact identity and
 native verification record remains unchanged; earlier published releases remain
 immutable.
 
+## 0.12.2 candidate artifacts and authority
+
+The [0.12.2 release notes and record](releases/0.12.2.md) bind all three native
+ARM64 builds to `18ab438a898d246a6eaa197fb4f9b826c3244a7e`. Fresh complete
+native commands passed on macOS, Linux and Windows, including actual packaged
+parsed output and exact Windows installer verification/cleanup. All eight final
+files have matching native/collected sizes and SHA-256 values.
+
+Issue #334 records owner authorization to prepare and publish this patch for
+#327. Exact acceptance of these rebuilt final artifacts is **PENDING**;
+development-build testing does not accept their new identities. Publication is
+blocked until that acceptance, independent final review and source/tag mapping
+are complete. Existing published releases remain unchanged.
+
 ## Version selection and consistency
 
 Select the release version under the [versioning policy](versioning.md) in an

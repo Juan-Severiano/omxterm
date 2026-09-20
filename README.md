@@ -24,18 +24,18 @@ OMXTerm supports ARM64 on all three platforms below. Intel macOS and x64 builds
 are not available. A working **WebGL2** graphics backend is required; there is no
 software-rendering fallback.
 
-Download [OMXTerm 0.12.1](https://github.com/luizomf/omxterm/releases/tag/v0.12.1)
+Download [OMXTerm 0.12.2](https://github.com/luizomf/omxterm/releases/tag/v0.12.2)
 for your platform below, along with its checksum file.
 
-| Platform                        | 0.12.1 package                                                                                                          | SHA-256 checksum                                                                                                           |
+| Platform                        | 0.12.2 package                                                                                                          | SHA-256 checksum                                                                                                           |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Apple Silicon macOS             | [DMG](https://github.com/luizomf/omxterm/releases/download/v0.12.1/OMXTerm-0.12.1-arm64.dmg)                            | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.12.1/OMXTerm-0.12.1-arm64.dmg.sha256)                   |
-| Linux ARM64                     | [AppImage](https://github.com/luizomf/omxterm/releases/download/v0.12.1/OMXTerm-0.12.1-arm64.AppImage)                  | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.12.1/OMXTerm-0.12.1-arm64.AppImage.sha256)              |
-| Linux desktop helper (optional) | [Shell helper](https://github.com/luizomf/omxterm/releases/download/v0.12.1/OMXTerm-0.12.1-arm64.AppImage-installer.sh) | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.12.1/OMXTerm-0.12.1-arm64.AppImage-installer.sh.sha256) |
-| Windows ARM64                   | [NSIS installer](https://github.com/luizomf/omxterm/releases/download/v0.12.1/OMXTerm-0.12.1-arm64.exe)                 | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.12.1/OMXTerm-0.12.1-arm64.exe.sha256)                   |
+| Apple Silicon macOS             | [DMG](https://github.com/luizomf/omxterm/releases/download/v0.12.2/OMXTerm-0.12.2-arm64.dmg)                            | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.12.2/OMXTerm-0.12.2-arm64.dmg.sha256)                   |
+| Linux ARM64                     | [AppImage](https://github.com/luizomf/omxterm/releases/download/v0.12.2/OMXTerm-0.12.2-arm64.AppImage)                  | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.12.2/OMXTerm-0.12.2-arm64.AppImage.sha256)              |
+| Linux desktop helper (optional) | [Shell helper](https://github.com/luizomf/omxterm/releases/download/v0.12.2/OMXTerm-0.12.2-arm64.AppImage-installer.sh) | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.12.2/OMXTerm-0.12.2-arm64.AppImage-installer.sh.sha256) |
+| Windows ARM64                   | [NSIS installer](https://github.com/luizomf/omxterm/releases/download/v0.12.2/OMXTerm-0.12.2-arm64.exe)                 | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.12.2/OMXTerm-0.12.2-arm64.exe.sha256)                   |
 
 The repository is currently private; GitHub downloads require an account with
-repository access. See the [0.12.1 release notes and record](docs/releases/0.12.1.md)
+repository access. See the [0.12.2 release notes and record](docs/releases/0.12.2.md)
 for changes, compatibility, platform limitations, and verification details.
 
 ## Installation
@@ -51,7 +51,7 @@ trust the source and the package.
 Verify the Apple Silicon DMG:
 
 ```sh
-shasum -a 256 -c OMXTerm-0.12.1-arm64.dmg.sha256
+shasum -a 256 -c OMXTerm-0.12.2-arm64.dmg.sha256
 ```
 
 After verification succeeds, open the DMG, drag `OMXTerm.app` to Applications,
@@ -71,15 +71,15 @@ need XWayland. Native Wayland rendering is not supported.
 Verify the AppImage, make it executable, and run it:
 
 ```sh
-sha256sum --check OMXTerm-0.12.1-arm64.AppImage.sha256 &&
-  chmod +x OMXTerm-0.12.1-arm64.AppImage &&
-  ./OMXTerm-0.12.1-arm64.AppImage
+sha256sum --check OMXTerm-0.12.2-arm64.AppImage.sha256 &&
+  chmod +x OMXTerm-0.12.2-arm64.AppImage &&
+  ./OMXTerm-0.12.2-arm64.AppImage
 ```
 
 If kernel FUSE mounting is unavailable, run the verified AppImage with:
 
 ```sh
-./OMXTerm-0.12.1-arm64.AppImage --appimage-extract-and-run
+./OMXTerm-0.12.2-arm64.AppImage --appimage-extract-and-run
 ```
 
 **Linux runs without the Chromium sandbox** (`--no-sandbox`) to avoid startup
@@ -92,10 +92,10 @@ To add OMXTerm to your desktop menu, install the `file` command if needed and
 use the optional helper. Verify both downloads first:
 
 ```sh
-sha256sum --check OMXTerm-0.12.1-arm64.AppImage.sha256 &&
-  sha256sum --check OMXTerm-0.12.1-arm64.AppImage-installer.sh.sha256 &&
-  chmod +x OMXTerm-0.12.1-arm64.AppImage OMXTerm-0.12.1-arm64.AppImage-installer.sh &&
-  ./OMXTerm-0.12.1-arm64.AppImage-installer.sh install ./OMXTerm-0.12.1-arm64.AppImage
+sha256sum --check OMXTerm-0.12.2-arm64.AppImage.sha256 &&
+  sha256sum --check OMXTerm-0.12.2-arm64.AppImage-installer.sh.sha256 &&
+  chmod +x OMXTerm-0.12.2-arm64.AppImage OMXTerm-0.12.2-arm64.AppImage-installer.sh &&
+  ./OMXTerm-0.12.2-arm64.AppImage-installer.sh install ./OMXTerm-0.12.2-arm64.AppImage
 ```
 
 The helper installs for your user only, using the supplied local files. It does
@@ -110,7 +110,7 @@ if it is not already present. In PowerShell, verify the installer and confirm
 that the checksum file names the same package:
 
 ```powershell
-$installerName = "OMXTerm-0.12.1-arm64.exe"
+$installerName = "OMXTerm-0.12.2-arm64.exe"
 $checksumRecord = Get-Content -LiteralPath "$installerName.sha256" -Raw -ErrorAction Stop
 $checksumMatch = [regex]::Match(
   $checksumRecord,
@@ -129,7 +129,7 @@ if (-not [StringComparer]::OrdinalIgnoreCase.Equals($actualHash, $expectedHash))
 Write-Host "SHA-256 verification succeeded for $installerName"
 ```
 
-After verification succeeds, run `OMXTerm-0.12.1-arm64.exe`. It installs for your
+After verification succeeds, run `OMXTerm-0.12.2-arm64.exe`. It installs for your
 user without administrator elevation.
 
 The installer is unsigned, so Microsoft Defender SmartScreen may show an

@@ -14,11 +14,11 @@ project's design and development guides.
 
 ## Releases
 
-**Current release: [0.12.1](https://github.com/luizomf/omxterm/releases/tag/v0.12.1)**
+**Current release: [0.12.2](https://github.com/luizomf/omxterm/releases/tag/v0.12.2)**
 for macOS, Linux, and Windows ARM64. Use the
 [download table](../README.md#platforms-and-downloads) to choose your package.
-The [release notes and record](releases/0.12.1.md) cover corrections, Windows
-catch-up, compatibility, platform limitations, and verification details.
+The [release notes and record](releases/0.12.2.md) cover the Neovim/TUI resize
+correction, compatibility, platform limitations, and verification details.
 
 The repository is currently private; GitHub downloads require repository access.
 
@@ -27,6 +27,7 @@ The repository is currently private; GitHub downloads require repository access.
 Published records retain the notes, package identities, and evidence for their
 original release:
 
+- [0.12.1](releases/0.12.1.md) — native rendering verification and Windows catch-up;
 - [0.12.0](releases/0.12.0.md) — Restty transition, macOS and Linux;
 - [0.11.0](releases/0.11.0.md) — Chafa support, Linux launch policy, and Windows
   transport fix;
