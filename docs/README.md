@@ -63,14 +63,16 @@ but they do not replace the maintained product contract.
 
 ## Release status
 
-### In preparation: 0.12.1 (not published)
+### Prepared locally: 0.12.1 (not published)
 
-- [0.12.1 preparation record and draft notes](releases/0.12.1.md) track the
-  compatible corrective batch, Windows catch-up from 0.11.0, changed-boundary
-  seams and pending exact identities for all three ARM64 platforms.
-- Independent source review/freeze and native qualification remain PENDING;
-  exact-artifact acceptance is PENDING and publication is BLOCKED. Current
-  published downloads remain unchanged.
+- [0.12.1 preparation record and draft notes](releases/0.12.1.md) record the
+  compatible corrective batch, Windows catch-up from 0.11.0, native PASS results
+  and UNVERIFIED risks, and eight exact native/collected file identities.
+- All three ARM64 platforms passed complete fresh native qualification from
+  reviewed common source `34119842ddbb1dbdb496a80a9e316e8695d09c82`; verifier
+  cleanup and checksum reconciliation are complete.
+- Final evidence review and integration remain PENDING. Exact-artifact acceptance
+  is PENDING and publication is BLOCKED. Current published downloads are unchanged.
 
 ### Current published release: 0.12.0 for macOS and Linux
 
