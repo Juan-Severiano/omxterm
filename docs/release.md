@@ -131,6 +131,22 @@ commit `87aa8eb44ce355c6ae967eee17c2ddb9e1b6762a` in its ancestry. Its tree
 `docs/README.md`, `docs/release.md`, and `docs/releases/0.12.0.md` differ from
 the build source, all eligible non-packaged Markdown.
 
+## 0.12.1 preparation (not published)
+
+The canonical [0.12.1 preparation record](releases/0.12.1.md) contains draft
+release notes, the actual changed-boundary matrix against macOS/Linux 0.12.0
+and Windows 0.11.0, #310's reviewed-source-to-squash mapping, and pending exact
+file identities for all three ARM64 platforms. Issue #320 authorizes local file
+preparation only. Independent review must freeze one common source SHA before
+native builds; future evidence updates must distinguish that SHA from eligible
+non-packaged Markdown commits.
+
+Native qualification and exact-artifact acceptance remain **PENDING**;
+publication remains **BLOCKED**. No 0.12.1 tag or download is claimed. Existing
+published links and assets remain unchanged. The #310 test-only correction is
+integrated, but neither it nor historical native runs qualify these new files
+or prove the original historical Windows VM trigger.
+
 ## Version selection and consistency
 
 Select the release version under the [versioning policy](versioning.md) in an

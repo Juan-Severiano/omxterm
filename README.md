@@ -28,11 +28,16 @@ was published on 2026-09-18 at 23:51:24 UTC. The
 migration, exact artifact identities, native verification, acceptance,
 separate publication authorization, and post-publication download verification.
 
-There is no Windows 0.12.0 candidate after its native gate failed; diagnosis is
-deferred to [#310](https://github.com/luizomf/omxterm/issues/310). Windows ARM64
-remains a Supported Platform, with the published 0.11.0 installer unchanged and
-no 0.12.0 qualification or feature claim. Windows 0.11.0 does not include the
-0.12.0 changes.
+There is no Windows 0.12.0 candidate after its native gate failed. The test-only
+selection/capture synchronization correction integrated through
+[#310](https://github.com/luizomf/omxterm/issues/310); the original historical VM
+trigger remains unproven. Windows ARM64 remains a Supported Platform, with the
+published 0.11.0 installer unchanged and no 0.12.0 qualification or feature
+claim. Windows 0.11.0 does not include the 0.12.0 changes.
+
+[0.12.1 source preparation](docs/releases/0.12.1.md) is in progress for all
+three ARM64 platforms. Native qualification and exact-artifact acceptance are
+PENDING; publication is BLOCKED. The current download links below are unchanged.
 
 | Platform                      | Published package                                                                                                       | Checksum                                                                                                                  |
 | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
