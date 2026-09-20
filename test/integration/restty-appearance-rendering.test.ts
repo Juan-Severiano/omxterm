@@ -14,39 +14,20 @@ import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 import { describe, expect, it } from "vitest";
 import { applyChromiumSandboxPolicy } from "../../src/main/chromium-sandbox-policy";
-import type { SelectionObservation } from "../fixtures/restty-appearance-renderer";
+import type {
+  Measurement,
+  SelectionObservation,
+} from "../fixtures/restty-appearance-renderer";
 
 const projectRoot = fileURLToPath(new URL("../..", import.meta.url));
 const electronExecutable = createRequire(import.meta.url)("electron") as string;
 const resultPrefix = "__OMXTERM_RESTTY_APPEARANCE_RESULT__";
 
-interface Measurement {
-  readonly size: number;
-  readonly lineHeight: number;
-  readonly padding: number;
-  readonly nativeTitleInset: number;
-  readonly containerPaddingTop: string;
-  readonly cols: number;
-  readonly rows: number;
-  readonly cellWidth: number;
-  readonly cellHeight: number;
-  readonly canvasCssWidth: number;
-  readonly canvasCssHeight: number;
-  readonly canvasBackingWidth: number;
-  readonly canvasBackingHeight: number;
-  readonly liveCellWidth: number;
-  readonly liveCellHeight: number;
-  readonly liveCols: number;
-  readonly liveRows: number;
-  readonly imeFontSize: string;
-  readonly starts: number;
-  readonly closes: number;
-}
-
 interface Result {
   readonly selection: SelectionObservation;
   readonly configuredFont: {
     readonly regularInk: number;
+    readonly deferredFrame: boolean;
     readonly preservesConfiguredRendering: boolean;
   };
   readonly measurements: readonly Measurement[];
@@ -116,7 +97,7 @@ describe("Restty OMXTerm appearance under production Electron policy", () => {
         readonly requestedScaleFactor: number | undefined;
         readonly result: Result;
       }> = [];
-      for (const [requestedScaleFactor, deferSelectionFrame] of [
+      for (const [requestedScaleFactor, deferFrames] of [
         [undefined, false],
         [1, false],
         [2, false],
@@ -125,7 +106,7 @@ describe("Restty OMXTerm appearance under production Electron policy", () => {
         const execution = await runFixture(
           root,
           requestedScaleFactor,
-          deferSelectionFrame,
+          deferFrames,
         );
         const line = execution.stdout
           .split("\n")
@@ -133,8 +114,8 @@ describe("Restty OMXTerm appearance under production Electron policy", () => {
         const result = line
           ? (JSON.parse(line.slice(resultPrefix.length)) as Result)
           : undefined;
-        const label = deferSelectionFrame
-          ? "delayed selection frame at actual display DPR"
+        const label = deferFrames
+          ? "delayed selection and configured-font frames at actual display DPR"
           : requestedScaleFactor
             ? `forced DPR ${requestedScaleFactor}`
             : "actual display DPR";
@@ -162,6 +143,7 @@ describe("Restty OMXTerm appearance under production Electron policy", () => {
                 live: result.live,
                 selection: result.selection,
                 colorCounts: result.colorCounts,
+                configuredFont: result.configuredFont,
               })),
             },
             undefined,
@@ -171,7 +153,14 @@ describe("Restty OMXTerm appearance under production Electron policy", () => {
 
       expect(runs[1]!.result.devicePixelRatio).toBeCloseTo(1, 5);
       expect(runs[2]!.result.devicePixelRatio).toBeCloseTo(2, 5);
-      for (const run of runs) assertFontGeometry(run.result, run.label);
+      for (const { result, label } of runs) {
+        assertFontGeometry(result, label);
+        expect(result.configuredFont.regularInk, label).toBeGreaterThan(20);
+        expect(result.configuredFont.preservesConfiguredRendering, label).toBe(
+          true,
+        );
+      }
+      expect(runs[3]!.result.configuredFont.deferredFrame).toBe(true);
       expect(runs[3]!.result.selection.deferredFrame).toBe(true);
       for (const color of expectedColors)
         expect(
@@ -268,8 +257,6 @@ describe("Restty OMXTerm appearance under production Electron policy", () => {
       expect(result!.fontRendering.dejaVuCoverageInk).toBeGreaterThan(20);
       expect(result!.fontRendering.firaDiffersFromMissing).toBe(true);
       expect(result!.fontRendering.dejaVuDiffersFromMissing).toBe(true);
-      expect(result!.configuredFont.regularInk).toBeGreaterThan(20);
-      expect(result!.configuredFont.preservesConfiguredRendering).toBe(true);
       expect(result!.security).toEqual({
         contextIsolation: true,
         nodeIntegration: false,
@@ -490,7 +477,7 @@ app.whenReady().then(async () => {
     webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false, webSecurity: true, backgroundThrottling: false },
   });
   await window.loadFile(path.join(__dirname, "index.html"), {
-    query: { deferSelectionFrame: String(process.env.OMXTERM_RESTTY_APPEARANCE_DEFER_FRAME === '1') },
+    query: { deferFrames: String(process.env.OMXTERM_RESTTY_APPEARANCE_DEFER_FRAME === '1') },
   });
   window.showInactive();
   let result = await waitForResult(window);
@@ -553,13 +540,18 @@ app.whenReady().then(async () => {
   await window.webContents.executeJavaScript('globalThis.__omxtermRenderConfiguredFont(false)', true);
   result = await waitForResult(window);
   bounds = await window.webContents.executeJavaScript("(() => { const r = document.querySelector('canvas').getBoundingClientRect(); return { x:r.x, y:r.y, width:r.width, height:r.height }; })()", true);
+  const configuredFrameDeferred = result.deferredOutputFrame;
   const configuredRegular = await captureInk(4);
   const configuredBold = await captureInk(5);
   await window.webContents.executeJavaScript('globalThis.__omxtermRenderConfiguredFont(true)', true);
   result = await waitForResult(window);
   const referenceRegular = await captureInk(4);
   const referenceBold = await captureInk(5);
-  complete.configuredFont = { regularInk: configuredRegular.ink, preservesConfiguredRendering: configuredRegular.bitmap.equals(referenceRegular.bitmap) && configuredBold.bitmap.equals(referenceBold.bitmap) };
+  complete.configuredFont = {
+    regularInk: configuredRegular.ink,
+    deferredFrame: configuredFrameDeferred,
+    preservesConfiguredRendering: configuredRegular.bitmap.equals(referenceRegular.bitmap) && configuredBold.bitmap.equals(referenceBold.bitmap),
+  };
   process.stdout.write(${JSON.stringify(resultPrefix)} + JSON.stringify(complete) + "\\n");
   window.destroy();
   app.exit(0);
@@ -573,7 +565,7 @@ app.whenReady().then(async () => {
 async function runFixture(
   root: string,
   scaleFactor?: number,
-  deferSelectionFrame = false,
+  deferFrames = false,
 ): Promise<{
   readonly exitCode: number | null;
   readonly stderr: string;
@@ -593,7 +585,7 @@ async function runFixture(
     env: {
       ...process.env,
       ELECTRON_DISABLE_SECURITY_WARNINGS: "true",
-      OMXTERM_RESTTY_APPEARANCE_DEFER_FRAME: deferSelectionFrame ? "1" : "0",
+      OMXTERM_RESTTY_APPEARANCE_DEFER_FRAME: deferFrames ? "1" : "0",
       HOME: path.join(root, "home"),
       XDG_CONFIG_HOME: path.join(root, "config"),
       XDG_STATE_HOME: path.join(root, "state"),

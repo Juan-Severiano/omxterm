@@ -7,7 +7,7 @@ import {
 } from "../../src/shared/terminal-theme";
 import type { TerminalSessionHandlers } from "../../src/terminal-surface/terminal-session-adapter";
 
-interface Measurement {
+export interface Measurement {
   readonly size: number;
   readonly lineHeight: number;
   readonly padding: number;
@@ -31,6 +31,7 @@ interface Measurement {
 }
 
 interface AppearanceResult {
+  readonly deferredOutputFrame: boolean;
   readonly measurements: readonly Measurement[];
   readonly live: {
     readonly sameCanvas: boolean;
@@ -67,11 +68,11 @@ declare global {
   var __omxtermSelectionAfterFrames: () => Promise<SelectionObservation>;
 }
 
-const deferSelectionFrame =
-  new URLSearchParams(location.search).get("deferSelectionFrame") === "true";
+const deferFrames =
+  new URLSearchParams(location.search).get("deferFrames") === "true";
 let deferUntil = 0;
 let deferredFrame = false;
-if (deferSelectionFrame) {
+if (deferFrames) {
   const nativeFrame = requestAnimationFrame.bind(window);
   window.requestAnimationFrame = (callback) =>
     nativeFrame((time) => {
@@ -85,7 +86,7 @@ if (deferSelectionFrame) {
     });
 }
 globalThis.__omxtermBeginSelection = () => {
-  if (deferSelectionFrame) deferUntil = performance.now() + 300;
+  if (deferFrames) deferUntil = performance.now() + 300;
 };
 
 const customTheme: TerminalTheme = {
@@ -332,10 +333,19 @@ async function run() {
     { length: 8 },
     (_, index) => `\u001b[${90 + index}m██`,
   ).join("");
+  deferredFrame = false;
+  if (
+    deferFrames &&
+    document.body.dataset.configuredFont === "true" &&
+    document.body.dataset.referenceFonts === "false"
+  )
+    deferUntil = performance.now() + 300;
   handlers?.onOutput(
     `${normalForeground}\r\n${brightForeground}\r\n\u001b[31m██\u001b[1m██\u001b[22;91m██\u001b[38;2;18;58;188m██ https://example.com\u001b[0m\u001b[4;1HMMMMMMMM\u001b[5;1H\u001b[1mMMMMMMMM\u001b[22m\u001b[6;1H${"\ue8f0".repeat(8)}\u001b[7;1H${"ƀ".repeat(8)}\u001b[8;1H${"͸".repeat(8)}\u001b[${latest.rows};1H\u001b[48;2;171;205;239m  \u001b[0m\u001b[16t`,
   );
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  // Ordered output and the cell-size reply do not establish a painted frame.
+  // Cross real frames after this remount's output before allowing pixel capture.
+  await waitForLayout();
   const liveCanvas = container.querySelector("canvas");
   const canvasBounds = liveCanvas?.getBoundingClientRect();
   const containerStyle = getComputedStyle(container);
@@ -368,6 +378,7 @@ async function run() {
     };
   };
   globalThis.__omxtermResttyAppearanceResult = {
+    deferredOutputFrame: deferredFrame,
     measurements,
     live: {
       sameCanvas: canvas === liveCanvas,
