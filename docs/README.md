@@ -71,8 +71,9 @@ but they do not replace the maintained product contract.
 - All three ARM64 platforms passed complete fresh native qualification from
   reviewed common source `34119842ddbb1dbdb496a80a9e316e8695d09c82`; verifier
   cleanup and checksum reconciliation are complete.
-- Final evidence review and integration remain PENDING. Exact-artifact acceptance
-  is PENDING and publication is BLOCKED. Current published downloads are unchanged.
+- Independent final review passed; issue #320 tracks preparation integration.
+  Exact-artifact acceptance is PENDING and publication is BLOCKED. Current
+  published downloads are unchanged.
 
 ### Current published release: 0.12.0 for macOS and Linux
 

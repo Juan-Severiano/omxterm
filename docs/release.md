@@ -146,9 +146,11 @@ later test-only configured-font capture correction. Earlier candidates were
 superseded and all three platforms rebuilt after refreeze. Original historical
 triggers remain unproven; neither correction is a product-font/color change.
 
-Final evidence review, evidence-only range proof and preparation integration
-mapping remain **PENDING**. The evidence update touches only eligible non-packaged
-Markdown and does not rebuild or alter these files. Exact-artifact acceptance
+Independent final review passed Standards and Spec with no findings. The
+canonical record identifies the reviewed evidence range and eligible Markdown
+paths; issue #320 retains the eventual preparation source-to-squash mapping.
+Evidence updates touch only eligible non-packaged Markdown and do not rebuild
+or alter these files. Exact-artifact acceptance
 is **PENDING**; publication is **BLOCKED**. Issue #320 authorizes local preparation,
 not a tag or publication. Existing published links and assets remain unchanged.
 

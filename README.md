@@ -37,8 +37,8 @@ claim. Windows 0.11.0 does not include the 0.12.0 changes.
 
 [0.12.1 local files are prepared](docs/releases/0.12.1.md) for all three ARM64
 platforms: complete native qualification passed from one reviewed common source,
-and all eight files/checksums were collected and verified. Final evidence review
-and integration remain PENDING. Exact-artifact acceptance is PENDING; publication
+and all eight files/checksums were collected and verified. Independent final
+review passed; preparation integration is tracked in issue #320. Exact-artifact acceptance is PENDING; publication
 is BLOCKED. The current download links below are unchanged.
 
 | Platform                      | Published package                                                                                                       | Checksum                                                                                                                  |
