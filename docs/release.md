@@ -202,8 +202,9 @@ earlier releases remain available under their original tags.
 The [0.13.0 candidate record](releases/0.13.0.md) binds all three native ARM64
 builds to `f53bff7225d4ac1cab4036853484c261bf3d80da`. Complete native commands
 passed and all eight unchanged files have matching native/collected identities.
-Independent final review and owner exact-artifact acceptance remain pending;
-publication is not authorized. These are candidates, not published downloads.
+Independent final review passed without findings. Owner exact-artifact
+acceptance remains pending; publication is not authorized. These are candidates,
+not published downloads.
 
 ## Version selection and consistency
 
