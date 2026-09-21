@@ -19,9 +19,10 @@ Built with [Restty](https://github.com/wiedymi/restty) and its pinned
 - local PNG/JPEG previews and inline images from direct Pi/Chafa sessions.
 
 OMXTerm is actively developed through everyday use, bug reports, and automated
-checks on all three platforms. Version 0.12.2 fixes Neovim/TUI display corruption
-after zoom and configuration reload. We keep improving the terminal as problems
-surface; reproducible reports help us decide what to tackle next.
+checks on all three platforms. Version 0.13.0 improves configured fonts: real
+bold and italic faces when available, stronger synthetic bold when needed,
+and shared font resources across tabs. Reproducible reports help us decide
+what to tackle next.
 
 ## Platforms and downloads
 
@@ -29,19 +30,19 @@ OMXTerm supports ARM64 on all three platforms below. Intel macOS and x64 builds
 are not available. A working **WebGL2** graphics backend is required; there is no
 software-rendering fallback.
 
-Download [OMXTerm 0.12.2](https://github.com/luizomf/omxterm/releases/tag/v0.12.2)
+Download [OMXTerm 0.13.0](https://github.com/luizomf/omxterm/releases/tag/v0.13.0)
 for your platform below, along with its checksum file.
 
-| Platform                        | 0.12.2 package                                                                                                          | SHA-256 checksum                                                                                                           |
+| Platform                        | 0.13.0 package                                                                                                          | SHA-256 checksum                                                                                                           |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Apple Silicon macOS             | [DMG](https://github.com/luizomf/omxterm/releases/download/v0.12.2/OMXTerm-0.12.2-arm64.dmg)                            | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.12.2/OMXTerm-0.12.2-arm64.dmg.sha256)                   |
-| Linux ARM64                     | [AppImage](https://github.com/luizomf/omxterm/releases/download/v0.12.2/OMXTerm-0.12.2-arm64.AppImage)                  | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.12.2/OMXTerm-0.12.2-arm64.AppImage.sha256)              |
-| Linux desktop helper (optional) | [Shell helper](https://github.com/luizomf/omxterm/releases/download/v0.12.2/OMXTerm-0.12.2-arm64.AppImage-installer.sh) | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.12.2/OMXTerm-0.12.2-arm64.AppImage-installer.sh.sha256) |
-| Windows ARM64                   | [NSIS installer](https://github.com/luizomf/omxterm/releases/download/v0.12.2/OMXTerm-0.12.2-arm64.exe)                 | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.12.2/OMXTerm-0.12.2-arm64.exe.sha256)                   |
+| Apple Silicon macOS             | [DMG](https://github.com/luizomf/omxterm/releases/download/v0.13.0/OMXTerm-0.13.0-arm64.dmg)                            | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.13.0/OMXTerm-0.13.0-arm64.dmg.sha256)                   |
+| Linux ARM64                     | [AppImage](https://github.com/luizomf/omxterm/releases/download/v0.13.0/OMXTerm-0.13.0-arm64.AppImage)                  | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.13.0/OMXTerm-0.13.0-arm64.AppImage.sha256)              |
+| Linux desktop helper (optional) | [Shell helper](https://github.com/luizomf/omxterm/releases/download/v0.13.0/OMXTerm-0.13.0-arm64.AppImage-installer.sh) | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.13.0/OMXTerm-0.13.0-arm64.AppImage-installer.sh.sha256) |
+| Windows ARM64                   | [NSIS installer](https://github.com/luizomf/omxterm/releases/download/v0.13.0/OMXTerm-0.13.0-arm64.exe)                 | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.13.0/OMXTerm-0.13.0-arm64.exe.sha256)                   |
 
 The repository is currently private; GitHub downloads require an account with
-repository access. See the [0.12.2 release notes and record](docs/releases/0.12.2.md)
-for changes, compatibility, platform limitations, and verification details.
+repository access. See the [0.13.0 release notes and record](docs/releases/0.13.0.md)
+for changes, compatibility, known issues, and verification details.
 
 ## Installation
 
@@ -56,7 +57,7 @@ expect when installing them.
 Verify the Apple Silicon DMG:
 
 ```sh
-shasum -a 256 -c OMXTerm-0.12.2-arm64.dmg.sha256
+shasum -a 256 -c OMXTerm-0.13.0-arm64.dmg.sha256
 ```
 
 After verification succeeds, open the DMG, drag `OMXTerm.app` to Applications,
@@ -70,21 +71,26 @@ malicious software. If you trust the verified package, follow Apple's
 
 ### Linux
 
-Install the `fontconfig` utilities if needed. OMXTerm uses X11; Wayland sessions
-need XWayland. Native Wayland rendering is not supported.
-
-Verify the AppImage, make it executable, and run it:
+You need `fontconfig` and an X11 session, or XWayland on a Wayland desktop.
+The optional desktop installer also needs the `file` command. On Ubuntu/Debian,
+install those utilities if missing:
 
 ```sh
-sha256sum --check OMXTerm-0.12.2-arm64.AppImage.sha256 &&
-  chmod +x OMXTerm-0.12.2-arm64.AppImage &&
-  ./OMXTerm-0.12.2-arm64.AppImage
+sudo apt install fontconfig file
+```
+
+**Run directly:** verify the AppImage, make it executable, and launch it:
+
+```sh
+sha256sum --check OMXTerm-0.13.0-arm64.AppImage.sha256 &&
+  chmod +x OMXTerm-0.13.0-arm64.AppImage &&
+  ./OMXTerm-0.13.0-arm64.AppImage
 ```
 
 If kernel FUSE mounting is unavailable, run the verified AppImage with:
 
 ```sh
-./OMXTerm-0.12.2-arm64.AppImage --appimage-extract-and-run
+./OMXTerm-0.13.0-arm64.AppImage --appimage-extract-and-run
 ```
 
 **Linux runs without the Chromium sandbox** (`--no-sandbox`) to avoid startup
@@ -93,18 +99,20 @@ launches. Context isolation and the minimal preload bridge remain enabled but
 do not replace that sandbox. Run as an ordinary user; no administrator sandbox
 setup is needed. See the [Linux launch policy](docs/adr/0024-disable-the-chromium-sandbox-on-linux.md).
 
-To add OMXTerm to your desktop menu, install the `file` command if needed and
-use the optional helper. Verify both downloads first:
+**Add to your application menu:** download the optional desktop helper and
+its checksum alongside the AppImage. Verify both downloads, then install:
 
 ```sh
-sha256sum --check OMXTerm-0.12.2-arm64.AppImage.sha256 &&
-  sha256sum --check OMXTerm-0.12.2-arm64.AppImage-installer.sh.sha256 &&
-  chmod +x OMXTerm-0.12.2-arm64.AppImage OMXTerm-0.12.2-arm64.AppImage-installer.sh &&
-  ./OMXTerm-0.12.2-arm64.AppImage-installer.sh install ./OMXTerm-0.12.2-arm64.AppImage
+sha256sum --check OMXTerm-0.13.0-arm64.AppImage.sha256 &&
+  sha256sum --check OMXTerm-0.13.0-arm64.AppImage-installer.sh.sha256 &&
+  chmod +x OMXTerm-0.13.0-arm64.AppImage OMXTerm-0.13.0-arm64.AppImage-installer.sh &&
+  ./OMXTerm-0.13.0-arm64.AppImage-installer.sh install ./OMXTerm-0.13.0-arm64.AppImage
 ```
 
-The helper installs the verified local files for your user only, without
-additional downloads or system-wide changes. See the
+You can now launch **OMXTerm** from your application menu. The helper chooses
+FUSE or extraction mode during installation, so you do not need to add launch
+flags to the desktop entry. It installs for your user only, without `sudo`,
+additional downloads, or system-wide changes. See the
 [local installation details](docs/spec.md#configuration-and-local-state).
 
 ### Windows
@@ -115,7 +123,7 @@ if it is not already present. In PowerShell, verify the installer and confirm
 that the checksum file names the same package:
 
 ```powershell
-$installerName = "OMXTerm-0.12.2-arm64.exe"
+$installerName = "OMXTerm-0.13.0-arm64.exe"
 $checksumRecord = Get-Content -LiteralPath "$installerName.sha256" -Raw -ErrorAction Stop
 $checksumMatch = [regex]::Match(
   $checksumRecord,
@@ -134,8 +142,10 @@ if (-not [StringComparer]::OrdinalIgnoreCase.Equals($actualHash, $expectedHash))
 Write-Host "SHA-256 verification succeeded for $installerName"
 ```
 
-After verification succeeds, run `OMXTerm-0.12.2-arm64.exe`. It installs for your
-user without administrator elevation.
+After verification succeeds, run `OMXTerm-0.13.0-arm64.exe`. It installs for your
+user without administrator elevation. Windows PowerShell is the default shell;
+see [shell configuration](docs/configuration.md) to select Git Bash, MSYS2 Bash,
+or another installed shell.
 
 The installer is unsigned, so Microsoft Defender SmartScreen may show an
 unknown-publisher warning. If you trust the verified package, use
@@ -156,8 +166,9 @@ To disable Readline's bell in the current Bash session, run:
 bind 'set bell-style none'
 ```
 
-For subsequent Bash sessions, edit `~/.inputrc` in that Bash environment. If
-it already exists, preserve its other settings and includes; change the
+For subsequent Bash sessions, edit `~/.inputrc` in that Bash environment (or
+the file named by `INPUTRC`, if you set that variable). If the file already
+exists, preserve its other settings and includes; change the
 `bell-style` setting to `none`, or add `set bell-style none` after existing
 settings and includes. If creating the file, preserve the system defaults with:
 

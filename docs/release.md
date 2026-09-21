@@ -197,7 +197,7 @@ ancestry. Its tree matches PR #335 squash
 Markdown files differ from the build source. The files were published unchanged;
 earlier releases remain available under their original tags.
 
-## 0.13.0 candidate preparation
+## Accepted 0.13.0 artifacts
 
 The [0.13.0 candidate record](releases/0.13.0.md) binds all three native ARM64
 builds to `f53bff7225d4ac1cab4036853484c261bf3d80da`. Complete native commands
@@ -210,9 +210,11 @@ reported successful. The Bash visual-bell limitation (#333) is documented in
 the installation guide and release notes for this release; product-side
 investigation remains deferred. These follow-up Markdown changes passed an
 independent Standards and Spec review without findings and do not alter the
-artifact identities. Owner
-exact-artifact acceptance remains pending; publication is not authorized. These
-are candidates, not published downloads.
+artifact identities. On September 21, 2026, the owner explicitly accepted all
+eight listed files and separately authorized publication. Final documentation
+and GitHub Release notes passed independent review without findings. Tag/source
+reconciliation and post-upload download verification complete the authorized
+release procedure.
 
 ## Version selection and consistency
 
