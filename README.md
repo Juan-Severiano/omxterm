@@ -142,6 +142,36 @@ unknown-publisher warning. If you trust the verified package, use
 `More info -> Run anyway` for that file. Do not disable SmartScreen or other
 system-wide Windows security protections.
 
+#### Bright flashes in Bash
+
+If pressing Backspace at an empty Bash prompt briefly turns the terminal
+bright, check the shell's visual-bell setting. Some Bash setups, including
+Git Bash, enable Readline's `bell-style visible`, which requests a screen
+color inversion rather than an ordinary Terminal Bell. This is not a general
+Windows shell requirement, and 0.13.0 does not suppress those inversions.
+
+To disable Readline's bell in the current Bash session, run:
+
+```bash
+bind 'set bell-style none'
+```
+
+For subsequent Bash sessions, edit `~/.inputrc` in that Bash environment. If
+it already exists, preserve its other settings and includes; change the
+`bell-style` setting to `none`, or add `set bell-style none` after existing
+settings and includes. If creating the file, preserve the system defaults with:
+
+```text
+$include /etc/inputrc
+set bell-style none
+```
+
+Open a new Bash session afterward, or use the `bind` command above in existing
+sessions. This disables Bash/Readline's bell, not visual effects requested by
+other applications. OMXTerm does not edit shell configuration automatically.
+Product-side investigation continues in
+[#333](https://github.com/luizomf/omxterm/issues/333).
+
 ## Everyday use
 
 Launch OMXTerm to open your default shell in your home directory. Use

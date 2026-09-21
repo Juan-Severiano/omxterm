@@ -202,9 +202,17 @@ earlier releases remain available under their original tags.
 The [0.13.0 candidate record](releases/0.13.0.md) binds all three native ARM64
 builds to `f53bff7225d4ac1cab4036853484c261bf3d80da`. Complete native commands
 passed and all eight unchanged files have matching native/collected identities.
-Independent final review passed without findings. Owner exact-artifact
-acceptance remains pending; publication is not authorized. These are candidates,
-not published downloads.
+Independent final review passed without findings before the subsequent Windows
+installer report. The same unchanged installer was reported to install and run
+successfully after reboot (#349); its earlier shutdown stall has no confirmed
+root cause or product correction. Windows and Ubuntu use was subsequently
+reported successful. The Bash visual-bell limitation (#333) is documented in
+the installation guide and release notes for this release; product-side
+investigation remains deferred. These follow-up Markdown changes passed an
+independent Standards and Spec review without findings and do not alter the
+artifact identities. Owner
+exact-artifact acceptance remains pending; publication is not authorized. These
+are candidates, not published downloads.
 
 ## Version selection and consistency
 
