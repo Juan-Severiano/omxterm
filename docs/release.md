@@ -197,6 +197,14 @@ ancestry. Its tree matches PR #335 squash
 Markdown files differ from the build source. The files were published unchanged;
 earlier releases remain available under their original tags.
 
+## 0.13.0 candidate preparation
+
+The [0.13.0 candidate record](releases/0.13.0.md) binds all three native ARM64
+builds to `f53bff7225d4ac1cab4036853484c261bf3d80da`. Complete native commands
+passed and all eight unchanged files have matching native/collected identities.
+Independent final review and owner exact-artifact acceptance remain pending;
+publication is not authorized. These are candidates, not published downloads.
+
 ## Version selection and consistency
 
 Select the release version under the [versioning policy](versioning.md) in an
@@ -293,7 +301,10 @@ shared folder. Install Node.js 22.13 or later in the Node.js 22 line, or
 Node.js 24 or newer, plus `python3`, `make`, a C++ compiler
 (`build-essential` on Ubuntu), `readelf` (`binutils` on Ubuntu), the `fontconfig`
 utilities, and an X11 display or XWayland in a Wayland session. Native Wayland
-is not currently claimed. Run as an ordinary user. OMXTerm uses an unconditional
+is not currently claimed. Keep the graphical session unlocked and prevent idle
+locking during native image/input verification; a locked desktop can suppress
+frames and synthetic input without identifying a product failure. Run as an
+ordinary user. OMXTerm uses an unconditional
 Linux-only `--no-sandbox` policy (ADR 0024); no administrator sandbox setup or
 host-policy changes are required. Then run from the accepted source commit:
 
@@ -352,9 +363,20 @@ material automation-resistant risk is recorded honestly.
 Use a native Windows arm64 clone on the VM's native filesystem, never a
 Parallels shared folder, in a graphical session. Install Node.js 22.13 or later
 in the Node.js 22 line, or Node.js 24 or newer, and the Visual C++ Redistributable for ARM64 (Electron's runtime requires it),
-allow script execution for npm's cmd shims, and clone with
-`core.autocrlf=false` and `core.symlinks=true` (symlinked repository files
-must check out as symlinks; Developer Mode enables unprivileged symlinks).
+allow the locally checked-out PowerShell verification scripts to execute, and
+clone with `core.autocrlf=false` and `core.symlinks=true`. Persist both repository
+settings before the first checkout, rather than applying temporary `git -c`
+options only to a preceding clone command. Verify LF worktree bytes and actual
+symlinks before starting the full command.
+
+Developer Mode enables the unprivileged symlinks required by native fixtures.
+These development prerequisites need separate owner permission if not already
+configured. With that permission, process-scoped RemoteSigned can allow local
+verification scripts and propagate to child PowerShell processes without changing
+the persisted execution policy. Keep the normal Windows executable search path
+when prepending portable tools; do not create competing `Path`/`PATH` entries.
+Neither this procedure nor an installer opt-in authorizes disabling Defender or
+SmartScreen.
 Exact NSIS verification must run only in an explicitly authorized disposable VM
 with a recoverable snapshot. It is **not** isolated by a temporary destination:
 NSIS can uninstall an existing OMXTerm and replace registration and shortcuts.
