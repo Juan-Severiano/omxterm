@@ -23,10 +23,11 @@ checks on all three platforms. The latest published download is **0.13.0**,
 which improves configured fonts with real bold and italic faces when available,
 stronger synthetic bold when needed, and shared font resources across tabs.
 
-The documentation follows the **0.14.0-dev.0** source tree. Features added
-since 0.13.0, including the tab-bar toggle and its shortcut, are available when
-building the development version and are not part of the published 0.13.0
-packages. Use the [0.13.0 release notes](docs/releases/0.13.0.md) when you need
+The documentation follows the **0.14.0 candidate** source tree. Its
+[release record](docs/releases/0.14.0.md) tracks verification and acceptance;
+it is not yet a published download. Features added since 0.13.0, including the
+tab-bar toggle and its shortcut, are available when building this source and
+are not part of the published 0.13.0 packages. Use the [0.13.0 release notes](docs/releases/0.13.0.md) when you need
 the exact behavior of those downloads.
 
 ## Platforms and downloads

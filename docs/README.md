@@ -20,9 +20,10 @@ for macOS, Linux, and Windows ARM64. Use the
 The [0.13.0 release notes and record](releases/0.13.0.md) describe its font
 improvements, known issues, package checksums, and verification.
 
-These guides follow the **0.14.0-dev.0** source tree. A feature described here
-may have landed after 0.13.0; the release notes are the exact guide to the
-published packages. The repository is currently private, so GitHub downloads
+These guides follow the **0.14.0 candidate** source tree. Its
+[verification and acceptance record](releases/0.14.0.md) does not make it a
+published release. A feature described here may have landed after 0.13.0;
+the release notes are the exact guide to the published packages. The repository is currently private, so GitHub downloads
 require repository access.
 
 OMXTerm keeps evolving through everyday use and reported problems. The

@@ -5,9 +5,10 @@ versions. A release number has the form `MAJOR.MINOR.PATCH`, and its Git tag add
 `v`; for example, version `0.13.0` has tag `v0.13.0`.
 
 Two identities may be visible at the same time. **0.13.0** is the latest
-published release recorded in this repository, while `main` currently carries
-**0.14.0-dev.0** for ongoing development. The `-dev.0` value names a development
-baseline, not a newer published release.
+published release recorded in this repository, while this source prepares the
+**0.14.0** candidate from the previous `0.14.0-dev.0` baseline. A final version
+in package metadata is not publication or exact-artifact acceptance; see the
+[candidate record](releases/0.14.0.md).
 
 This policy explains what a version means. It does not grant permission to
 change versions, create tags, build release artifacts, or publish a GitHub

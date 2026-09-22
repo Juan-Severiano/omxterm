@@ -21,9 +21,10 @@ For a new candidate, follow this path:
 
 The historical sections preserve what happened for earlier releases; they do
 not replace the current procedure or authorize repeating a past action. The
-latest published release described here is **0.13.0**. The repository currently
-uses **0.14.0-dev.0** as its development baseline, which is not a published
-release and must not be used as a release identity.
+latest published release described here is **0.13.0**. This source prepares
+**0.14.0**; its [candidate record](releases/0.14.0.md) identifies the exact files,
+native verification, and remaining acceptance/publication gates. Version
+metadata alone is not publication.
 
 ## Cross-platform release policy
 
@@ -251,6 +252,17 @@ Markdown files differ from the build source. All eight assets were downloaded
 from the published release and matched their accepted sizes and SHA-256,
 including the four checksum records. Published files and the tag remain
 unchanged while `main` resumes development at `0.13.1-dev.0`.
+
+## 0.14.0 candidate artifacts
+
+The [0.14.0 record](releases/0.14.0.md) binds all three native ARM64 builds to
+`506aac2b10b493490e0fca3d39567a803eebb773`. Complete native commands passed,
+including packaged parsed output and exact Windows installer verification and
+cleanup. All eight collected files match their native sizes and SHA-256 values.
+The Windows test replaced an existing per-user development installation; its
+pre-existing updater cache was separately preserved. On September 22, 2026, the
+owner accepted all eight exact files and reaffirmed publication authorization.
+Final independent review is still pending; no tag or assets have been published.
 
 ## Version selection and consistency
 
