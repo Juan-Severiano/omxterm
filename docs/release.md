@@ -262,7 +262,9 @@ cleanup. All eight collected files match their native sizes and SHA-256 values.
 The Windows test replaced an existing per-user development installation; its
 pre-existing updater cache was separately preserved. On September 22, 2026, the
 owner accepted all eight exact files and reaffirmed publication authorization.
-Final independent review is still pending; no tag or assets have been published.
+Final independent Standards/Spec review passed without surviving findings,
+including the exact publication body. Only eligible Markdown review-status
+bookkeeping followed; no tag or assets have been published yet.
 
 ## Version selection and consistency
 
