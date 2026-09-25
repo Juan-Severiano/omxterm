@@ -18,19 +18,18 @@ local PNG/JPEG previews, and inline images in direct Pi/Chafa sessions.
 
 ## Platforms and downloads
 
-The latest published release is **0.14.0**. These docs follow the
-**0.14.1-dev.0** source tree; [release notes](docs/releases/0.14.0.md) describe
-the published packages and their verification.
+This source tree targets **0.15.0**. The [release notes](docs/releases/0.15.0.md)
+record package identities, verification and publication status.
 
 OMXTerm requires **ARM64** and a working **WebGL2** graphics backend. Intel
 macOS, x64 builds, and software rendering are not supported.
 
 | Platform                        | Package                                                                                                                 | SHA-256                                                                                                                    |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Apple Silicon macOS             | [DMG](https://github.com/luizomf/omxterm/releases/download/v0.14.0/OMXTerm-0.14.0-arm64.dmg)                            | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.14.0/OMXTerm-0.14.0-arm64.dmg.sha256)                   |
-| Linux ARM64                     | [AppImage](https://github.com/luizomf/omxterm/releases/download/v0.14.0/OMXTerm-0.14.0-arm64.AppImage)                  | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.14.0/OMXTerm-0.14.0-arm64.AppImage.sha256)              |
-| Linux desktop helper (optional) | [Shell helper](https://github.com/luizomf/omxterm/releases/download/v0.14.0/OMXTerm-0.14.0-arm64.AppImage-installer.sh) | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.14.0/OMXTerm-0.14.0-arm64.AppImage-installer.sh.sha256) |
-| Windows ARM64                   | [Installer](https://github.com/luizomf/omxterm/releases/download/v0.14.0/OMXTerm-0.14.0-arm64.exe)                      | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.14.0/OMXTerm-0.14.0-arm64.exe.sha256)                   |
+| Apple Silicon macOS             | [DMG](https://github.com/luizomf/omxterm/releases/download/v0.15.0/OMXTerm-0.15.0-arm64.dmg)                            | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.15.0/OMXTerm-0.15.0-arm64.dmg.sha256)                   |
+| Linux ARM64                     | [AppImage](https://github.com/luizomf/omxterm/releases/download/v0.15.0/OMXTerm-0.15.0-arm64.AppImage)                  | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.15.0/OMXTerm-0.15.0-arm64.AppImage.sha256)              |
+| Linux desktop helper (optional) | [Shell helper](https://github.com/luizomf/omxterm/releases/download/v0.15.0/OMXTerm-0.15.0-arm64.AppImage-installer.sh) | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.15.0/OMXTerm-0.15.0-arm64.AppImage-installer.sh.sha256) |
+| Windows ARM64                   | [Installer](https://github.com/luizomf/omxterm/releases/download/v0.15.0/OMXTerm-0.15.0-arm64.exe)                      | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.15.0/OMXTerm-0.15.0-arm64.exe.sha256)                   |
 
 The repository is currently private; downloads require a GitHub account with
 repository access.
@@ -47,7 +46,7 @@ publisher identity; the packages are unsigned.
 1. Verify the DMG:
 
    ```sh
-   shasum -a 256 -c OMXTerm-0.14.0-arm64.dmg.sha256
+   shasum -a 256 -c OMXTerm-0.15.0-arm64.dmg.sha256
    ```
 
 2. Open the DMG, drag **OMXTerm.app** to **Applications**, and eject the DMG.
@@ -73,15 +72,15 @@ sudo apt install fontconfig file
 Verify the AppImage and launch it:
 
 ```sh
-sha256sum --check OMXTerm-0.14.0-arm64.AppImage.sha256 &&
-  chmod +x OMXTerm-0.14.0-arm64.AppImage &&
-  ./OMXTerm-0.14.0-arm64.AppImage
+sha256sum --check OMXTerm-0.15.0-arm64.AppImage.sha256 &&
+  chmod +x OMXTerm-0.15.0-arm64.AppImage &&
+  ./OMXTerm-0.15.0-arm64.AppImage
 ```
 
 If FUSE mounting is unavailable, launch the verified file in extraction mode:
 
 ```sh
-./OMXTerm-0.14.0-arm64.AppImage --appimage-extract-and-run
+./OMXTerm-0.15.0-arm64.AppImage --appimage-extract-and-run
 ```
 
 **Linux runs without the Chromium sandbox**, in both launch modes and through
@@ -94,10 +93,10 @@ for that sandbox. Run as an ordinary user, not with `sudo`.
 Download the optional helper and its checksum beside the AppImage, then run:
 
 ```sh
-sha256sum --check OMXTerm-0.14.0-arm64.AppImage.sha256 &&
-  sha256sum --check OMXTerm-0.14.0-arm64.AppImage-installer.sh.sha256 &&
-  chmod +x OMXTerm-0.14.0-arm64.AppImage OMXTerm-0.14.0-arm64.AppImage-installer.sh &&
-  ./OMXTerm-0.14.0-arm64.AppImage-installer.sh install ./OMXTerm-0.14.0-arm64.AppImage
+sha256sum --check OMXTerm-0.15.0-arm64.AppImage.sha256 &&
+  sha256sum --check OMXTerm-0.15.0-arm64.AppImage-installer.sh.sha256 &&
+  chmod +x OMXTerm-0.15.0-arm64.AppImage OMXTerm-0.15.0-arm64.AppImage-installer.sh &&
+  ./OMXTerm-0.15.0-arm64.AppImage-installer.sh install ./OMXTerm-0.15.0-arm64.AppImage
 ```
 
 Launch **OMXTerm** from your application menu. The helper installs for your user
@@ -111,7 +110,7 @@ need `sudo` or download anything.
 2. In PowerShell, verify the installer:
 
    ```powershell
-   $installerName = "OMXTerm-0.14.0-arm64.exe"
+   $installerName = "OMXTerm-0.15.0-arm64.exe"
    $checksumRecord = Get-Content -LiteralPath "$installerName.sha256" -Raw -ErrorAction Stop
    $checksumMatch = [regex]::Match(
      $checksumRecord,
@@ -130,7 +129,7 @@ need `sudo` or download anything.
    Write-Host "SHA-256 verification succeeded for $installerName"
    ```
 
-3. Run **OMXTerm-0.14.0-arm64.exe**. It installs for your user without
+3. Run **OMXTerm-0.15.0-arm64.exe**. It installs for your user without
    administrator elevation.
 
 The installer is unsigned. If SmartScreen warns about an unknown publisher and
@@ -156,7 +155,10 @@ for work that needs to survive closing the terminal.
 For `+`, include the Shift needed to type that symbol on your keyboard. On Linux
 and Windows, press and release `Alt` to reveal the application menu.
 
-No configuration is required. When you want more:
+On first opening, OMXTerm creates an editable configuration, a snippet example
+and the default theme in your configuration directory. If `config.json` already
+exists, it leaves the entire kit alone. No manual setup is required. When you
+want more:
 
 - [Everyday use](docs/usage.md) — all shortcuts, tabs, images, paste, and troubleshooting.
 - Complete setup examples: [macOS](docs/quick-start/macos.md),
