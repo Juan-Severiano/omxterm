@@ -260,10 +260,9 @@ _Avoid_: notification, alarm, terminal error
 A ready-to-run native arm64 package built from an accepted source commit and
 associated with an authorized version tag alongside the public source code and a
 reproducible local build path. The initial formats are DMG for macOS, AppImage
-for Linux, and NSIS for Windows. Each exact artifact
-receives separate owner acceptance after native build and verification. Manual
-publication is a separate maintainer-authorized action and includes the
-artifact's SHA-256 checksum. Initial artifacts carry no verified publisher
+for Linux, and NSIS for Windows. Each exact artifact receives native build and verification evidence. An
+owner-requested release covers verification and publication without additional
+approval rounds; publication includes the artifact's SHA-256 checksum. Initial artifacts carry no verified publisher
 identity. The macOS application has a complete ad-hoc code seal for bundle
 integrity, without an Apple Developer ID signature or notarization. macOS
 release documentation explains the resulting Gatekeeper review and links to

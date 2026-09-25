@@ -37,10 +37,14 @@ inspection. User data is never selected for deletion. The old application is
 not restored by this test; snapshot recovery is a separate environment action.
 
 Safe unpacked diagnostics remain available and explicitly partial. Full native
-Windows verification still requires this exact-installer seam. Neither mode
-authorizes security-policy relaxation, release acceptance, or publication.
+Windows verification still requires this exact-installer seam. These technical
+modes do not define additional owner approval rounds.
 
-The cost is a disposable native VM and explicit consent for each invocation,
-plus re-reviewing the inspection footprint when packaging inputs change. This
+An owner-authorized release in disposable VMs covers prerequisite provisioning
+and installer verification. The agent supplies the CLI opt-in for that work;
+consent is not requested again for each invocation. Live-process conflicts,
+unknown ownership and failed verification remain technical blockers, not
+reasons to bypass inspection. The cost is a disposable native VM and
+re-reviewing the inspection footprint when packaging inputs change. This
 is preferable to changing the tested installer identity, hiding registry state,
 repacking the artifact, or claiming non-mutating extraction without evidence.

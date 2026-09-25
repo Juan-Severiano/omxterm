@@ -8,9 +8,9 @@ recorded in
 An accepted OMXTerm version may be tagged as `v0.x.y` and published as a
 ready-to-run Apple Silicon macOS `.dmg`. The exact artifact receives a native
 build and verification before the artifact and its SHA-256 checksum are attached
-to the canonical GitHub Release. Owner acceptance and publication authorization
-remain separate manual decisions. The application has no automatic update
-mechanism.
+to the canonical GitHub Release. An owner-requested release can be carried
+through verification and publication without another approval round. The
+application has no automatic update mechanism.
 
 The application uses neither Apple Developer ID signing nor notarization. This
 keeps paid Apple distribution services outside the obligations of a small

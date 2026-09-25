@@ -1,157 +1,116 @@
-# ARM64 release policy and native procedures
+# ARM64 release procedures
 
-This document explains how OMXTerm produces and accepts its ARM64 release
-artifacts: an ad-hoc-sealed, unnotarized macOS DMG, a Linux AppImage, and a
-Windows NSIS installer. It is a procedure, not publication permission. Tags,
-GitHub Releases, uploads, signing, and notarization require separate maintainer
-approval.
+An owner request to prepare and publish a release covers the complete delivery:
+version selection, build-environment preparation, native verification, release
+records, tags, uploads and download verification. Carry that scope through to
+subagents. Do not add per-step approval requests or a separate exact-artifact
+acceptance round. Ask only when missing information blocks progress or a
+necessary destructive consequence is outside the scope already given.
 
-For a new candidate, follow this path:
+The technical checks below still apply. A failed check is a problem to diagnose,
+not permission to weaken verification. Manual testing is optional.
 
-1. choose the version using [the versioning policy](versioning.md);
-2. apply the [cross-platform policy](#cross-platform-release-policy) and record
-   whether every change affects packaged bytes;
-3. run the matching native procedure for [macOS](#macos-arm64),
-   [Linux](#linux-arm64), and [Windows](#windows-arm64);
-4. complete the
-   [exact-artifact acceptance record](#automation-first-exact-artifact-acceptance)
-   and checksums; and
-5. stop after owner acceptance unless publication receives its own explicit
-   authorization.
+## Release path
 
-Published artifact identities, acceptance, and verification belong in
-[`docs/releases/`](releases/), not in this procedure. See the
-[README](../README.md#platforms-and-downloads) for the current published version.
+1. Select the version using [the versioning policy](versioning.md).
+2. Compare with the previous published tag and record changed boundaries.
+3. Build and verify on each native Supported Platform.
+4. Collect the exact artifacts, checksums and verification evidence in the
+   primary checkout's ignored `release/` directory.
+5. Review source/version consistency, publish the release, then download and
+   verify every uploaded file.
+
+Keep issue/PR state and [`docs/releases/`](releases/) accurate. These records
+capture work and evidence; they are not additional permission gates.
 
 ## Cross-platform release policy
 
-The initial Supported Platforms and artifact formats are macOS arm64 DMG, Linux
-arm64 AppImage, and Windows arm64 NSIS. Initial artifacts carry no verified
-publisher identity; publisher signing, Apple notarization, certificates, and
-paid signing services are deferred. The macOS application receives a complete
-ad-hoc code seal for internal bundle integrity without gaining a publisher
-identity. Ad-hoc identity changes can require renewed macOS privacy approvals
-when replacing builds. The [privacy identity investigation](macos-privacy-identity.md)
-records measured behavior and a private-development proposal; it does not
-change this release policy or guarantee retention for every permission.
+The Supported Platforms and application packages are macOS arm64 DMG, Linux
+arm64 AppImage and Windows arm64 NSIS. Linux also provides its versioned
+per-user AppImage desktop installer and checksum. Build natively on each target,
+using the VM's native filesystem rather than a host shared folder.
 
-Every release candidate is built and verified natively. macOS builds run on
-Apple Silicon. Linux arm64 and Windows arm64 builds run on native runners or in
-native Parallels VM clones using the VM's native filesystem, never a host shared
-folder. Each exact artifact requires its own automated checks. Manual testing is
-optional and never gates acceptance or publication. A material changed boundary
-that automation cannot observe is recorded as unverified rather than inferred
-as passing. Rebuilding or changing an artifact invalidates its identity and
-automated evidence.
+No artifact has a verified publisher identity. macOS uses a complete ad-hoc code
+seal, without Apple Developer ID signing or notarization. Ad-hoc identity
+changes may require renewed macOS privacy approvals; see the
+[privacy identity investigation](macos-privacy-identity.md). Publisher signing,
+certificates, notarization, x64, Intel macOS, additional package formats, paid CI
+and unattended CI publication remain deferred. This does not prevent an agent
+from completing an owner-requested release.
 
-Exact-artifact acceptance and publication are separate owner gates. Acceptance
-never authorizes a tag, upload, or GitHub Release; publication remains manual
-and requires separate maintainer authorization. x64, Intel macOS, additional
-package formats, signing and notarization, paid CI, and automatic publication
-remain deferred.
-
-The macOS, Linux, and Windows steps below are the implemented procedures for
-those platforms. The macOS procedure preserves its Gatekeeper policy; the Linux
-procedure records the unsigned AppImage and FUSE limitations; the Windows
-procedure records the unsigned NSIS installer and SmartScreen limitation.
+Each exact artifact requires its own native automated evidence. Manual testing
+is optional and never blocks publication. Record material behavior that
+current automation cannot observe as `UNVERIFIED`, with the affected platform
+and user-facing risk. Never infer that a check passed on another OS or GPU.
+Rebuilding changes artifact identity and requires fresh artifact verification.
+Reuse valid evidence when nothing relevant changed.
 
 ### Artifact-affecting and documentation-only changes
 
-Each native record keeps the exact **artifact build commit** used for its
-package. The three artifact build commits normally match. They may differ only
-when every intervening change qualifies for the documentation-only exception
-below; all artifact-affecting source must remain identical across the three
-packages.
+Record each artifact's exact build commit. All artifact-affecting source must
+be identical across platforms. Build commits normally match; they may differ
+only through the documentation-only exception below.
 
-A change qualifies only when every changed path is a non-packaged Markdown file
-and none is:
+A change qualifies for that exception when every changed path is a non-packaged
+Markdown file and none is:
 
-- `docs/spec.md` or a file under `docs/adr/`, because these define the product
-  contract and durable decisions;
-- `THIRD_PARTY_NOTICES.md`, because it is packaged in every artifact; or
-- a license, package/version file, executable or test source, dependency,
-  configuration, build or packaging input, asset, generated application file,
-  or any other non-Markdown path.
+- `THIRD_PARTY_NOTICES.md`, a license or another packaged file;
+- a package/version file, executable or test source, dependency, configuration,
+  build input, asset, generated application file or other non-Markdown path.
 
-Eligible examples include `README.md`, `CONTRIBUTING.md`, tutorials, agent
-instructions, release procedures, and platform guidance that is not packaged.
-Such a change does not alter or invalidate an unchanged artifact. If it adds or
-changes required automation or changed-boundary evidence, the existing exact
-artifact must satisfy the current requirement before acceptance or publication;
-documentation-only status avoids a rebuild, not the new gate.
+Examples include non-packaged README files, tutorials, agent instructions,
+release records and this procedure. Contract/ADR documentation changes that do
+not change packaged bytes also qualify. Such changes do not invalidate unchanged
+artifacts. If they introduce a new behavior or verification requirement, the
+existing artifact must satisfy it; avoiding a rebuild does not waive the check.
 
-Any non-eligible change after an artifact build invalidates every earlier native
-record for that version. Rebuild those packages from the new accepted source and
-start new exact-artifact records. Record every artifact build commit; before
-publication, compare each one with the intended tag and confirm that every
-intervening path is eligible under this section. If that proof fails, do not tag
-or publish.
+Any non-eligible change invalidates earlier native records for that version.
+Before publication, compare each artifact build commit with the intended tag;
+the tag must point to it or a descendant differing only by eligible Markdown.
+If that proof fails, rebuild from the new source.
 
-This exception applies only before publication. Published releases are
-immutable: never move their tags, replace their artifacts or checksums, or reuse
-their GitHub Releases. Later documentation corrections ship from `main` or with
-a future release without rewriting the published one.
+Published releases are immutable: do not move published tags, replace assets
+or reuse a published version. Later documentation corrections do not rewrite
+published artifact identities.
 
-## Version selection and consistency
+## Version consistency
 
-Select the release version under the [versioning policy](versioning.md) in an
-explicitly authorized release preparation issue. This procedure does not choose
-or increment a version by itself. A `-dev` development baseline version is
-never releasable; release preparation removes the prerelease suffix.
+`package.json` and `package-lock.json` must contain the same final `X.Y.Z`.
+The application version, `TERM_PROGRAM_VERSION`, tag `vX.Y.Z`, filenames,
+checksum basenames and GitHub Release must agree. A `-dev` baseline is not
+releasable. The Linux helper's embedded `--version` must also agree.
 
-Before building a release candidate, confirm that `package.json` and
-`package-lock.json` contain the same accepted `X.Y.Z` version. The application
-version, intended `vX.Y.Z` tag, `TERM_PROGRAM_VERSION`, native artifact
-filenames, checksum filenames, and GitHub Release must all identify that same
-version. The intended tag points to every included artifact build commit directly or to
-a descendant that differs from it only through the documentation-only exception
-above. Except for a recorded release-specific omission such as 0.12.0 Windows,
-the package names are `OMXTerm-X.Y.Z-arm64.dmg`,
-`OMXTerm-X.Y.Z-arm64.AppImage`, and `OMXTerm-X.Y.Z-arm64.exe`. Linux also
-produces `OMXTerm-X.Y.Z-arm64.AppImage-installer.sh`; its embedded `--version`,
-filename, and checksum must identify the same version.
+An ordinary release includes all three Supported Platforms. A platform omission
+is a change in delivery scope, not an inferred pass, and must be stated in the
+release record and notes.
 
 ## Build and automated verification
 
-Portable checks include the production-Chromium image fixture with its own
-Electron userData/sessionData directories. On Windows and Linux it shows a
-non-activating native window before loading the fixture; macOS keeps it hidden.
-Hidden Windows/Linux windows can stall real image-frame progress even with
-background throttling disabled. All original checks, real animation frames,
-deadlines, production CSP and renderer isolation remain required; visibility is
-a test-harness requirement, not a Terminal Surface behavior change. Appearance
-verification crosses real frames after configured/reference-font remount output
-before comparing exact pixel buffers; an elapsed delay alone is not readiness.
-A delayed-output-frame regression exercises that ordering without relaxing the
-bitmap comparison or claiming a universal compositor fence.
+Release candidates use a fresh `npm ci` and explicit reruns of the existing
+checksum-guarded node-pty and Restty preparation scripts. Unknown dependency
+bytes fail preparation rather than silently reusing a stale patched runtime.
 
-Each native platform command also runs the Restty host fixture through an actual
-WebGL2 renderer and owned PTYs. It covers Default Shell and explicit-command
-startup, input/output, resize, shutdown and renderer loss; bundled and installed
-fonts; configuration and restart notices; and direct Pi/Chafa images. A missing
-backend or irrecoverable context loss must visibly fail and clean only its owned
-session while another session remains usable. Synthetic DOM coverage or another
-operating system cannot substitute for this native seam.
+Portable checks include the production-Chromium image fixture with isolated
+userData/sessionData. On Windows and Linux its non-activating window is visible:
+hidden windows can stall actual frames. Production CSP, renderer isolation,
+real animation frames, deadlines and exact bitmap comparisons remain required.
+Elapsed time alone is not frame readiness.
 
-Release candidates additionally use a fresh `npm ci` and explicitly rerun the
-existing checksum-guarded node-pty and Restty preparation scripts before the
-complete native command. This bounded release procedure rejects unknown
-installed bytes and avoids reusing a stale prepared runtime; it is not a new
-runtime-prevention framework. Packaged verification then starts the actual
-packaged application with a synthetic owned PTY command. That command prints a
-visible marker and sends `CSI 16 t`; only a positive cell-size reply from the
-packaged Terminal Surface creates the proof file. Startup events and a live
-shell are still required, but cannot substitute for this parsed-output proof.
-The probe uses no user shell, configuration, Terminal Payload or persistent
-profile and its owned state is removed after verified process termination.
+Native checks exercise Restty through actual WebGL2 and owned PTYs: Default
+Shell and explicit-command startup, input/output, resize, shutdown and renderer
+loss; bundled and installed fonts; configuration/restart notices; and Pi/Chafa
+images. Missing WebGL2 or irrecoverable context loss must fail visibly and clean
+only the affected session. Synthetic DOM coverage is not a substitute.
+
+Packaged verification launches the actual package with a synthetic owned PTY
+command. A visible marker and `CSI 16 t` must produce a positive cell-size reply
+from the packaged Surface before the proof file is created. Startup events or
+a live shell alone are insufficient. The probe uses no user shell, configuration,
+payload or persistent profile; its state is removed after verified termination.
 
 ### macOS arm64
 
-Use an accepted release commit for `X.Y.Z`, with `vX.Y.Z` recorded as the
-intended tag, on the macOS Supported Platform: the designated Apple Silicon
-(`arm64`) Mac. Install Node.js 22.13 or later in the Node.js 22
-line, or Node.js 24 or newer, check out the accepted source
-without local or private files, and run:
+Use Apple Silicon and Node.js 22.13+ in the 22 line, or Node.js 24+:
 
 ```sh
 npm ci
@@ -160,40 +119,28 @@ node scripts/prepare-restty-runtime.mjs
 npm run check
 ```
 
-`npm run check` is the complete automated verification command. It checks
-formatting and types, runs every unit and integration test, builds the
-application, creates `release/OMXTerm-<version>-arm64.dmg`, and starts the
-packaged `release/mac-arm64/OMXTerm.app` with isolated configuration and state.
-The packaged-startup check requires the arm64 executable, renderer, Terminal
-Surface, bundled font, native PTY helper, project and third-party licenses, and
-startup events through a running PTY. It rejects source maps, tests, source
-trees, alternate-architecture PTY binaries, common secret files, and publisher
-signing identities in the package. It also requires the complete ad-hoc
-application seal to pass `codesign --verify --deep --strict`; inspecting only
-signature metadata is insufficient.
+This runs portable checks, builds `release/OMXTerm-<version>-arm64.dmg` and
+verifies the packaged `release/mac-arm64/OMXTerm.app` with isolated state. The
+verifier checks architecture, renderer, Surface, bundled fonts, native PTY helper,
+licenses, startup and parsed output. It rejects source maps, tests, source trees,
+alternate-architecture PTY binaries and common private/secret files.
 
-For packaging alone, use `npm run package:mac`, which passes `--publish never`
-to the packager. Run the non-publishing `npm run package:verify` command against
-the unpacked app afterward.
-
-The DMG has no publisher signature and is not notarized; the application inside
-it is ad-hoc sealed only for bundle integrity. It is not a release candidate
-until every automated check is green and material automation-resistant risk is
-recorded honestly.
+The complete ad-hoc seal must pass `codesign --verify --deep --strict`; signature
+metadata alone is insufficient. Unexpected publisher identities are rejected.
+The DMG remains unsigned and unnotarized. Packaging-only commands are
+`npm run package:mac` followed by `npm run package:verify`.
 
 ### Linux arm64
 
-Use a native Linux arm64 clone on the VM's native filesystem, never a Parallels
-shared folder. Install Node.js 22.13 or later in the Node.js 22 line, or
-Node.js 24 or newer, plus `python3`, `make`, a C++ compiler
-(`build-essential` on Ubuntu), `readelf` (`binutils` on Ubuntu), the `fontconfig`
-utilities, and an X11 display or XWayland in a Wayland session. Native Wayland
-is not currently claimed. Keep the graphical session unlocked and prevent idle
-locking during native image/input verification; a locked desktop can suppress
-frames and synthetic input without identifying a product failure. Run as an
-ordinary user. OMXTerm uses an unconditional
-Linux-only `--no-sandbox` policy (ADR 0024); no administrator sandbox setup or
-host-policy changes are required. Then run from the accepted source commit:
+Use native Linux arm64, a supported Node.js version, `python3`, `make`, a C++
+compiler (`build-essential` on Ubuntu), `readelf` (`binutils`), `fontconfig`
+utilities and an authenticated X11/XWayland session. Native Wayland is not
+claimed. GUI tests need an unlocked desktop; arrange the session and a bounded
+idle inhibitor as part of test setup rather than treating locking as a product
+failure. Preserve unrelated user activity.
+
+Run as an ordinary user. The shipped Linux-only `--no-sandbox` policy is fixed
+(ADR 0024); no privileged sandbox helper or host-policy change is needed.
 
 ```sh
 npm ci
@@ -202,72 +149,61 @@ node scripts/prepare-restty-runtime.mjs
 npm run check:linux
 ```
 
-The postinstall rebuilds `node-pty` against Electron's Linux arm64 runtime.
-`npm run check:linux` runs all portable and real-PTY checks, creates the
-non-published `release/OMXTerm-<version>-arm64.AppImage`, its checksum, the
-exact versioned `release/OMXTerm-<version>-arm64.AppImage-installer.sh`, and the
-helper checksum. It extracts that exact AppImage, rejects the unversioned
-`libz.so` development linker dependency, and checks its arm64 executable and
-native module, runtime files, version, icon, licenses, and
-forbidden/private-looking files. It verifies both checksum records and helper
-version agreement, installs that AppImage through the exact helper in an
-isolated home, and launches the installed result through
-`--appimage-extract-and-run` and through normal kernel-FUSE mounting when the
-host's installation-time probe establishes that direct seam is available. Each
-available startup path must reach a running PTY, and its Operational Event logs
-must not contain the environment canary; an unavailable direct seam is not
-inferred as passing. Before startup, the extracted AppRun must match the exact
-reviewed launcher with its unconditional `--no-sandbox` flag. Chromium image
-coverage uses the same Linux policy and retains the production CSP and renderer
-isolation settings; it does not claim Chromium sandbox protection.
+Postinstall rebuilds node-pty against Electron's Linux arm64 runtime. The full
+command runs portable/native checks, packages the AppImage, creates the exact
+versioned desktop-installer helper and both checksums, then verifies them.
+It extracts the exact AppImage and checks architecture, native module, runtime,
+version, icon, licenses and forbidden/private-looking files. It rejects the
+unversioned `libz.so` development dependency. The statically linked runtime
+needs neither zlib development headers nor system `libfuse2`.
 
-For packaging alone, run `npm run package:linux`, followed on the same native
-host by `npm run package:verify`. The Linux packaging command first applies a
-checksum-guarded correction to the pinned packager's launcher generator before
-loading electron-builder. Unknown dependency bytes fail preparation; direct
-packager invocation without prepared bytes is rejected by `beforePack`.
-Dependency upgrades require reviewing and regenerating the correction and
-launcher digest together. No finished artifact is patched. Packaging creates the AppImage, helper, and
-both matching `.sha256` files without downloading or publishing anything. The statically linked AppImage runtime needs
-neither zlib development headers nor a system `libfuse2` library. Normal
-mounting uses kernel FUSE support. When mounting is unavailable, the safe manual
-fallback is:
+Verification checks the exact reviewed AppRun bytes and unconditional
+`--no-sandbox` flag, installs through the exact helper into an isolated home,
+and launches the installed app through extraction and normal kernel-FUSE
+mounting when the installation probe establishes that direct mounting is
+available. Each available path must reach a PTY and parsed-output proof without
+logging the environment canary. An unavailable FUSE seam is not a passing test.
+
+Packaging applies a checksum-guarded correction to the pinned packager's launcher
+generator before loading electron-builder. Unknown bytes or unprepared direct
+packager invocation are rejected. Dependency updates require reviewing the
+correction and launcher digest together; finished artifacts are never patched.
+Packaging-only commands are `npm run package:linux` and `npm run package:verify`.
+
+When kernel-FUSE mounting is unavailable:
 
 ```sh
 ./release/OMXTerm-<version>-arm64.AppImage --appimage-extract-and-run
 ```
 
-Extraction addresses FUSE mounting only; both launch paths use the same
-no-sandbox policy. Release notes must disclose this Linux limitation and link
-to the [launch decision](adr/0024-disable-the-chromium-sandbox-on-linux.md).
-
-The AppImage is intentionally unsigned and provides no verified publisher
-identity. It is not a release candidate until all automated checks pass and
-material automation-resistant risk is recorded honestly.
+This addresses mounting, not sandboxing. Release notes disclose the unsigned
+artifact and fixed Linux sandbox exception.
 
 ### Windows arm64
 
-Windows packaging runs in a graphical, native Windows ARM64 VM clone on its
-native filesystem. Prepare the clone before its first checkout with
-`core.autocrlf=false` and `core.symlinks=true`, then confirm that Markdown and
-source files remain LF and repository symlinks are real symlinks. Install a
-supported Node.js version and the ARM64 Visual C++ Redistributable. Developer
-Mode supplies unprivileged symlink creation for the native fixtures. Arrange
-these development prerequisites with the host owner's approval. If local
-PowerShell scripts need it, owner-approved process-scoped `RemoteSigned` is
-sufficient and leaves the persisted execution policy unchanged. Preserve the
-normal executable search path when adding portable tools.
+Use native Windows ARM64 and its native filesystem. Git checkouts use
+`core.autocrlf=false` and `core.symlinks=true`; confirm LF files and real symlinks.
+Build prerequisites include supported Node.js, ARM64 Visual C++ Redistributable,
+symlink capability (normally Developer Mode), and a graphical execution session.
+SSH session 0 does not prove graphical readiness. A process-scoped `RemoteSigned`
+policy can support local scripts without changing the persisted execution
+policy. Preserve normal PATH entries when adding portable tools.
 
-The exact NSIS test has real installer side effects. A temporary `/D=` path
-changes the destination, but the installer can still remove a registered
-per-user OMXTerm installation and replace shared registration and shortcuts.
-For that reason, use an explicitly authorized disposable VM with a recoverable
-snapshot, even if the VM appears clean. Before running the test, close OMXTerm
-sessions and other OMXTerm installers yourself; the verifier reports those
-conflicts and leaves them alone. Defender and SmartScreen stay enabled.
+Preparing these prerequisites in a disposable VM supplied for the release is
+part of the task, not another approval round. Keep Defender and SmartScreen
+active and do not weaken product or verifier checks.
 
-From the accepted source commit, after authorization for replacement and
-install/uninstall effects, run:
+#### Exact installer effects
+
+NSIS `/D=` changes the destination, not application identity. Installation may
+remove a registered old version and change shared registration and shortcuts.
+Use a disposable VM with a recoverable snapshot; the old installation is not
+restored by verification. Preserve needed artifacts and evidence outside the
+snapshot before any recovery. Detect active OMXTerm/installer conflicts rather
+than terminating unrelated user work.
+
+The CLI opt-in records the intended destructive test mode; the release agent
+supplies it within the owner's existing disposable-VM task scope:
 
 ```powershell
 npm ci
@@ -276,188 +212,67 @@ node scripts/prepare-restty-runtime.mjs
 npm run check:win -- --disposable-vm-allow-omxterm-replacement
 ```
 
-Without that literal CLI opt-in, `npm run check:win` fails closed at the exact
-installer seam. Environment variables do not authorize replacement. Unknown or
-inaccessible installation inspection also fails closed. Existing registration
-is checked in HKCU and HKLM, in both registry views, along with default install
-locations, shortcut conflicts, and matching running processes. Existing paths
-must belong to the accepted per-user installation: path-only, machine-location,
-reparse-point, or differently targeted shortcut conflicts are refused. Existing
-installation trees and the transaction tree are inspected without following
-reparse points, including their directory ancestors. Unreadable or oversized
-trees fail closed. Matching registry pairs are insufficient: the previous
-directory and its regular application/uninstaller files must exist. Process
-inspection mirrors both NSIS's name-based fallback and its case-insensitive path
-prefix for registered installations and the new transaction destination. The
-pinned dependency can target a sibling path sharing that prefix; the verifier
-refuses that conflict rather than terminating the unrelated process. Paths
-that break the pinned installer's PowerShell quoting are refused too. The
-verifier's temporary directory must also contain no spaces: NSIS expects an
-unquoted raw `/D=` tail, not Windows argv quoting. Choose a compatible temporary
-location inside the disposable VM; this does not grant replacement consent.
-The pinned
-NSIS installer also writes `%LOCALAPPDATA%\\omxterm-updater\\installer.exe`, even
-though OMXTerm has no automatic updates. Any pre-existing cache directory/file
-or cache reparse point is refused even with opt-in; do not delete guessed cache
-contents to bypass this guard. Use a clean disposable VM or separately coordinate
-preservation of the existing cache. Deliberate
-replacement supports only the known per-user installation; orphan, machine, or
-unexpected registration requires a clean disposable VM, not a force bypass.
-Preflight is not a guarantee against host races or installer-wide effects, so the
-disposable-VM requirement applies even when no existing installation is found.
-No credential collection, elevation or OS security-policy change is authorized.
+Without that literal option, verification fails closed. Environment variables
+do not substitute for it. The verifier inspects HKCU/HKLM registration in both
+views, default locations, shortcuts, matching processes, and reparse points in
+installation trees and their ancestors. Unknown/unreadable/oversized trees,
+path-only conflicts, machine installs, orphan registration and unexpected
+shortcuts are refused. Supported replacement is a known per-user installation
+whose directory and regular application/uninstaller files exist.
 
-`npm run check:win` runs all portable and real-ConPTY checks, creates the
-non-published `release/OMXTerm-<version>-arm64.exe` NSIS installer, inspects
-the unpacked application's arm64 PE executables and win32-arm64 node-pty
-runtime, version, licenses, and forbidden/private-looking files, installs the
-exact installer into a transaction-owned temporary directory, compares every
-extracted payload file with the unpacked application, and verifies startup from
-both the unpacked and installed trees with isolated configuration, state, and
-user data. Startup must reach a running PTY and its Operational Event log must
-not contain the environment or launch-argument canaries.
+Process checks cover the NSIS name-based fallback and case-insensitive path
+prefix, including sibling paths sharing that prefix. Quoting-incompatible paths
+are refused. The transaction temp path must contain no spaces because NSIS
+expects an unquoted raw `/D=` tail. These checks cannot eliminate host races;
+use the disposable VM even if it appears clean.
 
-For packaging alone, run `npm run package:win`. For non-installing content and
-startup diagnostics on the same native host, run:
+The pinned NSIS installer also writes
+`%LOCALAPPDATA%\\omxterm-updater\\installer.exe` despite the absence of automatic
+updates. Pre-existing cache directories/files or reparse points are refused.
+Preserve and reconcile existing state or use a clean snapshot; do not delete
+unknown cache data to bypass inspection.
+
+The full command runs portable and real-ConPTY checks, packages the exact NSIS
+installer, verifies arm64 PE files, node-pty runtime, version, licenses and
+forbidden/private files, installs into a transaction-owned directory, compares
+every extracted payload byte and checks both unpacked and installed startup.
+Both must reach PTY and parsed-output proof without logging environment or
+launch-argument canaries.
+
+Cleanup invokes only the owned byte-identical new uninstaller, from outside its
+install-path termination prefix. `_?=` selects the owned root without detached
+relaunch. Registration, shortcuts and processes must be gone before owned
+temporary directories are removed. The new cached installer is removed only
+when its digest matches and the remaining cache directory is empty. Changed
+cache state, nonempty directories or uncertain ownership are retained and fail
+cleanup. User data is not deleted. Startup and cleanup failures are preserved
+together; uncertain process termination retains the profile for diagnosis.
+
+Packaging-only: `npm run package:win`. Non-installing diagnostics:
 
 ```powershell
 npm run package:verify -- --windows-unpacked-only
 ```
 
-This explicitly reports **UNPACKED DIAGNOSTIC ONLY**: it neither launches the
-installer nor proves exact-installer acceptance. It does launch the unpacked
-application with an isolated test profile and a synthetic PTY command.
-Full `package:verify` requires the same disposable-VM opt-in as `check:win`:
+This is explicitly **UNPACKED DIAGNOSTIC ONLY** and cannot establish exact NSIS
+verification. Full `package:verify` takes the same disposable-VM CLI option as
+`check:win`. Changing application identity, repacking or archive-only extraction
+is not equivalent to testing the shipped installer.
 
-```powershell
-npm run package:verify -- --disposable-vm-allow-omxterm-replacement
-```
+The installer uses zip compression because ARM64 BCJ2-filtered LZMA payloads
+lose PE files with the pinned extraction plugin. Differential packaging is
+disabled; no `latest.yml` or `.blockmap` is needed because there are no automatic
+updates. Changes to packaging inputs require rechecking the inspection footprint.
 
-The exact installer seam remains mandatory for release. A different application
-identity, repacked installer, or archive-only extraction is not equivalent.
-`/D=` selects the destination only; the existing OMXTerm may be removed and is
-**not restored** by the test. Registration and shortcuts are changed during
-installation. The verifier checks ownership before invoking only the new
-transaction's byte-identical uninstaller from a separate owned directory outside
-the install-path termination prefix. Its `_?=` argument selects the transaction
-root without spawning a detached copy, so completion stays observable. The
-verifier waits for bounded registration/shortcut/process cleanup, then removes
-both owned temporary directories. It also verifies the newly created cached
-installer against the exact installer digest and removes only that unchanged
-file and its empty cache directory, never pre-existing or unrelated cache data.
-A changed cache or nonempty directory fails cleanup and retains uncertain state.
-User data is not deleted. Startup, process-termination and profile-cleanup errors are preserved together;
-a profile is retained when process termination cannot be confirmed. Installer
-cleanup errors fail verification alongside any primary error; unknown
-ownership leaves evidence for inspection rather than deleting guessed state.
-Restore/discard the VM only after preserving artifacts and evidence outside the
-snapshot's rollback scope.
+## Exact-artifact verification record
 
-The inspection supports the pinned builder and reviewed packaging footprint;
-changes to those inputs require reviewing its registry identities, locations,
-shortcuts and NSIS templates together. A footprint mismatch is a refusal, not
-permission to bypass the check. A real Start Menu installation is optional;
-installer or desktop-integration behavior beyond the automated seam remains
-unverified rather than requiring manual installation.
+Map each changed boundary to its existing automated seam: portable behavior,
+platform behavior, packaging/runtime, security/privacy/IPC/input/filesystem,
+rendering/desktop integration, or version metadata/documentation. Record a
+material unobservable boundary as `UNVERIFIED` with its risk, not as a pass.
+Historical manual testing is context, not a checklist to replay.
 
-The installer carries a zip-compressed application payload rather than the
-smaller default LZMA archive. On an ARM64 build host electron-builder
-compresses executables with the ARM64 BCJ2 7-Zip filter, which the installer's
-bundled extraction plugin cannot decode — it drops every PE file at install
-time. The zip payload avoids that filter, so the installer is larger than a
-macOS or Linux artifact of the same application but installs completely.
-Because this disables the differential (blockmap) package, no `latest.yml` or
-`.blockmap` is produced; OMXTerm ships no automatic updates, so nothing depends
-on them.
-
-The installer is intentionally unsigned and may trigger a Microsoft Defender
-SmartScreen unknown-publisher warning. It is not a release candidate until all
-automated checks pass and material automation-resistant risk is recorded
-honestly.
-
-## Automation-first exact-artifact acceptance
-
-OMXTerm uses native automation as the routine release gate. The exhaustive
-manual exercise completed for the initial three-platform 0.4.0 release is
-baseline evidence, not a script to replay for each version.
-
-Everyday use complements automation. The maintainer regularly uses OMXTerm on
-macOS; optional testing and reports on Linux and Windows also help uncover
-problems and guide regression coverage. Record those observations against the
-build actually tested. They are useful feedback, not a prescribed checklist or
-a substitute for exact-artifact verification.
-Exact artifact identity, native automated verification, owner acceptance, and
-separate publication authorization remain mandatory.
-
-### 1. Record changed boundaries
-
-Before building, compare the accepted source with the previous published tag and
-record every changed observable or release boundary. Classify each change under
-the smallest applicable category:
-
-- portable product behavior;
-- platform-specific product behavior;
-- packaging, installation, architecture, or native runtime;
-- security, privacy, IPC, clipboard, input, or filesystem boundary;
-- rendering, icon, window-system, or desktop integration;
-- version metadata or documentation only.
-
-For each changed boundary, name the automated seam that observes it. Record a
-material boundary with no reliable automated seam as `UNVERIFIED`, together with
-the affected platform and risk. Missing manual coverage is not pending release
-work, and no boundary inherits the historical manual matrix.
-
-### 2. Run mandatory native automation
-
-Every exact artifact must pass its platform's complete documented command:
-
-- macOS: `npm run check`;
-- Linux: `npm run check:linux`;
-- Windows: `npm run check:win`.
-
-The record binds each result to source commit, filename, byte size, and SHA-256.
-At minimum the command must establish formatting and type safety, portable and
-native tests, package construction, target architecture, packaged contents and
-licenses, embedded version agreement, package extraction or installation seam,
-startup, PTY readiness, synthetic parsed output from the actual packaged
-Terminal Surface, required Operational Events, and cleanup of verifier state.
-
-Every included platform must pass its native command. Any platform omission
-requires explicit owner authorization recorded for that release. Owner acceptance
-remains separate from automation and does not imply manual testing.
-
-### 3. Record optional observations and unverified risk
-
-Manual product testing is optional and non-blocking on every platform. Routine
-macOS dogfood may reveal regressions during ordinary use, but no release
-requires a walkthrough, visual matrix, Gatekeeper exercise, or other targeted
-manual check. Maintainer and community testing on any platform is welcome,
-without becoming a scheduled release dependency.
-
-When automation cannot observe a material changed boundary, record it as
-`UNVERIFIED` instead of manufacturing a pass. Examples include Gatekeeper or
-SmartScreen presentation, native rendering, icon or window association,
-desktop-shell integration, and other native UI behavior without a reliable
-seam. State the affected platform, the unobserved outcome, and the user-facing
-risk in the exact-artifact record or release notes. The absence of a report is
-not evidence that the boundary passed.
-
-Verification uses the shipped platform policy, including Linux's documented
-Chromium sandbox exception. It never relaxes additional security protections
-to manufacture a result. An optional
-observation may be recorded factually, but it does not become a reusable release
-gate or imply coverage of another artifact.
-
-### 4. Rebuilds require fresh automation
-
-Rebuilding changes artifact identity and requires fresh native automation. Prior
-dogfood observations remain historical context only; they do not establish the
-behavior of a rebuilt artifact. A matching version number or source claim alone
-is insufficient to reuse automated evidence.
-
-### 5. Canonical exact-artifact record
-
-Use one compact record per platform:
+Keep one compact record per platform:
 
 ```text
 Version: <X.Y.Z>
@@ -467,100 +282,63 @@ Artifact: <filename>
 Byte size: <integer>
 SHA-256: <lowercase digest>
 Native automated verification: <PASS/FAIL and safe summary>
-Changed boundaries: <each boundary -> automated seam or UNVERIFIED risk>
-Optional dogfood observations: <none, or factual non-blocking observations>
+Changed boundaries: <automated seam or UNVERIFIED risk>
+Optional observations: <none, or non-blocking observations>
 Cleanup: <COMPLETE/INCOMPLETE with reason>
-Exact-artifact acceptance: <PENDING/OWNER ACCEPTED>
-Publication gate: <BLOCKED/AUTHORIZED separately>
+Publication: <PENDING/PUBLISHED with URL>
 ```
 
-Do not place private paths, Terminal Payload, clipboard contents, commands,
-configuration contents, secrets, or transcripts in tracker evidence.
+Do not put private paths, credentials, configuration contents, Terminal Payload,
+clipboard data or transcripts in public evidence. Technical failures, missing
+identity proof or incomplete cleanup block publication. No owner sign-off is
+added after these checks pass within the requested release scope.
 
-### 6. Acceptance and publication gates
+### Checksums
 
-An exact artifact may be owner-accepted when:
-
-- mandatory native automation passed against that exact identity;
-- every changed boundary maps to passing automation or an honestly recorded
-  `UNVERIFIED` platform risk;
-- verifier cleanup is complete; and
-- public documentation accurately describes the package and known limitations.
-
-A current automated failure, an undisclosed automation-resistant risk,
-incomplete cleanup, an identity mismatch, or missing documentation blocks
-acceptance. Missing manual exercise does not. Owner acceptance is a release
-decision and does not represent manual exercise of the artifact. Unexecuted rows
-from the historical exhaustive matrix are not release state under this policy.
-
-Owner acceptance does not authorize publication. Tagging, uploading the exact
-artifacts and checksums, and creating the GitHub Release still require a
-separate explicit owner instruction. After publication, download every asset
-and verify each checksum again on its native Supported Platform or an equivalent
-byte-verification host.
-
-### Public provenance
-
-Release notes may state factually that the initial three-platform release
-received exhaustive native human testing, that the macOS build is dogfooded by
-the project maintainer during ordinary use, that later releases rely on native
-automation without required manual testing, and that Linux and Windows
-community reports are welcome. These statements are process provenance, not a
-claim that every release or platform was manually exercised, an independent
-security audit, platform-vendor approval, or a guarantee.
-
-## macOS SHA-256
-
-Generate the checksum after native automation finishes against the exact DMG. From the output directory, preserving
-the artifact's filename:
+After native verification, preserve each exact filename:
 
 ```sh
-cd release
+# macOS, from release/
 shasum -a 256 OMXTerm-<version>-arm64.dmg > OMXTerm-<version>-arm64.dmg.sha256
 shasum -a 256 -c OMXTerm-<version>-arm64.dmg.sha256
-```
 
-Changing or rebuilding the DMG invalidates its identity, native automation, and
-checksum. Run the acceptance model against the replacement.
-
-## Linux SHA-256
-
-`npm run package:linux` generates checksum records for both unchanged exact
-Linux assets. Recheck them after native automation:
-
-```sh
-cd release
+# Linux, checksums generated by package:linux
 sha256sum --check OMXTerm-<version>-arm64.AppImage.sha256
 sha256sum --check OMXTerm-<version>-arm64.AppImage-installer.sh.sha256
 ./OMXTerm-<version>-arm64.AppImage-installer.sh --version
 ```
 
-Record both asset filenames and digests in the exact-artifact record. Rebuilding,
-renaming, or changing either asset invalidates its identity, native automation,
-and checksum. Keep publication blocked until the exact artifact has owner
-acceptance and publication is separately authorized.
-
-## Windows SHA-256
-
-Generate the checksum after native automation finishes against the unchanged
-exact installer:
-
 ```powershell
-cd release
+# Windows, from release/
 $name = "OMXTerm-<version>-arm64.exe"
 "$((Get-FileHash $name -Algorithm SHA256).Hash.ToLower())  $name" |
   Out-File -Encoding ascii "$name.sha256"
 Get-Content "$name.sha256"
 ```
 
-Confirm the digest matches a fresh `Get-FileHash` of the same file. The same
-rebuild/rename invalidation and blocked-publication rules as the other
-platforms apply.
+Recompute and compare Windows hashes before collection. Rebuilding or changing
+an artifact invalidates its earlier checksum and artifact evidence.
 
-## Gatekeeper and provenance release note
+## Publication
 
-Use this language in any later owner-authorized release, updated only with the
-accepted version and checksum:
+Confirm repository `luizomf/omxterm`, version consistency, build-to-tag ancestry,
+eligible Markdown-only differences, passing native verification and complete
+cleanup. Create the tag and GitHub Release within the owner's release request;
+there is no additional approval checkpoint.
+
+Summarize changes, migrations or their absence, known limitations and provenance.
+Attach exactly these eight files for an ordinary three-platform release:
+
+- `OMXTerm-<version>-arm64.dmg` and its `.sha256`;
+- `OMXTerm-<version>-arm64.AppImage` and its `.sha256`;
+- `OMXTerm-<version>-arm64.AppImage-installer.sh` and its `.sha256`;
+- `OMXTerm-<version>-arm64.exe` and its `.sha256`.
+
+Download every attachment after publication and verify sizes and checksums on a
+trustworthy byte-verification host. Preserve the final URL and evidence, then
+clean up task-owned resources without losing artifacts still in use.
+
+### Gatekeeper and provenance note
 
 > OMXTerm for Apple Silicon is intentionally not signed with an Apple Developer
 > ID and is not notarized. macOS may warn that it cannot verify the developer or
@@ -571,10 +349,7 @@ accepted version and checksum:
 > security protections. The application has an ad-hoc integrity seal, not a
 > verified publisher identity.
 
-## SmartScreen and provenance release note
-
-Use this language in any later owner-authorized release that attaches the
-Windows installer, updated only with the accepted version and checksum:
+### SmartScreen and provenance note
 
 > OMXTerm for Windows ARM64 is intentionally not signed with a code-signing
 > certificate. Microsoft Defender SmartScreen may warn that the installer is
@@ -583,33 +358,6 @@ Windows installer, updated only with the accepted version and checksum:
 > it, use SmartScreen's `More info -> Run anyway` for this one file. Do not
 > disable SmartScreen or other system-wide Windows security protections.
 
-## Later owner-authorized GitHub Release
-
-Only after the exact-artifact record has owner acceptance and the maintainer
-separately authorizes publication:
-
-1. confirm the canonical repository is `luizomf/omxterm`; the package metadata,
-   DMG, AppImage, installer, and checksums still match their accepted records;
-   and `vX.Y.Z` points to each recorded artifact build commit or differs from it
-   only through paths eligible for the documentation-only exception above;
-2. create the canonical GitHub Release for that exact tag with the applicable
-   provenance notes above (Gatekeeper for macOS and SmartScreen only when a
-   Windows installer is attached); summarize material changes, identify
-   incompatible changes and migration or state that there are none, and record
-   relevant known limitations;
-3. for an ordinary three-platform release, attach exactly
-   `OMXTerm-<version>-arm64.dmg`,
-   `OMXTerm-<version>-arm64.dmg.sha256`,
-   `OMXTerm-<version>-arm64.AppImage`,
-   `OMXTerm-<version>-arm64.AppImage.sha256`,
-   `OMXTerm-<version>-arm64.AppImage-installer.sh`,
-   `OMXTerm-<version>-arm64.AppImage-installer.sh.sha256`,
-   `OMXTerm-<version>-arm64.exe`, and
-   `OMXTerm-<version>-arm64.exe.sha256` manually. A separately authorized
-   platform omission must be reflected in both the record and attachment set;
-4. download every attachment, verify every checksum again on any trustworthy
-   byte-verification host, and preserve the final release URL with the accepted
-   evidence.
-
-Do not automate these publication steps or perform them under the authority of
-this repository procedure alone.
+Provenance may describe native automation and optional maintainer dogfood.
+It must not imply an independent audit, platform-vendor approval, universal
+manual coverage or verified publisher identity.

@@ -830,12 +830,13 @@ Non-installing unpacked diagnostics remain explicitly partial; exact NSIS
 installation, payload, installed startup, and cleanup verification remain
 mandatory for every Windows Release Artifact.
 
-Each exact artifact requires its own recorded native automated verification and
-owner acceptance. Manual testing is optional and never a release gate. The
-maintainer exercises macOS through ordinary daily use rather than a prescribed
-release matrix and does not manually validate Linux or Windows. Publication
-remains manual and requires separate owner authorization after acceptance;
-published artifacts include SHA-256 checksums. Initial artifacts intentionally carry no
+Each exact artifact requires its own recorded native automated verification.
+Manual testing is optional and never a release gate. The maintainer exercises
+macOS through ordinary daily use rather than a prescribed release matrix and
+does not manually validate Linux or Windows. An owner request to prepare and
+publish a release covers environment preparation, verification, tagging and
+uploads without additional per-step or exact-artifact approval. Published
+artifacts include SHA-256 checksums. Initial artifacts intentionally carry no
 verified publisher identity. The macOS application receives a complete ad-hoc
 code seal for bundle integrity but no
 Apple Developer ID signature or notarization. Developer ID signing, Apple
@@ -870,16 +871,16 @@ integration and the production CSP.
 Release evidence is risk-based. Each release records the boundaries changed
 since the previous version and maps each to existing automation. A material
 platform-specific boundary that automation cannot observe is recorded honestly
-as unverified; missing human coverage does not block acceptance or publication.
+as unverified; missing human coverage does not block publication.
 The maintainer continuously dogfoods macOS and reports problems found during
 normal use, without replaying a release checklist. Linux and Windows rely on
 native automation and later contributor or user reports rather than
 maintainer-run manual testing.
 
-Exact-artifact identity, checksum reconciliation, owner acceptance, and
-separate publication authorization remain mandatory. Owner acceptance is a
-release decision, not a claim that every artifact or automation-resistant
-boundary received manual exercise.
+Exact-artifact identity, checksum reconciliation and native automated
+verification remain mandatory. Publishing within an owner-requested release
+requires no further approval round and does not imply that every artifact or
+automation-resistant boundary received manual exercise.
 
 The ADRs in `docs/adr/` own the reasoning behind the durable choices; this file
 owns the current observable product contract.

@@ -23,7 +23,7 @@ record the changes and limitations of each published version.
 - [Restty development](restty-development.md) — renderer integration, pinned
   dependencies, restoration, and regression coverage.
 - [Versioning](versioning.md) and [release procedures](release.md) — native
-  verification, artifact acceptance, and publication.
+  verification, artifact records, and publication.
 - [MIT License](../LICENSE) and [Third-Party Notices](../THIRD_PARTY_NOTICES.md).
 
 ## Historical technical evidence

@@ -10,10 +10,9 @@ published release recorded in this repository, while `main` carries
 baseline, not a newer published release. See the
 [0.14.0 release record](releases/0.14.0.md) for its immutable exact artifacts.
 
-This policy explains what a version means. It does not grant permission to
-change versions, create tags, build release artifacts, or publish a GitHub
-Release. Those remain deliberate, owner-authorized actions governed by the
-[release procedure](release.md).
+This policy explains version selection and consistency. An owner request to
+release covers version preparation, builds, verification, tags and publication
+through the [release procedure](release.md), without extra approval rounds.
 
 ## Public contract
 
@@ -68,9 +67,8 @@ commit, all version-bearing surfaces must agree:
   adds `.sha256`;
 - the GitHub Release targets `vX.Y.Z` and describes each exact artifact.
 
-Pre-release identifiers such as `0.2.0-rc.1` may be used later when there is a
-concrete testing need. Build metadata is not currently used. Neither form
-creates permission to publish.
+Pre-release identifiers such as `0.2.0-rc.1` may be used when there is a
+concrete testing need. Build metadata is not currently used.
 
 ## Development baseline between releases
 
@@ -87,9 +85,8 @@ feature in the same cycle sees that the move already happened and makes no
 version change.
 
 Release preparation chooses the final version and removes the prerelease
-suffix. Until that separately authorized work happens, a development baseline
-is never tagged, uploaded, attached to a GitHub Release, or described as a
-published release.
+suffix. A development baseline is never tagged, uploaded, attached to a GitHub
+Release, or described as a published release.
 
 Because many commits share one baseline, identify a development build with both
 its `-dev` version and exact source commit SHA. `0.14.0-dev.0` alone does not say
@@ -128,4 +125,4 @@ Release notes must identify:
 
 The [local arm64 release procedure](release.md) defines the required automated
 checks, changed-boundary evidence, provenance language, and separate
-publication gate.
+publication steps.

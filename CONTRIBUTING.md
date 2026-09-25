@@ -265,7 +265,7 @@ platform but is optional, not a release gate. Report what you observed and the
 build you used; we use those reports to investigate problems and add regression
 coverage. Record changed platform behavior that automation cannot observe as
 unverified. See
-[automation-first exact-artifact acceptance](docs/release.md#automation-first-exact-artifact-acceptance).
+[exact-artifact verification records](docs/release.md#exact-artifact-verification-record).
 
 ## Commits and pull requests
 

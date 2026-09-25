@@ -8,8 +8,9 @@ PTY Adapter. Keep the terminal the product; do not invent adjacent features.
 
 - Chat in the user's language; write code, docs, and GitHub artifacts in English.
 - Work directly and keep going while the next step is clear and in scope. Make
-  routine engineering decisions yourself. Ask when missing information blocks
-  progress or before destructive, hard-to-reverse, or live-environment changes.
+  routine engineering decisions yourself. Ask only when missing information
+  blocks progress or destructive consequences have not already been authorized.
+  Carry the owner's task scope into delegations without adding approval steps.
 - Prefer the smallest complete solution and existing tools. Avoid speculative
   abstractions, dependencies, and process. Do not add work the user did not ask for.
 - Inspect repository state instead of asking the owner to research it. Report
@@ -68,9 +69,11 @@ PTY Adapter. Keep the terminal the product; do not invent adjacent features.
 - Follow `docs/versioning.md` for the development baseline and `docs/release.md`
   for releases. Ordinary changes do not bump versions; feature/contract changes
   may advance the `-dev` baseline as documented.
-- Release versions, tags, publication, and uploads require explicit owner approval
-  and issue authorization. Publication also requires acceptance of the exact
-  artifact. Manual testing is optional, not a release gate; report unverified risk.
+- A request to prepare and publish a release covers the complete delivery,
+  including build-environment preparation, verification, tags and uploads. Do not
+  request separate approval for each step or a second exact-artifact acceptance.
+  Keep technical verification and checksums; manual testing is optional. Report
+  unverified risk and genuine blockers rather than adding permission gates.
 - Build on each target platform. Collect delivery artifacts and matching checksums
   in the primary checkout's ignored `release/` directory. Identify dogfood builds
-  by source SHA; preserve candidates and evidence through acceptance/publication.
+  by source SHA; preserve candidates and evidence through verification/publication.

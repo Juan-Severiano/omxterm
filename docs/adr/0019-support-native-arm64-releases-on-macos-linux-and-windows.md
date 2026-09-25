@@ -55,12 +55,12 @@ contract. Installation resolves kernel-FUSE versus
 `--appimage-extract-and-run` once and commits all three files with rollback;
 uninstall removes only those files. The manual AppImage path remains supported.
 
-Publication remains manual. Each exact artifact first requires owner acceptance,
-and a tag, upload, or GitHub Release then requires separate publication
-authorization. Native automation and optional dogfood observations satisfy
-neither authority on their own. Acceptance is a release decision, not a claim
-that someone manually exercised the artifact. Rebuilding changes artifact
-identity and invalidates the previous automated evidence.
+An owner request to prepare and publish a release covers its complete delivery,
+including environment preparation, native verification, tags and uploads. There
+is no separate per-step approval or exact-artifact acceptance interview. The
+agent records the exact artifact identities, verifies them and publishes within
+that scope. Rebuilding changes artifact identity and invalidates the previous
+automated evidence.
 
 The project accepts the cost of maintaining native ARM64 build and automated
 verification environments. x64, Intel macOS, additional package formats,
