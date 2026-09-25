@@ -6,8 +6,9 @@ versions. A release number has the form `MAJOR.MINOR.PATCH`, and its Git tag add
 
 The latest published version is **0.15.0**; its
 [release record](releases/0.15.0.md) identifies the immutable exact artifacts.
-The source tree carries **0.15.1-dev.0** for ongoing development. A `-dev.0`
-value names a development baseline, not a published release.
+The source tree is preparing **0.15.1** for native verification and publication.
+It is not published until the release record and exact artifacts establish that
+state. A `-dev.0` value names a development baseline, not a published release.
 
 This policy explains version selection and consistency. An owner request to
 release covers version preparation, builds, verification, tags and publication
