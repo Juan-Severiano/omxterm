@@ -1,9 +1,8 @@
 # Linux desktop installer
 
-**Availability:** `linux_install.sh` is prepared on the development branch for
-the release after **0.17.0**. It has not been published yet. For the current
-release, use the [0.17.0 download and installation instructions](../README.md#linux).
-Those original version-bearing helper assets remain unchanged.
+**Availability:** `linux_install.sh` ships starting with **0.18.0**. Get it with
+the matching AppImage from the [release downloads](../README.md#linux).
+Releases through 0.17.0 retain their original version-bearing helper assets.
 
 ## Normal installation
 

@@ -426,8 +426,8 @@ rather than mixing older hyprlang snippets with Lua.
 
 ##### Small interface text on a HiDPI display
 
-The [upcoming Linux helper](linux-installer.md#interface-size-on-hyprland) can
-record a uniform Hyprland monitor scale at installation time. For the current
+The [Linux helper available since 0.18.0](linux-installer.md#interface-size-on-hyprland)
+can record a uniform Hyprland monitor scale at installation time. For the older
 0.17.0 helper, direct AppImage launches or manual adjustments, use the tips below.
 
 Terminal font zoom (`Ctrl++` / `Ctrl+-`) does not resize the title row, tabs, or
@@ -482,7 +482,7 @@ compatibility; this is not evidence of working GPU acceleration, native Wayland,
 or complete compatibility across VMs. OMXTerm still requires an actual WebGL2
 backend and has no automatic fallback Surface.
 
-The [upcoming `linux_install.sh` helper](linux-installer.md#only-if-graphics-fail)
+The [`linux_install.sh` helper available since 0.18.0](linux-installer.md#only-if-graphics-fail)
 can save this workaround with `install --compatibility`; it never enables it
 merely because the desktop is Hyprland. That option is not in the published
 0.17.0 helper. Its manual launcher setup follows.

@@ -26,8 +26,8 @@ capture work and evidence; they are not additional permission gates.
 ## Cross-platform release policy
 
 The Supported Platforms and application packages are macOS arm64 DMG, Linux
-arm64 AppImage and Windows arm64 NSIS. Linux also provides its versioned
-per-user AppImage desktop installer and checksum. Build natively on each target,
+arm64 AppImage and Windows arm64 NSIS. Linux also provides its per-user AppImage desktop installer, `linux_install.sh`,
+with an embedded release version and checksum. Build natively on each target,
 using the VM's native filesystem rather than a host shared folder.
 
 No artifact has a verified publisher identity. macOS uses a complete ad-hoc code
@@ -169,7 +169,7 @@ npm run check:linux
 
 Postinstall rebuilds node-pty against Electron's Linux arm64 runtime. The full
 command runs portable/native checks, packages the AppImage, creates the exact
-versioned desktop-installer helper and both checksums, then verifies them.
+`linux_install.sh` desktop helper and both checksums, then verifies them.
 It extracts the exact AppImage and checks architecture, native module, runtime,
 version, icon, licenses and forbidden/private-looking files. It rejects the
 unversioned `libz.so` development dependency. The statically linked runtime

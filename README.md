@@ -20,9 +20,8 @@ local PNG/JPEG previews, and inline images in direct Pi/Chafa sessions.
 
 ## Platforms and downloads
 
-The latest release is **[0.17.0](https://github.com/luizomf/omxterm/releases/tag/v0.17.0)**.
-The source tree is at **0.17.1-dev.0**, a development baseline, not a newer download.
-[Release notes](docs/releases/0.17.0.md) record the changes, tested systems, and known limits.
+The latest release is **[0.18.0](https://github.com/luizomf/omxterm/releases/tag/v0.18.0)**.
+[Release notes](docs/releases/0.18.0.md) record the changes, tested systems, and known limits.
 
 **Check your processor before downloading.** ARM64 (also called `aarch64`) and
 x64 (`x86_64`/AMD64, common on Intel and AMD PCs) are different architectures.
@@ -40,12 +39,12 @@ or [Windows #224](https://github.com/luizomf/omxterm/issues/224). Those builds a
 not available yet. Intel macOS is also unsupported. OMXTerm needs **WebGL2**,
 the graphics capability used to draw its terminal; there is no software-rendering fallback.
 
-| Platform                        | Package                                                                                                                 | SHA-256                                                                                                                    |
-| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Apple Silicon macOS             | [DMG](https://github.com/luizomf/omxterm/releases/download/v0.17.0/OMXTerm-0.17.0-arm64.dmg)                            | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.17.0/OMXTerm-0.17.0-arm64.dmg.sha256)                   |
-| Linux ARM64                     | [AppImage](https://github.com/luizomf/omxterm/releases/download/v0.17.0/OMXTerm-0.17.0-arm64.AppImage)                  | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.17.0/OMXTerm-0.17.0-arm64.AppImage.sha256)              |
-| Linux desktop helper (optional) | [Shell helper](https://github.com/luizomf/omxterm/releases/download/v0.17.0/OMXTerm-0.17.0-arm64.AppImage-installer.sh) | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.17.0/OMXTerm-0.17.0-arm64.AppImage-installer.sh.sha256) |
-| Windows ARM64                   | [Installer](https://github.com/luizomf/omxterm/releases/download/v0.17.0/OMXTerm-0.17.0-arm64.exe)                      | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.17.0/OMXTerm-0.17.0-arm64.exe.sha256)                   |
+| Platform                        | Package                                                                                                | SHA-256                                                                                                       |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| Apple Silicon macOS             | [DMG](https://github.com/luizomf/omxterm/releases/download/v0.18.0/OMXTerm-0.18.0-arm64.dmg)           | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.18.0/OMXTerm-0.18.0-arm64.dmg.sha256)      |
+| Linux ARM64                     | [AppImage](https://github.com/luizomf/omxterm/releases/download/v0.18.0/OMXTerm-0.18.0-arm64.AppImage) | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.18.0/OMXTerm-0.18.0-arm64.AppImage.sha256) |
+| Linux desktop helper (optional) | [Shell helper](https://github.com/luizomf/omxterm/releases/download/v0.18.0/linux_install.sh)          | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.18.0/linux_install.sh.sha256)              |
+| Windows ARM64                   | [Installer](https://github.com/luizomf/omxterm/releases/download/v0.18.0/OMXTerm-0.18.0-arm64.exe)     | [Checksum](https://github.com/luizomf/omxterm/releases/download/v0.18.0/OMXTerm-0.18.0-arm64.exe.sha256)      |
 
 ## Installation
 
@@ -66,7 +65,7 @@ is in the folder containing the download and that the filename matches exactly.
 2. Verify the DMG; success ends in `OK`:
 
    ```sh
-   shasum -a 256 -c OMXTerm-0.17.0-arm64.dmg.sha256
+   shasum -a 256 -c OMXTerm-0.18.0-arm64.dmg.sha256
    ```
 
 3. Open the DMG, drag **OMXTerm.app** to **Applications**, and eject the DMG.
@@ -86,9 +85,9 @@ ordinary terminal use.** An update may ask for folder access again.
 An **AppImage** bundles the application into one executable file; you do not
 need to compile it or install a `.deb`/`.rpm` package.
 
-**Check your distribution too:** the 0.17.0 AppImage requires **glibc 2.42 or
-newer**, a core system library. It was verified on **Ubuntu 26.04.1 (GNOME)** and
-**Fedora 44 (KDE Plasma)**. Older distributions, including Ubuntu 24.04, cannot
+**Check your distribution too:** the AppImage requires **glibc 2.42 or
+newer**, a core system library. See the [release record](docs/releases/0.18.0.md)
+for the exact tested distribution and desktop. Older distributions, including Ubuntu 24.04, cannot
 run this package even on ARM64. Run `getconf GNU_LIBC_VERSION` to check. Do not
 replace glibc manually; use a compatible distribution or discuss a source build
 with the project.
@@ -116,9 +115,9 @@ Open the download folder in your file manager and choose **Open in Terminal**
 (the label varies by desktop). Verify, mark the file as runnable, and launch:
 
 ```sh
-sha256sum --check OMXTerm-0.17.0-arm64.AppImage.sha256 &&
-  chmod +x OMXTerm-0.17.0-arm64.AppImage &&
-  ./OMXTerm-0.17.0-arm64.AppImage
+sha256sum --check OMXTerm-0.18.0-arm64.AppImage.sha256 &&
+  chmod +x OMXTerm-0.18.0-arm64.AppImage &&
+  ./OMXTerm-0.18.0-arm64.AppImage
 ```
 
 The checksum command should print `OK`. `chmod +x` grants this file permission
@@ -127,7 +126,7 @@ to run; `./` means “the file in this folder.” The `&&` chain stops if a step
 If you see a **FUSE** or mounting error, use this instead after verification:
 
 ```sh
-./OMXTerm-0.17.0-arm64.AppImage --appimage-extract-and-run
+./OMXTerm-0.18.0-arm64.AppImage --appimage-extract-and-run
 ```
 
 FUSE is the Linux facility normally used to open an AppImage's bundled
@@ -145,20 +144,19 @@ enabled but is not a replacement for that sandbox. Run as an ordinary user.
 Download the optional helper and its checksum beside the AppImage, then run:
 
 ```sh
-sha256sum --check OMXTerm-0.17.0-arm64.AppImage.sha256 &&
-  sha256sum --check OMXTerm-0.17.0-arm64.AppImage-installer.sh.sha256 &&
-  chmod +x OMXTerm-0.17.0-arm64.AppImage OMXTerm-0.17.0-arm64.AppImage-installer.sh &&
-  ./OMXTerm-0.17.0-arm64.AppImage-installer.sh install ./OMXTerm-0.17.0-arm64.AppImage
+sha256sum --check OMXTerm-0.18.0-arm64.AppImage.sha256 &&
+  sha256sum --check linux_install.sh.sha256 &&
+  chmod +x linux_install.sh &&
+  ./linux_install.sh install ./OMXTerm-0.18.0-arm64.AppImage
 ```
 
 Launch **OMXTerm** from your application menu. The helper copies it into your
 user folder and chooses the FUSE or extraction mode automatically. It does not
 need `sudo` or download anything. Keep the helper if you want to uninstall later.
 
-The development branch prepares a simpler **`linux_install.sh`** for the next
-release, with one optional compatibility mode and conservative Hyprland UI-scale
-setup. See the [upcoming helper guide](docs/linux-installer.md). The 0.17.0
-downloads and commands above remain unchanged.
+The **`linux_install.sh`** helper supports one optional compatibility mode for
+graphics failures and conservative Hyprland interface-scale setup. Start with
+normal installation; see the [helper guide](docs/linux-installer.md) if needed.
 
 Want blur on GNOME, KDE Plasma, or Hyprland? See the optional
 [Linux desktop tips](docs/configuration.md#linux-desktop-tips), including
@@ -179,7 +177,7 @@ not required to use OMXTerm.
    <summary>PowerShell checksum verification — expand and copy the whole block</summary>
 
    ```powershell
-   $installerName = "OMXTerm-0.17.0-arm64.exe"
+   $installerName = "OMXTerm-0.18.0-arm64.exe"
    $checksumRecord = Get-Content -LiteralPath "$installerName.sha256" -Raw -ErrorAction Stop
    $checksumMatch = [regex]::Match(
      $checksumRecord,
@@ -200,7 +198,7 @@ not required to use OMXTerm.
 
    </details>
 
-3. Only after verification succeeds, run **OMXTerm-0.17.0-arm64.exe**. It installs
+3. Only after verification succeeds, run **OMXTerm-0.18.0-arm64.exe**. It installs
    for your user without administrator elevation. Open OMXTerm from Start.
 
 The installer is unsigned. If SmartScreen warns about an unknown publisher and
@@ -260,7 +258,7 @@ then quit OMXTerm before replacing it. Back up your configuration first.
 - **Linux, desktop helper:** verify the new AppImage and matching helper, then run
   that helper's `install` command again. To remove the installed app and menu entry,
   run your verified helper with `uninstall`, for example
-  `./OMXTerm-0.17.0-arm64.AppImage-installer.sh uninstall`.
+  `./linux_install.sh uninstall`.
 - **Windows:** run the verified new installer to update. To uninstall, use
   **Settings → Apps → Installed apps → OMXTerm → Uninstall**.
 
