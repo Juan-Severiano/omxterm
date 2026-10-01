@@ -7,9 +7,10 @@ versions. A release number has the form `MAJOR.MINOR.PATCH`, and its Git tag add
 The latest published version is **0.19.0**; its
 [release record](releases/0.19.0.md) identifies the immutable exact artifacts,
 completed native verification and verified post-upload downloads. The source
-tree now carries **0.20.0-dev.0**, the next-minor development baseline after
-adding whole-line unquoted spaced local-image paths (#467).
-This is not a published release and does not change the 0.19.0 tag, assets or
+tree now prepares **0.20.0**, the next-minor release after adding whole-line
+unquoted spaced local-image paths and larger static-image previews. The
+[0.20.0 candidate record](releases/0.20.0.md) records native verification;
+publication remains pending. This does not change the 0.19.0 tag, assets or
 release body.
 
 This policy explains version selection and consistency. An owner request to
