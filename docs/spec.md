@@ -1127,6 +1127,18 @@ that host namespace-probe results do not change the policy. Chromium image tests
 use the same platform policy while retaining context isolation, disabled Node
 integration and the production CSP.
 
+Release evidence separates behavioral tests, native package builds,
+exact-artifact verification and publication. Recorded PASS evidence is reusable
+only with known equivalent relevant inputs; unknown provenance fails reuse.
+Version-only metadata requires new packages and version/package verification,
+not wholesale behavioral reruns. Verified non-artifact changes (such as
+non-packaged docs or tests) may separate build and tag commits while preserving
+the artifact's original full build SHA and digest; affected tests still require
+honest evidence. Changed product/dependency/build inputs invalidate affected
+steps/platforms, conservatively when impact is unclear. A known failure needs
+a diagnosis-supported disposition, not just a later passing rerun. See the
+[release procedure](release.md) and ADR 0019.
+
 Release evidence is risk-based. Each release records the boundaries changed
 since the previous version and maps each to existing automation. A material
 platform-specific boundary that automation cannot observe is recorded honestly

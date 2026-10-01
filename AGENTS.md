@@ -53,11 +53,12 @@ PTY Adapter.
   safe-metadata contract in `docs/spec.md`.
 - Prefer test-first changes covering observable behavior. Mock external I/O in
   unit tests; use scoped integration tests for real PTYs, filesystems and GUI.
-- Format changed files. For code, run `npm run check:portable` plus relevant
-  native/packaging checks. For docs, formatting and diff checks suffice; verify
-  changed links and examples. Reuse valid evidence when inputs are unchanged,
-  and state checks that could not run. Diagnose failed checks rather than
-  weakening them.
+- Format changed files. For code, establish `npm run check:portable` plus relevant
+  native/packaging evidence; reuse recorded PASS steps with unchanged relevant
+  inputs under `docs/release.md`. Run affected tests for test/fixture changes,
+  not unrelated native rebuilds. For docs, formatting and diff checks suffice;
+  verify changed links and examples. State unavailable checks. A known FAIL needs
+  diagnosis-supported disposition, not merely a later pass or weaker assertion.
 - Review the final diff for unrelated changes, generated files and private data.
   Keep credentials, local configuration, terminal/clipboard contents and session
   transcripts out of commits and public evidence.
@@ -70,7 +71,10 @@ changes may advance the `-dev` baseline as documented.
 
 A release request covers preparation, native verification, tags, uploads and
 download verification. Carry that scope through delegations. Manual testing is
-optional; record unverified risk alongside checks and checksums. Build on each
-target platform and collect exact artifacts and evidence in the primary
-checkout's ignored `release/` directory. Identify development builds by source
-SHA and preserve candidates through verification and publication.
+optional; record unverified risk alongside checks and checksums. Build natively
+when package inputs change; preserve verified packages otherwise. Separate
+behavioral, build, exact-artifact and publication evidence;
+a version-only edit requires new packages, not wholesale behavioral reruns.
+Collect exact artifacts and evidence in the primary checkout's ignored
+`release/` directory. Identify development builds by full source SHA and preserve
+candidates through verification and publication.

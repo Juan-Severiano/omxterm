@@ -21,9 +21,11 @@ never host shared folders. Cross-compilation and build-only evidence do not
 establish Supported Platform behavior.
 
 Release validation is automation-first and risk-based. Every exact artifact
-must pass native automated package construction, architecture and content
+must have passing native package construction, architecture and content
 inspection, version agreement, packaged startup, PTY readiness, and applicable
-portable contract tests. Linux automation additionally binds the exact helper
+behavioral-test evidence. These are separate evidence identities, not a demand
+to replay the entire suite for every release request. Linux automation additionally
+binds the exact helper
 and AppImage to their checksums, exercises transactional per-user install and
 uninstall behavior, and launches the installed result through the extraction
 fallback and through direct kernel-FUSE mounting when that seam is actually
@@ -63,8 +65,27 @@ An owner request to prepare and publish a release covers its complete delivery,
 including environment preparation, native verification, tags and uploads. There
 is no separate per-step approval or exact-artifact acceptance interview. The
 agent records the exact artifact identities, verifies them and publishes within
-that scope. Rebuilding changes artifact identity and invalidates the previous
-automated evidence.
+that scope. Rebuilding changes artifact identity and invalidates previous
+exact-artifact verification, not behavioral PASS evidence whose relevant inputs
+remain identical.
+
+## Amendment: reuse evidence by relevant inputs (#515)
+
+Separate behavioral tests, native package builds, exact-artifact verification
+and publication. Reuse recorded PASS evidence with known equivalent relevant
+inputs; missing provenance fails reuse. Version-only metadata requires fresh
+packages and version/package checks, not wholesale behavioral reruns. Non-packaged
+docs and test-only/fixture-only changes require affected verification, not native
+rebuilds of unchanged product bytes. Product, dependency and build changes
+invalidate affected steps/platforms; unclear impact uses conservative invalidation.
+
+Build-to-tag comparison may admit verified non-artifact changes beyond Markdown,
+including proven stripped orchestration metadata, while retaining each artifact's
+original full build SHA and digest. Never treat retained package metadata or
+changed build recipes as non-artifact without proof. A known FAIL still needs a
+diagnosis-supported disposition; later diagnostic passes alone cannot erase it.
+Exact native installer checks, security assertions and cleanup stay mandatory.
+The [release procedure](../release.md) owns the concise commands and record.
 
 The project accepts the cost of maintaining native ARM64 build and automated
 verification environments. x64, Intel macOS, additional package formats,

@@ -12,7 +12,11 @@ if (options.windowsUnpackedOnly)
 // Use npm's actual JS entrypoint, never interpolate a command for npm.cmd.
 const npm = process.env.npm_execpath;
 if (!npm) throw new Error("Run this command through npm run check:win");
-for (const script of ["check:portable", "package:win", "package:verify"]) {
+for (const script of [
+  "check:portable",
+  "package-built:win",
+  "package:verify",
+]) {
   const result = spawnSync(
     process.execPath,
     [

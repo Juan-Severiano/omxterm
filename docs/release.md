@@ -14,7 +14,8 @@ not permission to weaken verification. Manual testing is optional.
 
 1. Select the version using [the versioning policy](versioning.md).
 2. Compare with the previous published tag and record changed boundaries.
-3. Build and verify on each native Supported Platform.
+3. Reconcile existing evidence and resume the missing or invalidated steps on
+   each native Supported Platform; build only when package inputs changed.
 4. Collect the exact artifacts, checksums and verification evidence in the
    primary checkout's ignored `release/` directory.
 5. Review source/version consistency, publish the release, then download and
@@ -43,31 +44,65 @@ is optional and never blocks publication. Record material behavior that
 current automation cannot observe as `UNVERIFIED`, with the affected platform
 and user-facing risk. Never infer that a check passed on another OS or GPU.
 Rebuilding changes artifact identity and requires fresh artifact verification.
-Reuse valid evidence when nothing relevant changed.
+Reuse valid evidence when its relevant inputs are unchanged, not merely when
+its version matches. [ADR 0019](adr/0019-support-native-arm64-releases-on-macos-linux-and-windows.md)
+separates four steps:
 
-### Artifact-affecting and documentation-only changes
+| Step                        | Evidence identity                                                                                            | When to repeat                                                                          |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| Behavioral tests            | Full tested source SHA, commands, assertions/fixtures, prepared dependencies and relevant native environment | Changed behavior, dependencies, test inputs or environment, on affected seams/platforms |
+| Package build               | Full build source SHA, version, build/packager inputs and native platform                                    | Changed packaged bytes, version metadata, dependencies or build recipe                  |
+| Exact-artifact verification | Build SHA, filename, size, SHA-256, native verifier inputs/result and cleanup                                | New artifact bytes or changed applicable verification inputs/requirements               |
+| Publication                 | Intended tag SHA, build-to-tag comparison, exact asset identities and download checks                        | Missing publication/download evidence; never rebuild just to publish                    |
 
-Record each artifact's exact build commit. All artifact-affecting source must
-be identical across platforms. Build commits normally match; they may differ
-only through the documentation-only exception below.
+Keep a compact record of prior PASS evidence and why inputs remain equivalent.
+Unknown/missing source, dependency or artifact provenance fails reuse. A known
+FAIL remains a blocker until a diagnosis-supported disposition explains the
+failure and the applicable check is satisfied; a later pass alone, or relabeling
+it UNVERIFIED, does not erase it. Resume the failed/missing step, not `npm ci`,
+`check` and `build` from the beginning merely because the request says release.
 
-A change qualifies for that exception when every changed path is a non-packaged
-Markdown file and none is:
+### Changed inputs and build-to-tag comparison
 
-- `THIRD_PARTY_NOTICES.md`, a license or another packaged file;
-- a package/version file, executable or test source, dependency, configuration,
-  build input, asset, generated application file or other non-Markdown path.
+Record each artifact's exact full build SHA; never relabel it as the tag SHA.
+Each target's artifact-affecting inputs must match the intended tag; shared
+product inputs must agree across platforms. Before publication, prove every build
+commit is the intended tag or its ancestor, then inspect the **complete** diff
+between them, including package-file field changes. For example:
 
-Examples include non-packaged README files, tutorials, agent instructions,
-release records and this procedure. Contract/ADR documentation changes that do
-not change packaged bytes also qualify. Such changes do not invalidate unchanged
-artifacts. If they introduce a new behavior or verification requirement, the
-existing artifact must satisfy it; avoiding a rebuild does not waive the check.
+```sh
+git merge-base --is-ancestor <build-sha> <tag-sha>
+git diff --stat <build-sha> <tag-sha>
+git diff <build-sha> <tag-sha>
+```
 
-Any non-eligible change invalidates earlier native records for that version.
-Before publication, compare each artifact build commit with the intended tag;
-the tag must point to it or a descendant differing only by eligible Markdown.
-If that proof fails, rebuild from the new source.
+Classify by inputs, not file extensions or a blanket directory allowlist:
+
+- Non-packaged docs (including contracts/ADRs) and test-only/fixture-only changes
+  leave product artifacts valid when they are not consumed by the build. Run
+  affected changed tests and record their actual results; reuse unaffected PASS
+  evidence. New verification requirements must still be satisfied by the preserved
+  artifact. Packaged notices/licenses are not documentation-only inputs.
+- Version-only package metadata changes require a native build and version/package
+  verification for each affected artifact, not wholesale behavioral reruns when
+  their other inputs are identical. Never reuse an old-version package.
+- Product, runtime/dependency, asset, preparation or build/packaging changes
+  invalidate only affected evidence and platform artifacts. If impact is unclear,
+  conservatively invalidate the potentially affected steps/platforms.
+- Orchestration-only changes may leave artifacts valid only with proof that
+  retained metadata, prepared dependency bytes, build inputs and effective
+  packager argv are unchanged. The pinned electron-builder 26.15.3 removes
+  `scripts` from both build metadata and the packaged `package.json` via
+  `readPackageJson` and `createTransformer`; the regression seam is
+  `test/unit/release-packaged-metadata.test.ts`. This is **not** permission to
+  ignore all package-file or script changes: version/dependencies/main remain
+  product inputs, and changes to build/preparation commands can change bytes.
+
+A descendant tag may therefore differ through verified non-artifact changes,
+including tests/docs and proven orchestration-only metadata edits. Record that
+comparison alongside the original build SHA and digest. If equivalence cannot
+be established, rebuild the affected artifact from the intended source; never
+silently accept stale product bytes.
 
 Published releases are immutable: do not move published tags, replace assets
 or reuse a published version. Later documentation corrections do not rewrite
@@ -86,9 +121,13 @@ release record and notes.
 
 ## Build and automated verification
 
-Release candidates use a fresh `npm ci` and explicit reruns of the existing
-checksum-guarded node-pty and Restty preparation scripts. Unknown dependency
-bytes fail preparation rather than silently reusing a stale patched runtime.
+For an unprepared checkout or changed dependency/preparation inputs, use a fresh
+`npm ci` and explicitly run the checksum-guarded node-pty and Restty preparation
+scripts. Unknown dependency bytes fail preparation rather than silently reusing
+a stale patched runtime. An already prepared checkout with recorded matching
+locked dependencies, corrections, native runtime and environment needs no new
+`npm ci` merely for version-only metadata, tests/docs or publication. Worktrees
+must own any dependency copy they prepare; never edit shared dependency dirs.
 
 Portable checks include the production-Chromium image fixture with isolated
 userData/sessionData. On Windows and Linux its non-activating window is visible:
@@ -107,6 +146,44 @@ command. A visible marker and `CSI 16 t` must produce a positive cell-size reply
 from the packaged Surface before the proof file is created. Startup events or
 a live shell alone are insufficient. The probe uses no user shell, configuration,
 payload or persistent profile; its state is removed after verified termination.
+
+### Resume and version-only commands
+
+The aggregate `check`, `check:linux` and `check:win` commands are full checks for
+missing evidence: `check:portable` builds once, then `package-built:*` packages
+that output without another build. Standalone `package:mac`, `package:linux`
+and `package:win` always build fresh.
+
+After a successful build (including `check:portable`), use the matching explicit
+step only while `dist`, product/build inputs and prepared dependencies still
+match the recorded native build:
+
+```sh
+npm run package-built:mac    # or package-built:linux / package-built:win
+npm run package:verify      # Windows requires the disposable-VM option below
+```
+
+`package-built:*` deliberately has no implicit cache/skip heuristic; the caller
+must establish current build provenance. If it is missing, use `package:*`.
+These commands do not run behavioral tests or establish release acceptance.
+
+For a version-only change with valid behavioral PASS evidence and unchanged
+prepared dependencies, update both package files with
+`npm version X.Y.Z --no-git-tag-version --ignore-scripts` (substitute the selected
+version), then on each native target:
+
+```sh
+npm run package:mac         # or package:linux / package:win; includes fresh build
+npm run package:verify      # Windows: -- --disposable-vm-allow-omxterm-replacement
+```
+
+The existing verifier checks package/runtime version consistency; the source
+version test is `npx vitest run test/unit/release-version.test.ts`. macOS still
+requires the exact-DMG mount check below, Linux the exact AppImage/helper paths,
+and Windows the exact NSIS transaction and cleanup. If packaging succeeded but
+verification failed or is missing, run only `package:verify` against the preserved
+artifact (plus macOS's mounted DMG), not another package build. If all evidence
+is valid and artifact checksums still match, proceed directly to publication.
 
 ### macOS arm64
 
@@ -329,7 +406,10 @@ Source commit: <full SHA>
 Artifact: <filename>
 Byte size: <integer>
 SHA-256: <lowercase digest>
-Native automated verification: <PASS/FAIL and safe summary>
+Behavioral evidence: <tested full SHA, commands/result; reuse rationale if applicable>
+Package build: <native platform, prepared dependencies and build command>
+Native automated verification: <PASS/FAIL, verifier inputs and safe summary>
+Build-to-tag comparison: <tag full SHA and non-artifact differences, or identical>
 Changed boundaries: <automated seam or UNVERIFIED risk>
 Optional observations: <none, or non-blocking observations>
 Cleanup: <COMPLETE/INCOMPLETE with reason>
@@ -370,7 +450,7 @@ an artifact invalidates its earlier checksum and artifact evidence.
 ## Publication
 
 Confirm repository `luizomf/omxterm`, version consistency, build-to-tag ancestry,
-eligible Markdown-only differences, passing native verification and complete
+verified non-artifact differences, passing native verification and complete
 cleanup. Create the tag and GitHub Release within the owner's release request;
 there is no additional approval checkpoint.
 

@@ -320,6 +320,16 @@ paths. It does not generalize arbitrary producer hard breaks into soft wraps.
 When investigating an intermittent failure, record the failure and rerun
 conditions. A later isolated pass alone does not show that it was fixed.
 
+Keep successful evidence with its full source SHA, commands, relevant prepared
+dependencies and native environment. Release work resumes missing/invalidated
+steps under the [input-based reuse policy](release.md#changed-inputs-and-build-to-tag-comparison),
+not a fresh full test/build cycle on request. Test/fixture-only edits need affected
+tests, not native package rebuilds; version-only edits need new packages and
+version/package verification, not wholesale behavioral reruns. `check:portable`
+already builds; use explicit `package-built:mac`, `package-built:linux` or
+`package-built:win` only with a known current native build. Standalone `package:*`
+still builds fresh. No implicit skip/cache establishes provenance.
+
 Platform packaging commands and exact-artifact evidence are documented in the
 [release procedure](release.md). In particular, Windows NSIS verification can
 replace an existing installation even with a temporary `/D=` destination. It

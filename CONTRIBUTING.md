@@ -157,7 +157,14 @@ can run `npm run lint`, `npm run typecheck`, `npm test` or `npm run build`
 separately while developing. Graphical tests need a working desktop and WebGL2;
 “portable” does not mean headless. Run one native suite at a time per desktop.
 
-Packaging changes also need the matching native check:
+Product packaging changes also need matching native evidence. Use the full
+check when evidence is missing; reuse recorded PASS steps with unchanged relevant
+inputs under the [release procedure](docs/release.md#changed-inputs-and-build-to-tag-comparison).
+Test-only/fixture-only changes need affected tests and honest results, not package
+rebuilds everywhere. Proven orchestration-only changes need orchestration tests;
+retained metadata or changed build recipes are not automatically exempt.
+
+Full native commands:
 
 | Platform      | Complete native check                                            |
 | ------------- | ---------------------------------------------------------------- |
@@ -165,8 +172,11 @@ Packaging changes also need the matching native check:
 | Linux ARM64   | `npm run check:linux`                                            |
 | Windows ARM64 | `npm run check:win -- --disposable-vm-allow-omxterm-replacement` |
 
-These commands create and verify local artifacts in `release/`; they do not
-publish. **The Windows check performs real installation and replacement.** Use
+These commands build once through `check:portable`, then package and verify
+local artifacts in `release/`; they do not publish. Standalone `package:*` builds
+fresh; explicit `package-built:*` packages a previously established current
+native build without repeating it (see [resume commands](docs/release.md#resume-and-version-only-commands)).
+**The Windows check performs real installation and replacement.** Use
 an authorized disposable VM with a recovery snapshot and follow the
 [Windows release procedure](docs/release.md#windows-arm64). A temporary install
 path does not protect an existing installation. For non-installing diagnostics,
