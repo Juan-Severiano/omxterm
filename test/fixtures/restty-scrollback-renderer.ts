@@ -1,3 +1,4 @@
+import { waitForLiveViewport } from "./restty-scrollback-viewport";
 import { depthRenderingFixture } from "./restty-depth-renderer";
 import { hiddenRenderingFixture } from "./restty-hidden-renderer";
 import { mountResttyTerminalSurface } from "../../src/terminal-surface/restty-terminal-surface";
@@ -17,6 +18,7 @@ interface ScrollbackFixture {
   hiddenRenderingFixture: typeof hiddenRenderingFixture;
   depthRenderingFixture: typeof depthRenderingFixture;
   metrics(): ScrollMetrics;
+  inputViewport(text: string): Promise<ScrollMetrics>;
   reduceHistory(): Promise<ScrollMetrics>;
   disableHistory(): Promise<ScrollMetrics>;
   enableHistory(): Promise<ScrollMetrics>;
@@ -76,20 +78,16 @@ const metrics = (canvas: HTMLCanvasElement | null): ScrollMetrics => {
     sameCanvas: canvas === initialCanvas(),
   };
 };
-async function liveViewport(
+const liveViewport = (
   canvas: HTMLCanvasElement | null,
-): Promise<ScrollMetrics> {
-  const deadline = performance.now() + 5_000;
-  do {
-    await waitForRender();
-    const current = metrics(canvas);
-    if (current.scrollTop === current.scrollHeight - current.clientHeight)
-      return current;
-  } while (performance.now() < deadline);
-  throw new Error(
-    "Live viewport did not reach the bottom after native layout/rendering settled",
+  hasAcceptedInput: () => boolean = () => true,
+) =>
+  waitForLiveViewport(
+    () => metrics(canvas),
+    () =>
+      new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
+    hasAcceptedInput,
   );
-}
 const configuration = (scrollbackLines: number) => ({
   appearance: { fontSize: 16, lineHeight: 1, ligatures: true },
   padding: { top: 0, right: 0, bottom: 0, left: 0 },
@@ -173,6 +171,7 @@ async function run() {
       return result;
     },
     metrics: () => metrics(canvas),
+    inputViewport: (text) => liveViewport(canvas, () => writes.includes(text)),
     async resizeAtBottom() {
       const before = await liveViewport(canvas);
       // A reload notice can shrink the host while font metrics also change.

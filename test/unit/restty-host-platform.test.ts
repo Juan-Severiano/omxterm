@@ -4,6 +4,7 @@ import {
   hasSelectionFixtureOutput,
   hasSelectionFixtureTranscript,
   selectionFixtureCommand,
+  selectionFixtureReset,
 } from "../fixtures/restty-host-platform";
 
 it.each(["win32", "darwin", "linux"] as const)(
@@ -14,6 +15,17 @@ it.each(["win32", "darwin", "linux"] as const)(
     expect(typed).not.toContain("__DEFAULT_INPUT__Olá🙂");
   },
 );
+
+it.each(["darwin", "linux"] as const)(
+  "%s clears pending selection input without asynchronously interrupting the shell",
+  (platform) => {
+    expect(selectionFixtureReset(platform)).toBe("\u0015");
+  },
+);
+
+it("preserves the owned PowerShell selection reset", () => {
+  expect(selectionFixtureReset("win32")).toBe("\u0003");
+});
 
 it("requires every generated row in order and a standalone exact Unicode record", () => {
   const records = [

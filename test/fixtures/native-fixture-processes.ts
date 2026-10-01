@@ -66,7 +66,9 @@ function linuxStartTime(pid: number): string {
     const stat = readFileSync(`/proc/${pid}/stat`, "utf8");
     return stat.slice(stat.lastIndexOf(")") + 2).split(" ")[19]!;
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return "exited";
+    const code = (error as NodeJS.ErrnoException).code;
+    // Linux procfs can report either error when the ps snapshot outlives a task.
+    if (code === "ENOENT" || code === "ESRCH") return "exited";
     throw error;
   }
 }

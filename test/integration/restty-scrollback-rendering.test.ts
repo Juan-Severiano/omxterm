@@ -481,12 +481,10 @@ app.whenReady().then(async () => {
   await window.webContents.executeJavaScript('globalThis.__omxtermResttyScrollback.scrollToTop()', true);
   const outputMetrics = await window.webContents.executeJavaScript('globalThis.__omxtermResttyScrollback.outputWhileScrolled()', true);
   window.webContents.sendInputEvent({ type: 'char', keyCode: 'x' });
-  await new Promise((resolve) => setTimeout(resolve, 150));
-  const typed = await window.webContents.executeJavaScript('globalThis.__omxtermResttyScrollback.metrics()', true);
+  const typed = await window.webContents.executeJavaScript("globalThis.__omxtermResttyScrollback.inputViewport('x')", true);
   await window.webContents.executeJavaScript('globalThis.__omxtermResttyScrollback.scrollToTop()', true);
   await window.webContents.executeJavaScript("globalThis.__omxtermResttyScrollback.surface.inject('injected')", true);
-  await new Promise((resolve) => setTimeout(resolve, 150));
-  const injected = await window.webContents.executeJavaScript('globalThis.__omxtermResttyScrollback.metrics()', true);
+  const injected = await window.webContents.executeJavaScript("globalThis.__omxtermResttyScrollback.inputViewport('injected')", true);
   const writes = await window.webContents.executeJavaScript('globalThis.__omxtermResttyScrollback.writes', true);
   const viewport = { geometry, outputTop: outputMetrics.scrollTop, typed, injected, writes };
   const preferences = window.webContents.getLastWebPreferences();

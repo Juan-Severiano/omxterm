@@ -100,6 +100,14 @@ export function hasSelectionFixtureTranscript(text: string): boolean {
   );
 }
 
+export function selectionFixtureReset(
+  platform: NodeJS.Platform = process.platform,
+): string {
+  // Clear the owned Unix input line without a pending SIGINT that can discard
+  // the immediately following selection command. Keep PSReadLine unchanged.
+  return platform === "win32" ? "\u0003" : "\u0015";
+}
+
 export function selectionFixtureCommand(
   platform: NodeJS.Platform = process.platform,
 ): string {

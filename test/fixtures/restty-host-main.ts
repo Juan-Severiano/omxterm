@@ -41,6 +41,7 @@ import {
   nativeFixturePlatform,
   prepareFixtureShell,
   selectionFixtureCommand,
+  selectionFixtureReset,
 } from "./restty-host-platform";
 import {
   createOutputStressHarness,
@@ -363,8 +364,7 @@ app
       () => inputs[0]!.join("").includes("private"),
       "native Paste host route",
     );
-    terminals[0]!.write("\u0003");
-    terminals[0]!.write(selectionFixtureCommand());
+    terminals[0]!.write(selectionFixtureReset() + selectionFixtureCommand());
     await waitFor(
       () => hasSelectionFixtureOutput(outputs[0]!.join("")),
       "scrollback selection fixture",

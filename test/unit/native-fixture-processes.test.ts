@@ -1,8 +1,53 @@
-import { describe, expect, it } from "vitest";
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   collectFixtureDescendants,
+  fixtureProcesses,
   type FixtureProcess,
 } from "../fixtures/native-fixture-processes";
+
+vi.mock("node:child_process", () => ({ execFileSync: vi.fn() }));
+vi.mock("node:fs", () => ({ readFileSync: vi.fn() }));
+
+describe("Linux fixture process inventory races", () => {
+  beforeEach(() => {
+    vi.stubGlobal("process", { ...process, platform: "linux" });
+    vi.mocked(execFileSync).mockReturnValue(
+      "101 1 Thu Jan 1 00:00:00 2026 S\n",
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.resetAllMocks();
+  });
+
+  it.each(["ENOENT", "ESRCH"])(
+    "records a process disappearing during its stat read (%s)",
+    (code) => {
+      vi.mocked(readFileSync).mockImplementation(() => {
+        throw Object.assign(new Error("Process disappeared"), { code });
+      });
+      expect(fixtureProcesses()).toEqual([
+        { pid: 101, parent: 1, identity: "exited" },
+      ]);
+    },
+  );
+
+  it.each(["EACCES", "EIO"])(
+    "preserves an unavailable process inspection (%s)",
+    (code) => {
+      const failure = Object.assign(new Error("Inspection unavailable"), {
+        code,
+      });
+      vi.mocked(readFileSync).mockImplementation(() => {
+        throw failure;
+      });
+      expect(() => fixtureProcesses()).toThrow(failure);
+    },
+  );
+});
 
 describe("native fixture process ownership", () => {
   it.each([
