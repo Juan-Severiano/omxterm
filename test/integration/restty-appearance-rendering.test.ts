@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
 import {
   copyFile,
+  cp,
   mkdir,
   mkdtemp,
   readFile,
@@ -14,6 +15,7 @@ import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 import { describe, expect, it } from "vitest";
 import { applyChromiumSandboxPolicy } from "../../src/main/chromium-sandbox-policy";
+import { resttyAppearanceMainSource } from "../fixtures/restty-appearance-main";
 import type {
   Measurement,
   SelectionObservation,
@@ -25,6 +27,18 @@ const resultPrefix = "__OMXTERM_RESTTY_APPEARANCE_RESULT__";
 
 interface Result {
   readonly selection: SelectionObservation;
+  readonly controlledReadiness?: {
+    readonly firstSelectionPixels: number;
+    readonly firstExactCopy: boolean;
+    readonly firstFrameCount: number;
+    readonly heldCallbacks: number;
+    readonly heldDeadlineRejected: boolean;
+    readonly heldCaptures: number;
+    readonly releasedCallbacks: number;
+    readonly completedCallbacks: number;
+    readonly finalExactCopy: boolean;
+    readonly artifactDirectory: string;
+  };
   readonly configuredFont: {
     readonly regularInk: number;
     readonly deferredFrame: boolean;
@@ -97,18 +111,25 @@ describe("Restty OMXTerm appearance under production Electron policy", () => {
         readonly requestedScaleFactor: number | undefined;
         readonly result: Result;
       }> = [];
-      for (const [requestedScaleFactor, deferFrames, mixedPointer] of [
-        [undefined, false, false],
-        [1, false, false],
-        [2, false, false],
-        [undefined, true, false],
-        [undefined, false, true],
+      for (const [
+        requestedScaleFactor,
+        deferFrames,
+        mixedPointer,
+        gateFrames,
+      ] of [
+        [undefined, false, false, false],
+        [1, false, false, false],
+        [2, false, false, false],
+        [undefined, true, false, false],
+        [undefined, false, true, false],
+        [undefined, false, false, true],
       ] as const) {
         const execution = await runFixture(
           root,
           requestedScaleFactor,
           deferFrames,
           mixedPointer,
+          gateFrames,
         );
         const line = execution.stdout
           .split("\n")
@@ -116,13 +137,15 @@ describe("Restty OMXTerm appearance under production Electron policy", () => {
         const result = line
           ? (JSON.parse(line.slice(resultPrefix.length)) as Result)
           : undefined;
-        const label = mixedPointer
-          ? "mouse press with pen motion and compatibility mouse events"
-          : deferFrames
-            ? "delayed selection and configured-font frames at actual display DPR"
-            : requestedScaleFactor
-              ? `forced DPR ${requestedScaleFactor}`
-              : "actual display DPR";
+        const label = gateFrames
+          ? "held Surface RAF with independent native fixture frames"
+          : mixedPointer
+            ? "mouse press with pen motion and compatibility mouse events"
+            : deferFrames
+              ? "delayed selection and configured-font frames at actual display DPR"
+              : requestedScaleFactor
+                ? `forced DPR ${requestedScaleFactor}`
+                : "actual display DPR";
 
         expect(
           execution.exitCode,
@@ -146,6 +169,7 @@ describe("Restty OMXTerm appearance under production Electron policy", () => {
                 measurements: result.measurements,
                 live: result.live,
                 selection: result.selection,
+                controlledReadiness: result.controlledReadiness,
                 colorCounts: result.colorCounts,
                 configuredFont: result.configuredFont,
               })),
@@ -154,6 +178,28 @@ describe("Restty OMXTerm appearance under production Electron policy", () => {
             2,
           )}\n`,
         );
+
+      const controlled = runs[5]!.result;
+      expect(controlled.controlledReadiness).toMatchObject({
+        firstSelectionPixels: 0,
+        firstExactCopy: true,
+        firstFrameCount: 2,
+        heldDeadlineRejected: true,
+        finalExactCopy: true,
+      });
+      expect(controlled.controlledReadiness!.heldCallbacks).toBeGreaterThan(0);
+      expect(controlled.controlledReadiness!.heldCaptures).toBeGreaterThan(0);
+      expect(controlled.controlledReadiness!.releasedCallbacks).toBe(
+        controlled.controlledReadiness!.heldCallbacks,
+      );
+      expect(controlled.controlledReadiness!.completedCallbacks).toBe(
+        controlled.controlledReadiness!.heldCallbacks,
+      );
+      for (const color of expectedColors)
+        expect(
+          controlled.colorCounts[color],
+          `released gate ${color}`,
+        ).toBeGreaterThan(0);
 
       expect(runs[1]!.result.devicePixelRatio).toBeCloseTo(1, 5);
       expect(runs[2]!.result.devicePixelRatio).toBeCloseTo(2, 5);
@@ -265,6 +311,28 @@ describe("Restty OMXTerm appearance under production Electron policy", () => {
         sandbox: true,
         webSecurity: true,
       });
+    } catch (error) {
+      // A successful child can still fail a parent-side font/geometry assertion.
+      // Keep its synthetic captures before temporary-profile cleanup as well.
+      const directory = path.join(
+        projectRoot,
+        ".scratch",
+        `restty-appearance-assertion-failure-${Date.now()}-${process.pid}`,
+      );
+      try {
+        await cp(path.join(root, "captures"), directory, { recursive: true });
+        await writeFile(
+          path.join(directory, "failure.json"),
+          `${JSON.stringify({ error: String(error) }, undefined, 2)}\n`,
+        );
+        console.error(`Synthetic capture artifacts: ${directory}`);
+      } catch (artifactError) {
+        console.error(
+          "Could not preserve parent-side captures:",
+          artifactError,
+        );
+      }
+      throw error;
     } finally {
       // Windows can retain Chromium profile handles briefly after child exit.
       await rm(root, {
@@ -442,128 +510,12 @@ export function terminalFontInputs(data: TerminalFontData): TerminalFontInput[] 
       path.join(root, "package.json"),
       `${JSON.stringify({ name: "omxterm-restty-appearance", main: "main.cjs" })}\n`,
     ),
-    writeFile(path.join(root, "main.cjs"), electronMainSource()),
+    writeFile(
+      path.join(root, "main.cjs"),
+      resttyAppearanceMainSource(expectedColors, resultPrefix),
+    ),
     mkdir(path.join(root, "home"), { recursive: true }),
   ]);
-}
-
-function electronMainSource(): string {
-  return `
-const { app, BrowserWindow } = require("electron");
-const fs = require("node:fs");
-const path = require("node:path");
-for (const name of ["userData", "sessionData"]) {
-  const directory = path.join(__dirname, name);
-  fs.mkdirSync(directory, { recursive: true });
-  app.setPath(name, directory);
-}
-const expectedColors = ${JSON.stringify(expectedColors)};
-const countColors = (bitmap) => {
-  const counts = Object.fromEntries(expectedColors.map((color) => [color, 0]));
-  for (let offset = 0; offset < bitmap.length; offset += 4) {
-    const a = bitmap[offset], b = bitmap[offset + 1], c = bitmap[offset + 2];
-    for (const color of expectedColors) {
-      const r = Number.parseInt(color.slice(1, 3), 16);
-      const g = Number.parseInt(color.slice(3, 5), 16);
-      const bl = Number.parseInt(color.slice(5, 7), 16);
-      const near = (left, right) => Math.abs(left - right) <= 3;
-      if ((near(a, r) && near(b, g) && near(c, bl)) || (near(a, bl) && near(b, g) && near(c, r))) counts[color] += 1;
-    }
-  }
-  return counts;
-};
-async function waitForResult(window) {
-  const deadline = Date.now() + 60000;
-  while (Date.now() < deadline) {
-    const result = await window.webContents.executeJavaScript("globalThis.__omxtermResttyAppearanceResult ?? null", true);
-    if (result) return result;
-    const error = await window.webContents.executeJavaScript('document.body.dataset.fixtureError ?? null', true);
-    if (error) throw new Error(error);
-    await new Promise((resolve) => setTimeout(resolve, 25));
-  }
-  throw new Error("Restty appearance fixture timed out");
-}
-app.whenReady().then(async () => {
-  const window = new BrowserWindow({
-    width: 800,
-    height: 500,
-    show: false,
-    webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false, webSecurity: true, backgroundThrottling: false },
-  });
-  await window.loadFile(path.join(__dirname, "index.html"), {
-    query: { deferFrames: String(process.env.OMXTERM_RESTTY_APPEARANCE_DEFER_FRAME === '1') },
-  });
-  window.showInactive();
-  let result = await waitForResult(window);
-  let bounds = await window.webContents.executeJavaScript("(() => { const r = document.querySelector('canvas').getBoundingClientRect(); return { x:r.x, y:r.y, width:r.width, height:r.height }; })()", true);
-  const cellWidth = result.live.cellWidth / result.devicePixelRatio;
-  const cellHeight = result.live.cellHeight / result.devicePixelRatio;
-  const x = Math.round(bounds.x + cellWidth * 0.5);
-  const y = Math.round(bounds.y + cellHeight * 2.5);
-  const selection = await require('./selection.cjs').exerciseAppearanceSelection(window,
-    { x, y, cellWidth }, process.env.OMXTERM_RESTTY_APPEARANCE_MIXED_POINTER === '1');
-  const image = await window.webContents.capturePage();
-  if (process.env.OMXTERM_RESTTY_APPEARANCE_SCREENSHOT_PATH)
-    fs.writeFileSync(process.env.OMXTERM_RESTTY_APPEARANCE_SCREENSHOT_PATH, image.toPNG());
-  const captureInk = async (row) => {
-    const region = await window.webContents.capturePage({
-      x: Math.floor(bounds.x),
-      y: Math.floor(bounds.y + (result.live.cellHeight / result.devicePixelRatio) * (row - 1)),
-      width: Math.ceil((result.live.cellWidth / result.devicePixelRatio) * 8),
-      height: Math.ceil(result.live.cellHeight / result.devicePixelRatio),
-    });
-    const bitmap = region.toBitmap();
-    let ink = 0;
-    for (let offset = 0; offset < bitmap.length; offset += 4)
-      if (Math.max(bitmap[offset], bitmap[offset + 1], bitmap[offset + 2]) > 40) ink += 1;
-    return { ink, bitmap };
-  };
-  const [regular, bold, firaCoverage, dejaVuCoverage, missing] = await Promise.all(
-    [4, 5, 6, 7, 8].map(captureInk),
-  );
-  const preferences = window.webContents.getLastWebPreferences();
-  const complete = {
-    ...result,
-    colorCounts: countColors(image.toBitmap()),
-    selection,
-    fontRendering: {
-      regularInk: regular.ink,
-      boldInk: bold.ink,
-      firaCoverageInk: firaCoverage.ink,
-      dejaVuCoverageInk: dejaVuCoverage.ink,
-      firaDiffersFromMissing: !firaCoverage.bitmap.equals(missing.bitmap),
-      dejaVuDiffersFromMissing: !dejaVuCoverage.bitmap.equals(missing.bitmap),
-    },
-    security: {
-      contextIsolation: preferences.contextIsolation,
-      nodeIntegration: preferences.nodeIntegration,
-      sandbox: preferences.sandbox,
-      webSecurity: preferences.webSecurity,
-    },
-  };
-  await window.webContents.executeJavaScript('globalThis.__omxtermRenderConfiguredFont(false)', true);
-  result = await waitForResult(window);
-  bounds = await window.webContents.executeJavaScript("(() => { const r = document.querySelector('canvas').getBoundingClientRect(); return { x:r.x, y:r.y, width:r.width, height:r.height }; })()", true);
-  const configuredFrameDeferred = result.deferredOutputFrame;
-  const configuredRegular = await captureInk(4);
-  const configuredBold = await captureInk(5);
-  await window.webContents.executeJavaScript('globalThis.__omxtermRenderConfiguredFont(true)', true);
-  result = await waitForResult(window);
-  const referenceRegular = await captureInk(4);
-  const referenceBold = await captureInk(5);
-  complete.configuredFont = {
-    regularInk: configuredRegular.ink,
-    deferredFrame: configuredFrameDeferred,
-    preservesConfiguredRendering: configuredRegular.bitmap.equals(referenceRegular.bitmap) && configuredBold.bitmap.equals(referenceBold.bitmap),
-  };
-  process.stdout.write(${JSON.stringify(resultPrefix)} + JSON.stringify(complete) + "\\n");
-  window.destroy();
-  app.exit(0);
-}).catch((error) => {
-  process.stderr.write(String(error && error.stack ? error.stack : error) + "\\n");
-  app.exit(1);
-});
-`;
 }
 
 async function runFixture(
@@ -571,6 +523,7 @@ async function runFixture(
   scaleFactor?: number,
   deferFrames = false,
   mixedPointer = false,
+  gateFrames = false,
 ): Promise<{
   readonly exitCode: number | null;
   readonly stderr: string;
@@ -593,6 +546,13 @@ async function runFixture(
       ELECTRON_DISABLE_SECURITY_WARNINGS: "true",
       OMXTERM_RESTTY_APPEARANCE_DEFER_FRAME: deferFrames ? "1" : "0",
       OMXTERM_RESTTY_APPEARANCE_MIXED_POINTER: mixedPointer ? "1" : "0",
+      OMXTERM_RESTTY_APPEARANCE_GATE_FRAMES: gateFrames ? "1" : "0",
+      OMXTERM_RESTTY_APPEARANCE_REQUESTED_DPR: String(scaleFactor ?? "actual"),
+      OMXTERM_RESTTY_APPEARANCE_ARTIFACT_DIRECTORY: path.join(
+        projectRoot,
+        ".scratch",
+        `restty-appearance-${Date.now()}-${process.pid}-${gateFrames ? "gate" : mixedPointer ? "mixed" : deferFrames ? "deferred" : (scaleFactor ?? "actual")}`,
+      ),
       HOME: path.join(root, "home"),
       XDG_CONFIG_HOME: path.join(root, "config"),
       XDG_STATE_HOME: path.join(root, "state"),

@@ -7,6 +7,14 @@ import {
   type TerminalTheme,
 } from "../../src/shared/terminal-theme";
 import type { TerminalSessionHandlers } from "../../src/terminal-surface/terminal-session-adapter";
+import {
+  beginSelectionFrameGate,
+  nativeFrame,
+  releaseSelectionFrames,
+  selectionFrame,
+  selectionFrameDiagnostics,
+  waitForLayout,
+} from "./restty-appearance-frames";
 
 export interface Measurement {
   readonly size: number;
@@ -68,14 +76,34 @@ declare global {
   var __omxtermBeginSelection: () => void;
   var __omxtermSelectionAfterFrames: () => Promise<SelectionObservation>;
   var __omxtermHasNoSelection: () => Promise<boolean>;
+  var __omxtermSelectionState: () => Promise<{
+    readonly exactCopy: boolean;
+    readonly focused: boolean;
+    readonly visibilityState: DocumentVisibilityState;
+    readonly devicePixelRatio: number;
+    readonly deferredFrame: boolean;
+    readonly gateHeld: boolean;
+    readonly heldCallbacks: readonly number[];
+    readonly queuedCallbacks: readonly number[];
+    readonly releasedCallbacks: number;
+    readonly releasedFrameTimes: readonly number[];
+    readonly frameCount: number;
+    readonly frameTimes: readonly number[];
+    readonly lastFrameAt: number | null;
+    readonly observedAt: number;
+  }>;
+  var __omxtermSelectionFrame: () => Promise<void>;
+  var __omxtermReleaseSelectionFrames: () => void;
 }
+
+globalThis.__omxtermReleaseSelectionFrames = releaseSelectionFrames;
+globalThis.__omxtermSelectionFrame = selectionFrame;
 
 const deferFrames =
   new URLSearchParams(location.search).get("deferFrames") === "true";
 let deferUntil = 0;
 let deferredFrame = false;
 if (deferFrames) {
-  const nativeFrame = requestAnimationFrame.bind(window);
   window.requestAnimationFrame = (callback) =>
     nativeFrame((time) => {
       const remaining = deferUntil - performance.now();
@@ -89,6 +117,7 @@ if (deferFrames) {
 }
 globalThis.__omxtermBeginSelection = () => {
   if (deferFrames) deferUntil = performance.now() + 300;
+  beginSelectionFrameGate();
 };
 
 const customTheme: TerminalTheme = {
@@ -123,11 +152,6 @@ const queriedRoot = document.querySelector<HTMLElement>("#terminal-tabs");
 if (!queriedRoot)
   throw new Error("Restty appearance fixture container is missing");
 const root: HTMLElement = queriedRoot;
-
-const waitForLayout = () =>
-  new Promise<void>((resolve) =>
-    requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
-  );
 
 async function measure(
   size: number,
@@ -366,11 +390,24 @@ async function run() {
     await surface.copy();
     return copiedSelection === "";
   };
+  globalThis.__omxtermSelectionState = async () => {
+    copiedSelection = "";
+    await surface.copy();
+    return {
+      exactCopy: copiedSelection === " https",
+      focused: document.hasFocus(),
+      visibilityState: document.visibilityState,
+      devicePixelRatio,
+      deferredFrame,
+      ...selectionFrameDiagnostics(),
+      observedAt: performance.now(),
+    };
+  };
   globalThis.__omxtermSelectionAfterFrames = async () => {
     copiedSelection = "";
     await surface.copy();
     const beforeFrame = copiedSelection === " https";
-    await waitForLayout();
+    await waitForLayout(true);
     copiedSelection = "";
     await surface.copy();
     const afterFrame = copiedSelection === " https";
