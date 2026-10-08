@@ -3,10 +3,11 @@
 OMXTerm uses [Semantic Versioning 2.0.0](https://semver.org/). Published versions
 are `MAJOR.MINOR.PATCH`, tagged `vMAJOR.MINOR.PATCH`.
 
-The current published release is
-[0.20.1](https://github.com/luizomf/omxterm/releases/tag/v0.20.1). The source carries
-**0.20.2-dev.0**, a development baseline, not a published release.
 `package.json` is the application-version source; `package-lock.json` must agree.
+Find published versions and downloads in
+[GitHub Releases](https://github.com/luizomf/omxterm/releases).
+A source version with a `-dev.N` suffix identifies a development baseline, not a
+published release.
 Release preparation and publication follow [release.md](release.md).
 
 ## Public contract

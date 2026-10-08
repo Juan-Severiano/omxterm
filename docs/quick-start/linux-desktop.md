@@ -165,10 +165,10 @@ LIBGL_ALWAYS_SOFTWARE=1 ./OMXTerm-VERSION-arm64.AppImage \
 ```
 
 `LIBGL_ALWAYS_SOFTWARE=1` selects Mesa's CPU renderer; `--ignore-gpu-blocklist`
-bypasses Chromium's GPU compatibility blocklist for this process. These options
-can reduce performance or stability and do not guarantee a working WebGL2
-backend. Keep them local to this launch rather than exporting them globally.
-They are not a general Hyprland requirement or hardware-acceleration setting.
+bypasses Chromium's GPU compatibility blocklist for this process. Use these
+options only for a graphics failure: they can reduce performance or stability. Keep them local to this launch rather than exporting them globally.
+If initialization still fails, include the error and your GPU or VM details in
+a [problem report](../../CONTRIBUTING.md#report-a-problem).
 
 For a FUSE mounting error, add `--appimage-extract-and-run` immediately after
 the AppImage path, before the Electron options. The helper chooses this mode

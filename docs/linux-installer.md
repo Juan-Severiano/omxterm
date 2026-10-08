@@ -80,31 +80,8 @@ For an update, verify the new release's two downloads and rerun `install` with i
 AppImage. Repeat `--compatibility` only if you still need it; a normal installation
 resets that choice. Custom desktop-entry edits are replaced.
 
-Once staging begins, failures before replacement completes trigger rollback.
-Invalid input is rejected before replacing installed files. If restoration
-succeeds, the previous installation is restored. If the filesystem prevents
-restoration, the helper reports **recovery incomplete** and
-the locations of retained originals. Preserve those backups before retrying or
-uninstalling; resolve the filesystem error and recover the originals from the
-reported locations. The initial installation error remains in the output and
-exit status.
-
-**Cleanup limitation:** after all three replacements succeed, the helper disables
-rollback and removes staging and old backups. A failure in this final cleanup
-can return a nonzero status even though the new app, icon, and desktop entry are
-already installed. It does not restore the previous installation or provide the
-structured recovery report above; some old backups may already be gone. Check
-the three installed files and the error output before retrying or removing any
-remaining `.omxterm-*-backup.*` directories. Keep a separate copy of the old
-AppImage if you want to be able to return to it.
-
-The install-time mount probe has bounded discovery and TERM/KILL shutdown. A
-shutdown timeout is a failed installation, not a reason to silently install or
-retry. Interruption also cleans up the owned mount child. If the helper cannot
-confirm termination, it reports the child PID and retains its staging directory
-(including `mount-output`); preserve that state and inspect the reported child
-and mount before removing staging or retrying. A kernel-stuck child may require
-OS-level recovery; the helper does not claim that KILL always completes.
+Keep a copy of your old AppImage if you want to return to that version.
+To see help, check the helper version, or remove the installed app:
 
 ```sh
 ./linux_install.sh --help
@@ -112,16 +89,33 @@ OS-level recovery; the helper does not claim that KILL always completes.
 ./linux_install.sh uninstall
 ```
 
-Uninstall removes these three files and keeps your settings:
+Uninstall removes only these three files and keeps your settings:
 
 - `~/.local/opt/omxterm/OMXTerm.AppImage`
 - `~/.local/share/icons/hicolor/1024x1024/apps/omxterm.png`
 - `~/.local/share/applications/omxterm.desktop`
 
-Install checks all three filenames before replacing anything. If one is a
-directory or another unsupported entry (such as a FIFO), it stops and leaves
-the previous installation and unrelated contents unchanged. Move the conflicting
-entry somewhere safe before retrying; do not delete it just to install OMXTerm.
-Existing regular files and symlinks are replaced. Symlink targets are never
-changed, including when the link is dangling or points to a directory; uninstall
-also removes only the link itself.
+## If installation fails
+
+Read the error before retrying. The next step depends on when installation stopped:
+
+- **Invalid package or conflicting destination:** the previous installation is
+  unchanged. If an owned filename above is a directory or another unsupported
+  entry, move that entry somewhere safe before installing again.
+- **Failure during replacement:** the helper tries to restore the previous
+  installation. If it reports **recovery incomplete**, keep the reported backups,
+  resolve the filesystem error, and recover those originals before retrying or
+  uninstalling.
+- **Failure during final cleanup:** the new app, icon, and desktop entry may
+  already be installed despite the failure status. Check the three files above
+  and the error output before retrying or removing remaining
+  `.omxterm-*-backup.*` directories. Some old backups may already be gone.
+- **Mount-probe shutdown timeout:** if the error names a remaining process and
+  staging directory, preserve them for diagnosis. Check the reported process and
+  mount before removing staging or retrying; a kernel-stuck process may need
+  OS-level recovery.
+
+Existing regular files and symlinks at the three owned filenames are replaced
+as entries. Symlink targets stay unchanged; uninstall also removes only the
+link itself. For the full replacement and recovery behavior, see the
+[installer contract](spec.md#configuration-and-local-state).

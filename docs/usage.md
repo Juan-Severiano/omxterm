@@ -8,6 +8,7 @@ usual shell in your home folder; on Windows, the default is Windows PowerShell.
 **[Troubleshooting](#troubleshooting)**
 
 For fonts, colors, shortcuts, and snippets, see [Configuration](configuration.md).
+[How it works](how-it-works.md) explains the terminal, shell, and session flow.
 
 ## Windows, tabs, and sessions
 
@@ -30,8 +31,9 @@ Use a session manager such as tmux for work that needs to survive closing a tab.
 ### Closing tabs, windows, and the app
 
 By default, OMXTerm asks before closing running work, with one confirmation per
-action. Idle shells close immediately on macOS and Linux. **Windows asks for
-every running session**, because it cannot reliably tell whether a shell is idle.
+action. Recognized idle shells close immediately on macOS and Linux. If their
+activity cannot be determined, OMXTerm asks. **Windows asks for every running session**,
+because it cannot reliably tell whether a shell is idle.
 You can turn confirmations off with `confirmClose` in your settings.
 
 A background tab closing or exiting does not change your selected session or
@@ -130,9 +132,9 @@ receiving program isn't set up to handle pasted text. Choose **Paste** to send
 the whole text or **Cancel** to send nothing.
 
 Programs that enable **bracketed paste** can distinguish pasted text from typing,
-so they receive it without this prompt. Bracketed paste is not command validation;
-embedded control characters can end it early. Review commands before running them.
-Snippets and inserted file paths use the same handling.
+so they receive it without this prompt. Review commands before running them:
+embedded control characters can end bracketed paste early. Snippets and inserted
+file paths use the same handling.
 
 ## Inserting file and folder paths
 
@@ -179,12 +181,10 @@ activation asks again; OMXTerm never tracks or guesses an agent's/shell's cwd.
 
 Previews support static PNG/JPEG files up to **64 MiB**, **8192 pixels per side**,
 and **32 million pixels**, including each ceiling. Large images can temporarily
-use substantially more memory than their file size. Closing releases the preview's
-source; browser/native memory need not return immediately to its initial level.
-**Actual WebP is not supported**, even when its path
-is recognized; an unsupported-format message distinguishes it from an unavailable
-file. Content, not the extension, determines format. Network shares, device paths
-and remote files are unsupported. Even if SSH printed the path, it refers to the
+use substantially more memory than their file size. **WebP is not supported**,
+even when its path is recognized; use a static PNG or JPEG instead. Content, not
+the extension, determines format. Network shares, device paths and remote files
+are unsupported. Even if SSH printed the path, it refers to the
 computer running OMXTerm, never the remote host.
 
 <details>
@@ -249,9 +249,8 @@ PI_IMAGE_PROTOCOL=kitty pi
 
 Keep Pi's default image autoresizing enabled. The [technical reference](spec.md#terminal-behavior)
 describes supported image formats and size limits. Images stay anchored to their
-terminal cells through resizing and zoom. Text reflow and viewport scrolling can
-move those cells on screen; blank anchors clip to the narrower grid rather than
-jumping to a preceding line's column.
+terminal cells through resizing and zoom, and move with those cells during
+scrolling and text reflow.
 
 ## Bells and attention
 
@@ -333,7 +332,7 @@ See [reload details](configuration.md#reloading-user-configuration) or
 The sidebar takes a fixed 280 px of width; the minimum window size does not
 account for it. Enlarge the window or use **View → Toggle Snippets** to hide it.
 Large left/right padding makes this more noticeable; reduce it in your settings
-if needed. The sidebar does not intentionally close your session.
+if needed. Your session keeps running.
 
 ### A terminal program misplaces output
 

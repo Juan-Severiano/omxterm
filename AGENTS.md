@@ -25,6 +25,15 @@ PTY Adapter.
   and remove superseded documents, old release reports and experiment results
   instead of keeping historical banners or archives in the tree. Preserve useful
   current rationale and procedures; history remains in commits, issues and PRs.
+- Keep documentation matched to its reader: `README.md` and the user guides
+  answer everyday tasks; `CONTRIBUTING.md` and development references cover
+  contributions; this file, `CONTEXT.md`, the spec and ADRs give agents the deeper
+  working context. Link to the relevant reference instead of repeating it.
+- Update affected product contracts in the same commit as a behavior change:
+  `docs/spec.md`, relevant ADRs and `CONTEXT.md`, plus user guides when affected.
+  Review those documents against the changed implementation before delivery;
+  when none needs an update, explain why in the PR. Documentation-only corrections
+  describe the existing code and do not authorize changing it.
 - Describe implemented behavior and limitations accurately. Separate supported
   code bugs from documentation drift into focused follow-up issues, with affected
   platforms and evidence limits. An old promise, audit finding or historical

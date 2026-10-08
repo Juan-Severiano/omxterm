@@ -50,7 +50,8 @@ us to review a change from that copy.
 3. Create a focused branch from current upstream `main`. Use the
    [local setup below](#development-environment), or the
    [browser-only route](#browser-only-documentation-edits) for a small doc edit.
-4. Make the change, add tests for changed behavior, and update the relevant docs.
+4. Make the change, add tests for changed behavior, and update the affected
+   guides and product contracts in the same commit.
 5. Run the [checks below](#verification), then [commit, push, and open a PR](#commits-and-pull-requests)
    against `main` with the issue, a short explanation, and the results. Draft PRs
    are welcome.
@@ -141,8 +142,13 @@ work.
 - Keep the change focused, with clear modules, strict types and dependencies
   that serve a concrete need.
 - Test observable behavior, including a regression test for a bug fix.
-- Update user-facing guides and `docs/spec.md` when accepted behavior changes.
-  Record durable architectural decisions in an ADR.
+- In the same commit as a behavior change, update the affected user guides,
+  `docs/spec.md`, architecture decisions and `CONTEXT.md` terminology. Check them
+  against the implementation, not just the intended design. If none is affected,
+  explain why in the PR.
+- Write for the intended reader: user guides solve everyday tasks; contributor
+  docs explain development; the spec and ADRs carry detailed behavior and
+  architectural rationale. Link between them rather than copying the same detail.
 - Keep privileged operations in Electron main, expose a minimal typed preload
   bridge, and preserve renderer isolation and disabled Node integration.
   Chromium sandboxing is enabled on macOS and Windows; Linux follows
@@ -183,8 +189,10 @@ Graphical tests need a working desktop and WebGL2; “portable” does not mean
 headless. For headless, unit-only feedback, use `npm test -- test/unit`; it omits
 native integration and does not replace `check:portable`. Platform skips and
 explicit opt-in tests are not passes on those boundaries; see the
-[qualification scope](docs/development.md#qualification-scope) and
-[exercised desktops](README.md#exercised-desktops).
+[qualification scope](docs/development.md#qualification-scope). The
+[desktop summary](README.md#exercised-desktops) describes where OMXTerm has been
+used; [#586](https://github.com/luizomf/omxterm/issues/586) records detailed
+behavioral results, tested source identities and retained failures.
 
 Product packaging changes also need matching native evidence. Reuse recorded
 PASS steps from Git or previous issues/PRs when relevant inputs are unchanged;
@@ -241,8 +249,9 @@ and your fork / pushed branch as the head. Review **Files changed** before
 submitting.
 
 A PR should explain the problem and solution, link its issue (`Closes #123` when
-applicable), and list verification commands and results. Mention documentation
-or security impact and any unresolved concern. For an issue with acceptance
+applicable), and list verification commands and results. Identify the guides and
+contracts updated alongside changed behavior, or explain why none is affected.
+Mention security impact and any unresolved concern. For an issue with acceptance
 criteria, explain how the change meets them. Keep unrelated work in separate PRs.
 
 Maintainers handle tracker organization and releases. Ordinary fixes and docs

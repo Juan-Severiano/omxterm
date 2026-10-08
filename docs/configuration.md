@@ -20,8 +20,6 @@ folder is `omxterm` inside that location instead. `~` means your home folder.
 **View → Reload User Configuration** (`Cmd+Shift+,` on macOS,
 `Ctrl+Shift+,` on Linux/Windows). On Linux and Windows, press and release
 **Alt alone** to open the menu. Snippets are reread when you reopen their sidebar.
-See [reload limitations](#reloading-user-configuration) before changing font
-families while a tab is starting.
 
 - [Make a first change](#add-one-display-change)
 - [Find or create your configuration file](#create-the-configuration-directory)
@@ -63,8 +61,7 @@ For a new file, this is a complete example:
 **Examples replace omitted settings with defaults.** Back up an existing file
 and edit its fields to keep your other preferences, rather than replacing it
 with each example. Keep one root object and one of each named key.
-Configuration, theme and snippet objects reject unsupported keys, including an
-empty name (`""`); remove the unsupported property rather than leaving it blank.
+Use the documented keys; a notice identifies unsupported properties.
 
 For more space between rows, add `"lineHeight": 1.1` inside `font`. It applies
 to new tabs after reload; restart OMXTerm to apply it to existing tabs. To turn
@@ -253,10 +250,6 @@ Applications that paint explicit backgrounds remain opaque, even when the
 color matches the theme. Implicit terminal backgrounds, including a reset to
 the default background (SGR 49), reveal the tint. Theme colors remain
 `#RRGGBB`; set transparency here rather than adding alpha to the palette.
-
-For implementation details, see
-[ADR 0029](adr/0029-compose-background-effects-with-explicit-cell-identity.md) and
-[ADR 0030](adr/0030-prefer-direct-macos-background-blur.md).
 
 ### Linux desktop tips
 
@@ -502,12 +495,10 @@ Here is a complete single-line example:
 Click the snippet, review the inserted command, and press Enter. To submit a
 snippet automatically, set its `execute` field to `true`.
 
-**`execute` controls only the appended Enter; it does not make a snippet safe.**
-Embedded newlines or controls may execute input, especially without bracketed
-paste, even with `execute: false`. Control characters can also end bracketed paste
-early. Snippets use the same [Protected Paste](usage.md#protected-paste) checks as
-ordinary paste. Use single-line bodies without control characters for commands
-you want to review first.
+**For commands you want to review before running, use a single-line body without
+control characters and `execute: false`.** The flag controls only the appended
+Enter: embedded newlines or controls may still execute input. Snippets use the
+same [Protected Paste](usage.md#protected-paste) handling as ordinary paste.
 
 The file contains `"version": 1` and a `snippets` array of at most 512 entries:
 
@@ -598,15 +589,21 @@ validation keeps the previous configuration and theme. Fix the file and reload;
 neither file is rewritten. Unexpected failures while applying valid settings
 have a separate [reload limitation](#reloading-user-configuration).
 
-The [canonical palette](omtheme.json) is another complete example. With a source
-checkout, you can also convert a downloaded Ghostty palette:
+The [canonical palette](omtheme.json) is another complete example.
+
+<details>
+<summary>Convert a Ghostty palette from a source checkout</summary>
+
+From the repository root, run:
 
 ```sh
 node scripts/convert-ghostty-theme.mjs input-theme output-theme.json
 ```
 
-Run it from the repository root and select the resulting file with `theme.path`.
-Check the source theme's license before redistributing it.
+Select the resulting file with `theme.path`. Check the source theme's license
+before redistributing it.
+
+</details>
 
 ## Reloading User Configuration
 
@@ -642,12 +639,11 @@ If validation fails:
 - **During reload:** no settings change; the complete last valid in-memory
   configuration stays active.
 
-Correct the reported file or field, save, and reload again. The validation
-rejection above happens before settings are applied. **Unexpected application
-failures during application are not rolled back:** new settings can remain
-active or be only partly applied, even if the notice says the previous
-configuration was kept. If that happens, save your work and restart OMXTerm to
-load one consistent configuration; report the error and affected settings.
+Correct the reported file or field, save, and reload again. If an unexpected
+error happens **while applying otherwise valid settings**, changes can be partly
+applied even if the notice says the previous configuration was kept. Save your
+work and restart OMXTerm to load one consistent configuration, then report the
+error and affected settings.
 
 Removing `config.json` and reloading also selects defaults, without recreating
 the file.

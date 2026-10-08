@@ -7,7 +7,9 @@ OMXTerm has one shared product context:
 - [`docs/adr/`](../adr/) records durable architectural decisions.
 
 Read the relevant material for context and use shared terms where they clarify
-the work. These documents describe the current product and decisions, not an
+the work. Keep affected contracts and user guides in the same commit as changed
+behavior. Verify them against the implementation during review; a PR with no
+documentation changes should explain why the existing contract remains accurate. These documents describe the current product and decisions, not an
 immutable authority over the maintainer's request. Update specifications,
 contracts and ADRs when reconciling documentation with the product. Keep the
 current tree about today's product: replace obsolete guidance, explain current

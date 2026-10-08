@@ -48,11 +48,12 @@ Built with [Restty](https://github.com/wiedymi/restty) and
 tools, SSH clients, and coding agents.
 
 **[Install](#installation)** · **[First session](#first-session)** ·
-**[Customize](docs/configuration.md)** · **[Get help](#help-improve-omxterm)**
+**[Customize](docs/configuration.md)** · **[How it works](docs/how-it-works.md)** ·
+**[Get help](#help-improve-omxterm)**
 
 ## Platforms and downloads
 
-**Latest release: [0.20.1 — downloads and release notes](https://github.com/luizomf/omxterm/releases/tag/v0.20.1)**
+**Latest release: [0.20.2 — downloads and release notes](https://github.com/luizomf/omxterm/releases/tag/v0.20.2)**
 
 Downloads are **ARM64 only**. Check your processor in **About This Mac**, with
 `uname -m` on Linux (`aarch64`), or under **Settings → System → About** on Windows
@@ -60,50 +61,26 @@ Downloads are **ARM64 only**. Check your processor in **About This Mac**, with
 
 | Platform                                 | Download                                                                                               | Checksum                                                                                                     |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| Apple Silicon macOS                      | [DMG](https://github.com/luizomf/omxterm/releases/download/v0.20.1/OMXTerm-0.20.1-arm64.dmg)           | [SHA-256](https://github.com/luizomf/omxterm/releases/download/v0.20.1/OMXTerm-0.20.1-arm64.dmg.sha256)      |
-| Linux ARM64                              | [AppImage](https://github.com/luizomf/omxterm/releases/download/v0.20.1/OMXTerm-0.20.1-arm64.AppImage) | [SHA-256](https://github.com/luizomf/omxterm/releases/download/v0.20.1/OMXTerm-0.20.1-arm64.AppImage.sha256) |
-| Linux application-menu helper (optional) | [linux_install.sh](https://github.com/luizomf/omxterm/releases/download/v0.20.1/linux_install.sh)      | [SHA-256](https://github.com/luizomf/omxterm/releases/download/v0.20.1/linux_install.sh.sha256)              |
-| Windows ARM64                            | [Installer](https://github.com/luizomf/omxterm/releases/download/v0.20.1/OMXTerm-0.20.1-arm64.exe)     | [SHA-256](https://github.com/luizomf/omxterm/releases/download/v0.20.1/OMXTerm-0.20.1-arm64.exe.sha256)      |
+| Apple Silicon macOS                      | [DMG](https://github.com/luizomf/omxterm/releases/download/v0.20.2/OMXTerm-0.20.2-arm64.dmg)           | [SHA-256](https://github.com/luizomf/omxterm/releases/download/v0.20.2/OMXTerm-0.20.2-arm64.dmg.sha256)      |
+| Linux ARM64                              | [AppImage](https://github.com/luizomf/omxterm/releases/download/v0.20.2/OMXTerm-0.20.2-arm64.AppImage) | [SHA-256](https://github.com/luizomf/omxterm/releases/download/v0.20.2/OMXTerm-0.20.2-arm64.AppImage.sha256) |
+| Linux application-menu helper (optional) | [linux_install.sh](https://github.com/luizomf/omxterm/releases/download/v0.20.2/linux_install.sh)      | [SHA-256](https://github.com/luizomf/omxterm/releases/download/v0.20.2/linux_install.sh.sha256)              |
+| Windows ARM64                            | [Installer](https://github.com/luizomf/omxterm/releases/download/v0.20.2/OMXTerm-0.20.2-arm64.exe)     | [SHA-256](https://github.com/luizomf/omxterm/releases/download/v0.20.2/OMXTerm-0.20.2-arm64.exe.sha256)      |
 
 Linux needs **glibc 2.42+** and X11/XWayland; Ubuntu 24.04 is too old for this
 AppImage. macOS and Windows may show an unknown-developer warning because the
 packages have no verified publisher signature. The installation guide walks you
 through verification and first launch.
 
-### Exercised desktops
+<a id="exercised-desktops"></a>
 
-All rows below are **ARM64**. Automated results cover `check:portable` (tests and
-unpackaged build), **not release/package qualification**. Baseline source:
-[`96ef089`](https://github.com/luizomf/omxterm/commit/96ef08933a987fad12ed2461f973985aa1902c04).
-Later main adds failure-only fixture diagnostics; the full matrix was not rerun.
-Detailed evidence and retained failures: [#586](https://github.com/luizomf/omxterm/issues/586).
+### Desktops in use
 
-| OS                      | Desktop          | Automated baseline result                                                                                      |
-| ----------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------- |
-| Ubuntu 26.04.1          | GNOME 50.1       | Prepared + CLEAN-restored: **PASS**                                                                            |
-| Fedora 44               | KDE Plasma 6.7.5 | Prepared + CLEAN-restored: **PASS**                                                                            |
-| Omarchy                 | Hyprland 0.56.2  | Prepared + CLEAN-restored: **PASS**                                                                            |
-| macOS 27.0.1            | macOS desktop    | Prepared + maintainer-recreated: **PASS**; earlier CLEAN incomplete **FAIL**                                   |
-| Windows 11, build 26200 | Windows desktop  | Maintainer-reported CLEAN: **PASS**; prepared **FAIL** ([#605](https://github.com/luizomf/omxterm/issues/605)) |
-
-macOS/Windows later passes have retained test reports and verified baseline source;
-final builds and recreation/restoration provenance are maintainer-reported, not a
-controlled clean pair. The earlier macOS GPU-hang trigger and Windows
-publication-failure cause remain unknown; later passes do not erase those failures.
-
-Additional maintainer-reported manual checks (exact source SHA unrecorded).
-Linux checks include setup, `check:portable`, dev, package/install,
-configuration, themes and keybinds:
-
-| OS                   | Desktop                | Maintainer-reported result             |
-| -------------------- | ---------------------- | -------------------------------------- |
-| Debian 13.4 (Trixie) | KDE Plasma 6 / Wayland | **PASS**, except tests inside OMXTerm  |
-| Fedora 44            | GNOME Shell 50.5       | **PASS**, except tests inside OMXTerm  |
-| macOS                | macOS desktop          | **PASS**                               |
-| Windows 11           | Windows desktop        | **PASS**, including tests via Git Bash |
-
-For downloads, use the [published release above](#platforms-and-downloads), not
-the development validation baseline. See [test scope and precautions](docs/development.md#running-native-tests).
+The maintainer uses OMXTerm daily on macOS and has also exercised native source
+builds on Windows 11, Ubuntu/GNOME, Debian/KDE, Fedora/GNOME and KDE, and
+Omarchy/Hyprland on ARM64. Linux and Windows have had less day-to-day use;
+reports from these desktops are especially welcome. For the downloaded package,
+check the release requirements above: a successful source build on an older
+distribution does not make its libraries compatible with the published AppImage.
 
 ## Installation
 
@@ -179,7 +156,8 @@ from Linux and Windows users.
 See [Contributing](CONTRIBUTING.md) to get involved, including efforts to add
 [Linux x64](https://github.com/luizomf/omxterm/issues/223) and
 [Windows x64](https://github.com/luizomf/omxterm/issues/224).
-The [documentation map](docs/README.md) has the full guide and developer references.
+The [documentation map](docs/README.md) separates user guides, contribution
+instructions, and maintainer/agent references.
 
 ## License
 

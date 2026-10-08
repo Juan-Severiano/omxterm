@@ -189,8 +189,11 @@ npm test -- test/unit
 ```
 
 This selects only `test/unit/`; it does not qualify native integration or replace
-`check:portable`. See the [exercised desktop table](../README.md#exercised-desktops)
-for recorded platform coverage.
+`check:portable`. The [desktop summary](../README.md#exercised-desktops) describes
+where OMXTerm has been used. Detailed behavioral qualification, tested source
+identities and retained failures are recorded in
+[#586](https://github.com/luizomf/omxterm/issues/586); exact-package evidence belongs
+to each [release](https://github.com/luizomf/omxterm/releases).
 
 ### Qualification scope
 
@@ -231,11 +234,16 @@ failure on ordinary focus loss is a defect, not something to excuse as test
 interference. The default `check:portable` includes graphical tests; it is not a
 headless-only check.
 
-Maintainer test invocations inside OMXTerm failed on Debian KDE and Fedora GNOME,
-with and without personal shell settings; their cause remains unresolved. Use a
-separate terminal for Linux qualification while this self-hosted invocation is
-under investigation. This observation does not identify the desktop or shell as
-the cause, or imply the same limitation on macOS/Windows.
+For Linux qualification, launch tests from a separate terminal. Self-hosted runs
+inside OMXTerm have unresolved About-fixture timeouts on Fedora/KDE and
+Ubuntu/GNOME; Debian/KDE and Fedora/GNOME also have maintainer-reported failures
+without collected test identities. Omarchy/Hyprland, macOS and Windows self-hosted
+runs passed. See [#609](https://github.com/luizomf/omxterm/issues/609) for evidence
+and its limits. The two expected-timeout About controls also lack assertions
+proving they reached their intended phase
+([#610](https://github.com/luizomf/omxterm/issues/610)); their passing status does
+not establish that coverage. Neither issue identifies the shell or desktop as
+the cause.
 
 Controlled renderer input, injected I/O and held continuations establish the
 asserted boundaries, not physical input or every production interleaving.

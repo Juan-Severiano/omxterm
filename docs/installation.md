@@ -6,24 +6,22 @@ for your system. OMXTerm is ready to run; building from source is for developmen
 **[macOS](#macos)** · **[Linux](#linux)** · **[Windows](#windows)** ·
 **[Update or uninstall](#updating-or-uninstalling)**
 
-The packages below are version **0.20.1**, for **ARM64** processors. A checksum
-is a file's fingerprint: checking it catches incomplete or changed downloads.
-It does not verify the publisher's identity; these packages have no verified
-publisher signature. Continue with installation only if the check succeeds and
-you trust the download.
+The packages below are version **0.20.2**, for **ARM64** processors. Download
+from the linked GitHub release and verify the checksum before running the app.
+A checksum catches incomplete or changed downloads. The packages have no verified
+publisher signature, so macOS and Windows may ask you to approve the first launch.
 
 ## macOS
 
 1. Check **Apple menu → About This Mac** for an **Apple Silicon chip (M1 or
-   later)** and **macOS 12 Monterey or newer**. This is the runtime minimum,
-   not a claim that every compatible macOS version has been tested.
+   later)** and **macOS 12 Monterey or newer**.
 2. Download the **DMG** and its **.sha256** file into the same folder.
 3. Open **Terminal** from Applications → Utilities. Type `cd ` (including the
    space), drag that folder from Finder into Terminal, and press Enter.
 4. Paste this command and press Enter. A successful check ends in `OK`:
 
    ```sh
-   shasum -a 256 -c OMXTerm-0.20.1-arm64.dmg.sha256
+   shasum -a 256 -c OMXTerm-0.20.2-arm64.dmg.sha256
    ```
 
 5. Open the DMG, drag **OMXTerm.app** to **Applications**, and eject the DMG.
@@ -55,7 +53,7 @@ getconf GNU_LIBC_VERSION
 You need **`aarch64`** and **glibc 2.42 or newer**. Older distributions, including
 Ubuntu 24.04, cannot run this AppImage. Use a compatible distribution rather than
 replacing its system glibc. See the
-[published release notes](https://github.com/luizomf/omxterm/releases/tag/v0.20.1)
+[published release notes](https://github.com/luizomf/omxterm/releases/tag/v0.20.2)
 for package requirements and verification details.
 
 OMXTerm also needs `fontconfig` for fonts and X11 or **XWayland** for its window.
@@ -86,9 +84,9 @@ Open that folder in your file manager and choose **Open in Terminal** (the label
 varies by desktop), then run:
 
 ```sh
-sha256sum --check OMXTerm-0.20.1-arm64.AppImage.sha256 &&
-  chmod +x OMXTerm-0.20.1-arm64.AppImage &&
-  ./OMXTerm-0.20.1-arm64.AppImage
+sha256sum --check OMXTerm-0.20.2-arm64.AppImage.sha256 &&
+  chmod +x OMXTerm-0.20.2-arm64.AppImage &&
+  ./OMXTerm-0.20.2-arm64.AppImage
 ```
 
 The checksum should print `OK`. `chmod +x` makes the file runnable; `./` means
@@ -97,7 +95,7 @@ The checksum should print `OK`. `chmod +x` makes the file runnable; `./` means
 If you see a **FUSE** or mounting error, use extraction mode after verification:
 
 ```sh
-./OMXTerm-0.20.1-arm64.AppImage --appimage-extract-and-run
+./OMXTerm-0.20.2-arm64.AppImage --appimage-extract-and-run
 ```
 
 This temporarily unpacks the app instead of mounting its bundled filesystem.
@@ -109,19 +107,17 @@ Download **linux_install.sh** and its checksum from the same release, beside
 the AppImage. In that folder, run:
 
 ```sh
-sha256sum --check OMXTerm-0.20.1-arm64.AppImage.sha256 &&
+sha256sum --check OMXTerm-0.20.2-arm64.AppImage.sha256 &&
   sha256sum --check linux_install.sh.sha256 &&
   chmod +x linux_install.sh &&
-  ./linux_install.sh install ./OMXTerm-0.20.1-arm64.AppImage
+  ./linux_install.sh install ./OMXTerm-0.20.2-arm64.AppImage
 ```
 
 Open **OMXTerm** from your application menu. The helper copies it into your user
 folder and chooses mounting or extraction automatically. Keep the helper for
-updates and uninstalling. See the [desktop helper guide](linux-installer.md)
-for graphics compatibility, Hyprland display scaling, and
-[failure/recovery limits](linux-installer.md#update-help-and-uninstall). A failure
-in final cleanup can leave the new installation in place; inspect the reported
-error before retrying.
+updates and uninstalling. The [desktop helper guide](linux-installer.md) covers
+graphics compatibility, Hyprland scaling, and [recovery after an installation
+error](linux-installer.md#if-installation-fails).
 
 ## Windows
 
@@ -137,7 +133,7 @@ error before retrying.
    <summary>Verify the Windows download</summary>
 
    ```powershell
-   $installerName = "OMXTerm-0.20.1-arm64.exe"
+   $installerName = "OMXTerm-0.20.2-arm64.exe"
    $checksumRecord = Get-Content -LiteralPath "$installerName.sha256" -Raw -ErrorAction Stop
    $checksumMatch = [regex]::Match(
      $checksumRecord,
@@ -159,7 +155,7 @@ error before retrying.
    </details>
 
 5. After **“SHA-256 verification succeeded”** appears, run
-   **OMXTerm-0.20.1-arm64.exe**. It installs for your user. Open OMXTerm from Start.
+   **OMXTerm-0.20.2-arm64.exe**. It installs for your user. Open OMXTerm from Start.
 
 The installer is unsigned. If SmartScreen warns about an unknown publisher and
 you trust the verified package, choose **More info → Run anyway** for that file.

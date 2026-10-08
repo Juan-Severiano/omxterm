@@ -336,21 +336,18 @@ reuse a version. Documentation corrections do not rebuild unchanged packages.
 
 ### Gatekeeper and provenance note
 
-> OMXTerm for Apple Silicon is not signed with an Apple Developer ID and is not
-> notarized. macOS may warn that it cannot verify the developer or check the app
-> for malicious software. Review the source, verify the published SHA-256 and
-> proceed only if you trust this artifact. Follow Apple's
-> [Open Anyway instructions](https://support.apple.com/102445) for this app; do
-> not disable system-wide security. The ad-hoc integrity seal is not a verified
-> publisher identity.
+> OMXTerm for Apple Silicon has an ad-hoc integrity seal, without Apple
+> Developer ID signing or notarization. Gatekeeper may warn about the unverified
+> developer. Verify the downloaded file's SHA-256; if you choose to install it,
+> follow Apple's [Open Anyway instructions](https://support.apple.com/102445)
+> for this app, keeping system-wide protections enabled.
 
 ### SmartScreen and provenance note
 
-> OMXTerm for Windows ARM64 is not signed with a code-signing certificate.
-> SmartScreen may warn that the installer is from an unknown publisher. Review
-> the source, verify the published SHA-256 and proceed only if you trust this
-> artifact. Use `More info -> Run anyway` for this file if you choose to install;
-> do not disable SmartScreen or other system-wide protections.
+> OMXTerm for Windows ARM64 is unsigned. SmartScreen may warn about an unknown
+> publisher. Verify the downloaded file's SHA-256; if you choose to install it,
+> use `More info -> Run anyway` for this file, keeping SmartScreen and other
+> system-wide protections enabled.
 
 Provenance can describe executed native automation and optional observations,
 not independent audit, vendor approval or universal manual coverage.

@@ -14,4 +14,4 @@
 
 ## Documentation and concerns
 
-<!-- Link updated guides. Mention any security impact, intentional deviation or unresolved concern. -->
+<!-- Link guides and product contracts (spec, ADRs, terminology) updated in the same commit as changed behavior, or explain why none is affected. Mention any security impact or unresolved concern. -->
