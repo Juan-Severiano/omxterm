@@ -19,7 +19,7 @@ Once a tab-close command reaches the host, cancellation makes late callbacks
 inert, waits for pending acquisitions to settle and releases partial resources.
 An already accepted session start is closed once through the Adapter. Main retains
 a native failure dialog until acknowledgement for genuine failures, including
-when the failed session was the last one. Cleanup uncertainty is not success.
+when the failed session was the last one.
 
 ### Configuration and Surface lifetime
 
@@ -37,8 +37,8 @@ rollback transaction; see [current runtime limitations](#current-runtime-limitat
 
 - **CPR:** the OutputFilter answers cursor-position queries before core write
   using a persistent UTF-16 cursor hint. Wide/combining text, pending wrap and
-  resize can make the reply disagree with Ghostty's actual cursor. A single reply
-  path does not establish correct coordinates.
+  resize can make the reply disagree with Ghostty's actual cursor
+  ([#568](https://github.com/luizomf/omxterm/issues/568)).
 - **Reload exceptions:** `user-configuration-reloader.ts` assigns the new active
   snapshot and log level before applying consumers. A runtime exception can leave
   new or partially applied settings despite the retained-configuration notice.
@@ -46,20 +46,21 @@ rollback transaction; see [current runtime limitations](#current-runtime-limitat
 - **Pending fonts:** main accepts requests only for its active family/generation.
   A family change while an old native font read is pending rejects that read's
   completion as superseded; the old initializing Surface can fail even though its
-  renderer lease still exists. Already acquired stacks remain leased.
+  renderer lease still exists. Already acquired stacks remain leased
+  ([#569](https://github.com/luizomf/omxterm/issues/569)).
 - **Font errors:** successful font responses contain bounded bytes and face
   metadata, not paths or a filesystem API. An on-demand read failure can carry a
-  native filesystem path in the IPC rejection. Review raw errors before sharing;
-  this is renderer disclosure, not demonstrated network exfiltration or logging.
-- **First-tab commands:** `terminal-window-host.ts` subscribes to tab commands
-  only after `tabs.ready`. Close Tab sent before the first Surface is ready can
-  be dropped. Close Window and Quit have separate main-owned routes.
+  native filesystem path in the IPC rejection. Review raw errors before sharing.
+- **First-tab commands:** `terminal-window-host.ts` subscribes to tab commands,
+  clipboard actions, zoom, tab-bar toggles and snippets only after `tabs.ready`.
+  Earlier notifications can be dropped. Close Window and Quit have separate
+  main-owned routes ([#571](https://github.com/luizomf/omxterm/issues/571)).
+- **Wrapped links:** a mismatch between wide-wrap spacer cells and core selection
+  text can prevent visible URL recognition at some Unicode wrap boundaries
+  ([#593](https://github.com/luizomf/omxterm/issues/593)).
 
-These constraints are supported by the current source and the module-level
-findings in [#566](https://github.com/luizomf/omxterm/issues/566), not universal
-native GUI reproduction. The font-ownership fixture holds runtime readiness
-**after** font acquisition; it does not qualify an outstanding main font read
-across a family change.
+The font-ownership fixture holds runtime readiness **after** font acquisition;
+testing a family change during acquisition needs an outstanding main font read.
 
 ### Scrollback and viewport
 
@@ -249,6 +250,10 @@ Current prepared SHA-256 values:
 | Tracked WASM core             | `92aa781340d4bd87f8028c17534fe720bd47e87dd34786d149811923e4e389ec` |
 | Unix node-pty runtime         | `e1cd61e52f681871c401ca54a21382173281532e8eaa9f679bfe549be9a427b1` |
 | Windows node-pty argv runtime | `3f4cf11eaa6cc07bacb34e3693857e123e3e55edfb446d7657d80cf95f9ce244` |
+
+Compare node-pty with the row for the installation's platform: macOS/Linux
+prepare the Unix runtime, while Windows prepares the argv runtime. The Restty
+runtime, core and declaration digests apply on every platform.
 
 The private types in `src/terminal-surface/restty-runtime-contract.ts` describe
 only the corrected dependency seam. Keep dependency-only methods there rather

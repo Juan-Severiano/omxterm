@@ -1,9 +1,9 @@
 # Adopt tabs with one live session per tab
 
-A Terminal Window holds one or more Terminal Tabs. Each tab owns one ephemeral
-Live Terminal Session and its Terminal Surface. Native tabs provide selectable
-independent local sessions; tmux remains the user's persistence and reconnection
-tool. Tabs do not imply saved sessions or workspaces.
+A Terminal Window holds one or more Terminal Tabs. Each tab owns a Terminal
+Surface and, after successful initialization, one ephemeral Live Terminal
+Session. Application-drawn tabs provide selectable independent local sessions;
+tmux remains the user's persistence and reconnection tool.
 
 ## Window presentation
 
@@ -49,12 +49,13 @@ an empty window without starting a shell. Explicit window closure/Quit cancels
 pending initialization through owner disposal.
 
 **Current first-tab limitation:** `terminal-window-host.ts` subscribes to tab
-commands only after `tabs.ready`. Main's immediate idle/no-session Close Tab
-command can arrive before that subscription and is not buffered by preload.
-The first pending tab can therefore ignore Close Tab and later start its shell.
+commands, clipboard actions, zoom, tab-bar toggles and snippets only after
+`tabs.ready`; preload does not buffer earlier notifications. An early Close Tab,
+New Tab or navigation command can therefore be lost, and the first pending tab
+can ignore Close Tab and later start its shell.
 [#571](https://github.com/luizomf/omxterm/issues/571) tracks this
 command-registration bug. Later-tab cancellation and native Close Window/Quit use
-separate paths and are not generally broken by it.
+separate paths.
 
 Main counts failure acknowledgements independently per window, including
 pre-start rendering failures and failures while siblings remain live. An empty
@@ -71,12 +72,6 @@ ownership metadata, not the native wrapper. Retired identities cannot route
 input, resize, title, bell or ACKs. Controller disposal drops its references
 after requesting close; the independent main shutdown record remains until
 native completion.
-
-**Conditional notification limitation:** exit IPC sending precedes
-`onSessionExit` and `pty.exit` logging. A throwing send skips both while `finally`
-still retires the session. Injected throws show this ordering; a live,
-non-destroyed transport trigger is not established. Native shutdown completion is
-recorded before forwarding, so this does not establish a broken shutdown drain.
 
 ## Titles and commands
 
@@ -105,10 +100,8 @@ removal chooses its right neighbor or, at the end, its left neighbor.
 IPC gains per-session identity beneath each window controller, and selection
 refits the active grid. Tab order and visibility are in-memory presentation;
 restoration, workspaces, splits and inter-window moves are outside current
-scope, not permanently prohibited product directions.
+scope.
 
 Production ownership tests cover mounting siblings, ordinary exits, failure
-acknowledgement, tab removal, selection and native shutdown. Their bounded
-coverage does not prove the absent first-tab subscription works or every native
-failure path is covered. Exact native artifact evidence is separate from source
-review and mocked/DOM tests.
+acknowledgement, tab removal, selection and native shutdown. Exact native
+artifact evidence is separate from source review and mocked/DOM tests.

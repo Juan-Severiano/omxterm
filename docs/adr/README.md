@@ -4,8 +4,7 @@ These records explain the current architecture and its tradeoffs. Replace obsole
 guidance when decisions change; Git preserves earlier versions.
 
 The [specification](../spec.md) owns observable behavior. Relevant ADRs explain
-source/test boundaries and known limitations; these do not automatically require
-code changes or block releases.
+source/test boundaries and known limitations.
 [Development](../development.md) covers setup and tests;
 [release procedures](../release.md) cover package verification and publication.
 
@@ -53,7 +52,7 @@ code changes or block releases.
 - Native distribution, verification and installers: 0015, 0019, 0020, 0023, 0031.
 
 The native minimum-size calculation omits the fixed 280 px Snippets Sidebar;
-showing it in a narrow window can crowd out the grid. This layout bug is tracked
-in [#570](https://github.com/luizomf/omxterm/issues/570). The
-[window contract](../spec.md#window-and-session-behavior) describes the current
-geometry and practical workaround.
+showing it in a narrow window can crowd out the grid. Enlarge the window,
+reduce padding or hide the sidebar. The
+[window contract](../spec.md#window-and-session-behavior) describes this accepted
+layout limitation.

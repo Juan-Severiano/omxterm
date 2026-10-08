@@ -35,10 +35,6 @@ Failures preserve primary and cleanup errors and retain uncertain state for
 inspection. User data is never selected for deletion. The old application is
 not restored by this test; snapshot recovery is a separate environment action.
 
-Safe unpacked diagnostics remain available and explicitly partial. Full native
-Windows verification requires this exact-installer seam. Live-process conflicts
-and unknown ownership are refusals, not reasons to bypass inspection. The cost
-is a disposable native VM and
-re-reviewing the inspection footprint when packaging inputs change. This
-is preferable to changing the tested installer identity, hiding registry state,
-repacking the artifact, or claiming non-mutating extraction without evidence.
+Unpacked diagnostics remain available as partial verification. The exact-installer
+check costs a disposable native VM and a review of the inspection footprint
+when packaging inputs change.

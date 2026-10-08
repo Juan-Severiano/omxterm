@@ -28,10 +28,8 @@ sessions are unaffected.
 A live session's grid may temporarily differ from its Surface after an
 unexpected failure; a later valid resize can retry. Error-level local metadata
 provides a safe diagnostic rather than declaring that usable work has ended.
-No new renderer capability, modal dialog, retry timer, runtime dependency patch,
-or general all-control failure framework is introduced.
 
-Controlled regressions exercise the production IPC/session route before exit;
-owned native Unix fixtures require real closure races under Node and Electron,
-actual exits, safe classification and a usable sibling. They do not establish
-Windows native behavior, a renderer-originated IPC packet, or an observed crash.
+Native Unix fixtures drive the production IPC listeners in-process and exercise
+real PTY closure races under Node and Electron. They check actual exit, safe
+classification and a usable sibling. Windows resize failures have controlled
+unit coverage.

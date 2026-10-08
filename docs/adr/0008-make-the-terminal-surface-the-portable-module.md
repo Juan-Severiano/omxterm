@@ -1,6 +1,6 @@
 # Make the Terminal Surface the portable module
 
-The Terminal Surface is a deep Module whose small Interface hides Restty and
+The Terminal Surface is a portable module whose small interface hides Restty and
 Ghostty setup, rendering, input, resize, appearance, clipboard, zoom, and
 cleanup. It receives a terminal-session Adapter: OMXTerm supplies Electron IPC
 backed by a local PTY without importing Electron or `node-pty` into the Surface.
@@ -15,4 +15,4 @@ host can finish the owning Terminal Tab's lifecycle under
 closes its window. Pending initialization can settle before partial resources
 are released, and native session completion remains independently owned by main
 under [ADR 0028](0028-wait-for-native-sessions-before-application-quit.md).
-Headless, detachable and reconnectable sessions are outside this Interface.
+Headless, detachable and reconnectable sessions are outside this interface.

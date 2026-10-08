@@ -29,15 +29,14 @@ literal characters and are never URL-decoded or treated as a fragment. A
 request opens a non-shell file descriptor, requires a
 bounded regular file, reads one descriptor coherently, rejects an observed size
 change while reading, and accepts only structurally valid, natively decodable
-static PNG or JPEG content. The
-limits are 64 MiB encoded, 8192 pixels per side, and 32 million pixels, inclusive,
+static PNG or JPEG content. On macOS and Linux, the read rejects a symlink in
+the final path component. The limits are 64 MiB encoded, 8192 pixels per side,
+and 32 million pixels, inclusive,
 covering ordinary high-resolution images without resizing source files. Native
 validation and renderer decoding remain separate and can add transient
 encoded/decoded copies, IPC and GPU costs; these bounds are not a total RSS
-budget. Native display, latency and repeated-cycle observations are bounded
-evidence, not a guarantee for every accepted file, GPU or desktop. Reproducible
-reliability failures need focused diagnosis, not silently reduced limits. PNG
-animation metadata is rejected; filename extension is never evidence of format.
+budget. PNG animation metadata is rejected; filename extension is never evidence
+of format.
 Closing the owner aborts picker continuation and makes later read results inert.
 No path or payload enters Operational Events.
 
@@ -86,10 +85,11 @@ row. The same reconstructed text drives offsets, hover cells and activation;
 no arbitrary line joining or second parser is used. Literal final-row spaces
 remain distinct from blank cell padding rather than disappearing before the
 whole-line exclusion. Uncertain continuity at a concealed viewport edge is
-refused, including a spaced image prefix ending before literal spaces. Tests
-cover activation across wrapped cells, actual image display, Unicode quoted
-prefixes, resize/reflow and tmux redraw. Parser-only tests do not establish
-native display or owner-lifetime cleanup.
+refused, including a spaced image prefix ending before literal spaces. The
+shared provider's known wide-wrap spacer limitation is described in
+[ADR 0011](0011-validate-external-links-at-the-main-process.md). Tests cover
+activation across other wrapped cells, actual image display, Unicode quoted
+prefixes, resize/reflow and tmux redraw.
 
 Brackets, assignments
 and trailing punctuation are not trimmed. The native picker handles ambiguous
@@ -108,11 +108,9 @@ Actual WebP content is currently unsupported.
 An extension is not format evidence: PNG bytes named `.webp` remain PNG, while
 actual WebP receives a fixed unsupported-format error distinct from an unavailable
 file. The renderer displays only fixed safe errors, never native error details.
-Recognizing an extension is not format support.
 
 This capability is deliberately separate from ADR 0022. Inline Terminal Images
 remain cell-anchored Terminal Payload parsed by the pinned Ghostty core; Local
 Image Preview bytes come from an explicitly activated local file and appear in a
-temporary application overlay. OMXTerm adds no plugin system, generic image
-infrastructure, remote fetch, download, persistence, file write, or image
-animation support.
+temporary application overlay. Previewing does not write, download or persist
+image data.

@@ -25,11 +25,10 @@ unexpected signing authority or Team ID. Browser-quarantined Gatekeeper
 exercise is optional macOS dogfood, not a release gate, even when packaging,
 code sealing, or Gatekeeper-facing metadata changes. When automation cannot
 observe the resulting security UI, the release record states that boundary as
-unverified and the release notes retain the unsigned, unnotarized limitation.
+unverified. Release notes state that the application lacks Developer ID signing
+and notarization; the DMG itself is unsigned.
 A locally built artifact without quarantine is never represented as independent
 Gatekeeper evidence.
 
-Release notes must state the unverified and unnotarized limitation, link to
-Apple's current review instructions, and describe provenance narrowly: the
-artifact is a maintainer-published open-source build, not independently audited
-software. They must not ask users to disable system-wide macOS protections.
+Installation guidance links to Apple's current review instructions without
+asking users to disable system-wide macOS protections.

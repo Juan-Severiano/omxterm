@@ -54,8 +54,7 @@ fixture home and runs packaged startup through extraction and direct kernel
 FUSE when available. It does not infer a direct-mount pass when FUSE is absent.
 It removes the fixture root recursively after successful provisioning; it does
 not invoke the exact helper's `uninstall`. Synthetic source-helper tests cover
-uninstall separately. A verifier result does not establish that absent
-exact-helper seam.
+uninstall separately.
 
 ## Installer boundaries
 
@@ -76,5 +75,4 @@ Unpacked diagnostics are partial, not an installer substitute.
 
 Native environments and pinned package/runtime adapters cost maintenance. The
 project accepts bounded platform-specific risk while recording actual coverage,
-artifact identity and limitations. Public provenance does not claim independent
-audit or platform-vendor approval.
+artifact identity and limitations.

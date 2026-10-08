@@ -32,6 +32,9 @@ Restty's visible-destination provider recognizes lowercase HTTP(S) URLs in cell
 snapshots and joins rows only when Ghostty selection text proves a soft wrap. Surrounding prose punctuation and
 closing brackets are excluded, an opening parenthesis terminates a match, nearby
 URLs remain separate, and clipped destinations are refused rather than guessed.
+A known mismatch between wide-wrap spacer cells and core selection text can
+prevent recognition of a visible URL at some Unicode wrap boundaries
+([#593](https://github.com/luizomf/omxterm/issues/593)).
 
 [ADR 0026](0026-preview-explicitly-activated-local-images.md) adds literal
 `file:///` URL and conservative native path-reference recognition to the same

@@ -25,10 +25,6 @@ stale start-response snapshots and unbounded caches of unknown session titles.
 The tab host subscribes before initial readiness; cancelled owners request no
 synchronization, and reconciliation neither selects a tab nor resets attention.
 
-Title tests cover OSC sequences split across PTY output chunks; C0, C1, DEL, newline,
-and bidirectional formatting characters; empty and oversized titles; repeated
-title changes; each selected Surface's pinned parser and the Electron title API;
-Restty transport boundaries, cancellation and disposal; absence of any
-title-report response to the PTY; and absence of title contents from every log
-level. Observable window and PTY behavior is distinct from sanitizer-only
-coverage.
+Tests cover sanitization, split/cancelled controls in the pinned parser, startup
+synchronization, session ownership, the Electron title API, and the absence of
+title replies and logged title contents.

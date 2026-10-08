@@ -10,8 +10,7 @@ Restty's parsed output seam answers device attributes, cursor-position reports
 (CPR) and cell-size reports once. Current CPR coordinates can disagree with
 Ghostty after wide/combining text and pending-wrap resize because OutputFilter
 uses a UTF-16 cursor hint before core ingestion. This compatibility bug is
-tracked in [#568](https://github.com/luizomf/omxterm/issues/568); exactly-once
-replies and advertised capabilities do not establish complete xterm correctness.
+tracked in [#568](https://github.com/luizomf/omxterm/issues/568).
 See [ADR 0025](0025-use-restty-as-the-terminal-surface.md#keyboard-input-and-terminal-controls).
 
 The standard xterm capability vocabulary describes protocol compatibility.

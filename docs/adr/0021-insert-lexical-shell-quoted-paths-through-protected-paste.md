@@ -1,16 +1,14 @@
 # Insert lexical shell-quoted paths through Protected Paste
 
-Complements [ADR 0009](0009-keep-clipboard-access-explicit-and-one-way.md):
-path insertion is a user-initiated paste-like action, so the clipboard stays
-explicit and one-way, and the plain-text paste contract is untouched.
-
 OMXTerm inserts native file-manager files and folders — dropped on a Terminal
 Window or pasted when the clipboard has no plain text — as lexical,
 platform-absolute path tokens delivered through Protected Paste without Enter.
-The user always decides execution. Bracketed-paste-aware processes receive one
-semantic paste; everything else keeps the multiline confirmation. Both entry
-points reuse the Terminal Surface's existing injection seam, so the Surface
-stays free of Electron, filesystem, and platform shell policy; the renderer
+Bracketed-paste-aware processes receive one semantic paste; other processes use
+Protected Paste confirmation for multiline or control-character input. Delivery
+follows the receiving Surface's lifetime under
+[ADR 0009](0009-keep-clipboard-access-explicit-and-one-way.md). Both entry points
+reuse the Surface's injection seam, keeping it free of Electron, filesystem and
+platform shell policy; the renderer
 gains only the narrow preload capability that maps a dropped `File` to its
 path (`webUtils.getPathForFile`).
 

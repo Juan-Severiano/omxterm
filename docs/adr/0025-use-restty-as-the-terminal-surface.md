@@ -50,7 +50,7 @@ the remaining ordered preparation steps, not approximate patching.
 Private typed runtime seams expose readiness, raw DOM-paste origin,
 bracketed-paste mode, selection, parsed events and rendering controls. Direct
 browser clipboard and link-opening callbacks stay disabled. These internals do
-not enter the public Surface Interface. The cost is maintaining a pinned
+not enter the public Surface interface. The cost is maintaining a pinned
 adaptation; dependency upgrades need source and behavioral review.
 
 ## Font stack, appearance and lifetime
@@ -102,8 +102,7 @@ bytes stay out of Operational Events.
 **Current error-boundary limitation:** `readInstalledFontFaceData` includes native
 read-error detail, and the font IPC/preload route does not translate that
 rejection into a fixed renderer-facing error. A failed on-demand read can expose
-a native path to the renderer. This limits error redaction; it is not a broad
-filesystem capability or demonstrated remote exfiltration.
+a native path to the renderer. Raw errors therefore need review before sharing.
 
 For Apple Color Emoji, bounded positional reads assemble memory-only shaping
 input without the unused `sbix` bitmap table, retaining all faces and other
@@ -137,7 +136,8 @@ superseded, even if its initializing Surface survives with a renderer lease.
 That tab can fail initialization and close without starting a PTY. Already
 acquired font bytes survive through their leases; line-height-only reload does
 not invalidate the family-data generation. The integrated ownership fixture
-holds runtime initialization after font acquisition and does not test this race
+holds runtime initialization after font acquisition; reproducing this race
+requires a pending main font read
 ([#569](https://github.com/luizomf/omxterm/issues/569)).
 
 Complete validation rejects invalid configured font inputs before application;
@@ -156,8 +156,11 @@ Base64 validator; reads, clears, malformed, cancelled and over-bound requests
 have no clipboard or PTY side effect.
 
 Visible destinations use cell snapshots joined only by core-proven soft wraps.
-Cell text is copied before selection queries can allocate WASM memory. Hidden
-OSC 8 destinations and uncertain viewport-edge continuations are ignored. A
+Cell text is copied before selection queries can allocate WASM memory. A known
+mismatch between wide-wrap spacer cells and core selection text can prevent
+visible URL recognition at some Unicode wrap boundaries
+([#593](https://github.com/luizomf/omxterm/issues/593)). Hidden OSC 8 destinations
+and uncertain viewport-edge continuations are ignored. A
 stable valid modified primary click overrides application mouse reporting
 without a duplicate PTY report. A narrow compatibility-mouse path completes an
 existing primary selection press when a virtual input stack changes pointer
@@ -194,10 +197,10 @@ once, including split controls. DA2 has its own response. **CPR is currently
 inaccurate for some Unicode and resize sequences:** the prepared OutputFilter
 tracks a UTF-16 cursor hint before writing filtered output to Ghostty. Its hint
 can bypass the actual core position (for example after wide/combining text or
-pending-wrap resize). Exactly-once handling is not evidence of correct cursor
-coordinates. Fixed-provider capability tests do not cover those actual-core
-sequences; [#568](https://github.com/luizomf/omxterm/issues/568) tracks the
-reproduced examples as a focused compatibility bug.
+pending-wrap resize). Fixed-provider capability tests do not cover those
+actual-core sequences;
+[#568](https://github.com/luizomf/omxterm/issues/568) tracks the reproduced
+examples.
 
 Ghostty starts in grapheme-cluster mode so emoji-presentation and ZWJ clusters
 occupy one two-column cell. The prepared OutputFilter bounds unfinished OSC/CSI
@@ -240,8 +243,5 @@ Pending IPC bytes, JavaScript heap, RSS, core storage, browser/WebGL resources
 and GPU allocations are separate domains; none is a total memory bound and tabs
 multiply costs.
 
-Source and tests support bounded behaviors, not universal correctness or native
-qualification on every desktop. Limits and conditional error paths do not imply
-mandatory hardening work. Native ARM64 package evidence belongs to each exact
-artifact
-under [ADR 0019](0019-support-native-arm64-releases-on-macos-linux-and-windows.md).
+Native ARM64 package evidence belongs to each exact artifact under
+[ADR 0019](0019-support-native-arm64-releases-on-macos-linux-and-windows.md).

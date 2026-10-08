@@ -46,8 +46,8 @@ was requested. macOS and Linux use the OS-configured shell. Windows uses
 **Launch Request** — Startup `-e <program> [arguments...]`, consumed by the
 first tab. The program and literal argument list go directly to the PTY.
 
-**Initial Working Directory** — The user's home directory, where both the
-Default Shell and an explicit Launch Request start.
+**Initial Working Directory** — The operating-system account's home directory,
+where both the Default Shell and an explicit Launch Request start.
 
 **Busy Session** — A session whose PTY foreground process differs from the idle
 Default Shell. An unreadable foreground name, any live explicit command, and all
@@ -138,7 +138,7 @@ through the PTY.
 
 **Inline Terminal Image** — A bounded, memory-only PNG or raw-RGBA image
 rendered as cell-anchored output through the supported Kitty protocol subset.
-The claimed Pi and Chafa paths require direct sessions rather than multiplexer
+The supported Pi and Chafa paths use direct sessions rather than multiplexer
 passthrough.
 
 **Local Image Preview** — A temporary overlay for a local static PNG or JPEG,
@@ -149,7 +149,8 @@ always names a file on the OMXTerm host, even when SSH produced the text.
 
 **External Link** — A literal visible HTTP(S) URL in terminal output. Opening it
 requires explicit user activation and validation in main. Hidden OSC 8
-destinations are not used.
+destinations are not used. Some Unicode wrap boundaries prevent recognition;
+see the [terminal contract](docs/spec.md#terminal-behavior).
 
 ## Diagnostics and distribution
 

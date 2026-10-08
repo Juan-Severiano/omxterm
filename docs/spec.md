@@ -3,6 +3,15 @@
 This document describes OMXTerm's behavior, architecture, and known limitations.
 The [user guides](README.md) explain setup and everyday use.
 
+- [Product and scope](#product)
+- [Windows and sessions](#window-and-session-behavior)
+- [Terminal behavior](#terminal-behavior)
+- [Clipboard](#clipboard)
+- [Configuration and local state](#configuration-and-local-state)
+- [Architecture boundaries](#architecture-boundaries)
+- [Release contract](#release-contract)
+- [Acceptance boundary](#acceptance-boundary)
+
 ## Product
 
 OMXTerm is an open-source personal desktop terminal. It opens a normal local
@@ -123,9 +132,9 @@ succeeds ([ADR 0025](adr/0025-use-restty-as-the-terminal-surface.md)).
   during that confirmation share the same decision, even if the selected session
   becomes idle. Closing a window's last tab closes that window. During the first
   tab's initialization, however, the renderer has not yet subscribed to tab
-  commands: an early Close Tab or New Tab command can be lost rather than
-  queued. Clipboard, zoom, tab-bar and snippets actions also subscribe only
-  after that readiness; earlier notifications are not buffered. Close Window and
+  commands: an early Close Tab, New Tab or tab-navigation command can be lost
+  rather than queued. Clipboard, zoom, tab-bar and snippets actions also
+  subscribe only after that readiness; earlier notifications are not buffered. Close Window and
   Quit use separate main-owned paths and can still cancel initialization. Close
   Window defaults to `Cmd+Shift+W` on macOS and `Ctrl+Shift+Q` on Linux and
   Windows and closes all of the selected window's tabs. Closing the last window
@@ -185,10 +194,8 @@ succeeds ([ADR 0025](adr/0025-use-restty-as-the-terminal-surface.md)).
   failed tab; automatic window closure waits for both an empty renderer tab
   owner and every pending failure acknowledgement. Explicit authorized window
   closure and Quit remain separate, and late dialog results cannot act on
-  disposed owners. If exit IPC delivery throws for a live controller, main's
-  subsequent failure notification and `pty.exit` logging are skipped while the
-  session reference is retired. Native shutdown completion is recorded
-  independently before that callback.
+  disposed owners. Native shutdown completion is recorded independently of
+  renderer notification.
 - Each window starts at configured font size. Window Font Zoom defaults to
   `Cmd++`, `Cmd+-`, and `Cmd+0` on macOS and `Ctrl++`, `Ctrl+-`, and `Ctrl+0` on
   Linux and Windows; it affects only that window, applies to every tab in it,
@@ -607,7 +614,10 @@ without a duplicate PTY mouse report; other gestures retain ordinary selection
 or application-mouse routing. Restty reconstructs a destination only across
 core-proven, fully visible soft wraps. It preserves hard breaks and cell
 coordinates for grapheme and wide-cell prefixes, and conservatively refuses a
-destination that may continue beyond the visible viewport. Restty enables
+destination that may continue beyond the visible viewport. A known mismatch
+between wide-wrap spacer cells and core selection text can prevent visible URL
+recognition at some Unicode wrap boundaries
+([#593](https://github.com/luizomf/omxterm/issues/593)). Restty enables
 Ghostty's grapheme-cluster mode by default so emoji-presentation and ZWJ
 clusters occupy one two-column terminal cell for rendering and selection. For
 `file:///`, main independently requires the literal lowercase scheme, no remote
@@ -737,10 +747,10 @@ theme conversion guidance, and troubleshooting.
 
 OMXTerm reads an optional configuration from
 `$XDG_CONFIG_HOME/omxterm/config.json`, falling back to
-`~/.config/omxterm/config.json`. The same XDG-style resolution applies on every
-Supported Platform, including Windows, where the fallback is
-`%USERPROFILE%\.config\omxterm\config.json` (ADR 0002). At application startup,
-an existing `config.json` filesystem entry (including an invalid file,
+`.config/omxterm/config.json` beneath the operating-system account's home
+directory when `XDG_CONFIG_HOME` is unset or empty. This XDG-style resolution
+applies on every Supported Platform, including Windows (ADR 0002). At application
+startup, an existing `config.json` filesystem entry (including an invalid file,
 directory, or dangling symlink) skips the entire initial kit without inspecting
 snippets or themes. Otherwise, OMXTerm creates the directory, `config.json` with
 common built-in defaults (including explicit `window.blur: false` and
@@ -1125,8 +1135,7 @@ Artifacts include SHA-256 checksums but no verified publisher identity. The
 macOS app has an ad-hoc integrity seal, not Developer ID signing or
 notarization; Windows NSIS is unsigned. Installation guidance explains
 Gatekeeper and SmartScreen without recommending disabling system-wide
-protections. Checksums and native verification do not imply platform-vendor
-approval or an independent audit.
+protections.
 
 The [release procedure](release.md) owns preparation, native verification,
 artifact identity, tagging, uploads and download checks. An owner-requested

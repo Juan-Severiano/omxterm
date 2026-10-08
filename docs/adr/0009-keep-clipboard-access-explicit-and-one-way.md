@@ -1,9 +1,7 @@
 # Keep clipboard access explicit and one-way
 
-File-manager path insertion through drop and Paste is complementary to this
-policy and recorded in
-[ADR 0021](0021-insert-lexical-shell-quoted-paths-through-protected-paste.md);
-it does not change the one-way stance below.
+[ADR 0021](0021-insert-lexical-shell-quoted-paths-through-protected-paste.md)
+covers file-manager path insertion through drop and Paste.
 
 OMXTerm does not copy terminal selections automatically. On macOS, `Ctrl+C`
 remains terminal input, while `Cmd+C`, `Cmd+V`, and the contextual menu provide
@@ -27,12 +25,13 @@ units, outside the bound.
 
 Potentially executable multiline or control-character pastes require user
 confirmation unless the receiving process has enabled bracketed paste. Neither
-clipboard contents nor pasted Terminal Payload may be logged. A confirmed paste
-is forwarded completely and, when bracketed paste is enabled, remains one
-semantic paste even if IPC or PTY streaming splits its bytes internally. OMXTerm
-does not truncate, summarize, convert, or otherwise interpret large text; an
-interactive CLI may replace it with a placeholder or attachment inside its own
-input model.
+clipboard contents nor pasted Terminal Payload may be logged. Accepted paste
+preserves its text and request order while the receiving Surface remains live.
+Disposal stops remaining chunks and a snippet's optional Enter; already delivered
+bytes are not recalled. With bracketed paste enabled, it remains one semantic
+paste even if IPC or PTY streaming splits its bytes internally. OMXTerm does not
+summarize or interpret large text; an interactive CLI may replace it with a
+placeholder or attachment inside its own input model.
 
 Terminal protocol key encoding stays inside the Terminal Surface; native
 application copy/paste accelerators belong to main's effective menu/keybind map

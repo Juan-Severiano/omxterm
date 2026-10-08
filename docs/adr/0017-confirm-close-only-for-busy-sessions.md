@@ -19,11 +19,10 @@ turning close into a process-tree inspection.
 The inspection is deliberately minimal: OMXTerm reads only the PTY's
 foreground process name (node-pty's `process`), compares it in memory against
 the Default Shell's name known from the spawn, and never logs, displays, or
-transmits it. There is no process-tree walking, no argument reading, and no
-polling — the name is read once per close request. An unreadable name counts
-as Busy so a detection failure degrades to asking, never to silently killing
-work. A nested shell with the same name counts as idle; a differently named
-shell counts as Busy. This is a limitation of the name-only heuristic.
+transmits it. Names are inspected on demand during close decisions, without
+polling, argument reading or process-tree traversal. An unreadable name counts
+as Busy so a detection failure asks before ending work. A nested shell with the
+same name counts as idle; a differently named shell counts as Busy. This is a limitation of the name-only heuristic.
 
 Pinned node-pty 1.1.0's Linux public getter substitutes the spawned shell when
 its native foreground lookup is unavailable. Postinstall removes that fallback

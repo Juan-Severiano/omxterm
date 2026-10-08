@@ -25,9 +25,8 @@ if restoration fails, unrestored originals remain at reported backup locations.
 disables recovery traps, then deletes staging/backups under `set -e`. A cleanup
 error can return nonzero with the new installation already committed, originals
 partly removed and no structured cleanup/recovery status. A nonzero result does
-not always mean the old installation survived. This is distinct from replacement
-failure and rollback; it does not imply required post-commit hardening. Inspect
-the installed entries and remaining staging/backups before retrying.
+not always mean the old installation survived. Inspect the installed entries
+and remaining staging/backups before retrying.
 
 Uninstall removes only the three owned entries, including symlinks themselves,
 not their referents. It preserves unrelated files and parent directories. A

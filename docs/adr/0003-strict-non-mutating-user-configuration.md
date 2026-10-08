@@ -18,15 +18,11 @@ last valid in-memory settings and reports the current problem. A successful
 load publishes a whole snapshot, then applies consumers synchronously. Removing
 `config.json` selects defaults; manual reload does not seed files.
 
-**Current application-failure limitation:** publication and log-level change
-precede consumer application, whose steps run sequentially. If a consumer
-throws, the rejection path keeps the newly published configuration and does not
-undo already applied native/renderer/menu effects. The displayed claim that the
-last configuration was retained can be false. Complete validation is not
-transactional rollback of side effects. An injected consumer exception confirms
-this conditional incoherence; an ordinary production throw trigger is not
-established. This boundary does not imply a distributed rollback requirement. Restart after fixing the cause reestablishes a
-startup snapshot; application-time exceptions have no rollback guarantee.
+Consumer application is sequential, not transactional. If a consumer throws
+after publication and the log-level change, those changes and any already
+applied native/renderer/menu effects remain. The failure notice can therefore
+incorrectly say that the previous configuration was retained. Restarting after
+fixing the cause establishes a fresh startup snapshot.
 
 Creation-time family and line-height behavior and the pending font-acquisition
 race are described in
