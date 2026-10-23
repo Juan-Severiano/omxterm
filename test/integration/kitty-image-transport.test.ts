@@ -2,9 +2,13 @@ import * as nodePty from "node-pty";
 import { describe, expect, it } from "vitest";
 import { createLocalTerminalSession } from "../../src/main/local-terminal-session";
 
+const supportedEnvironment =
+  process.platform === "win32" &&
+  (process.arch === "arm64" || process.arch === "x64");
+
 // The renderer fixture cannot detect a ConPTY implementation dropping APCs
 // before the Terminal Surface receives them. Exercise the real Adapter too.
-describe.skipIf(process.platform !== "win32" || process.arch !== "arm64")(
+describe.skipIf(!supportedEnvironment)(
   "Kitty image transport through Windows ConPTY",
   () => {
     it("delivers a complete Kitty image sequence without consuming it", async () => {

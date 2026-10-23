@@ -165,7 +165,7 @@ Complete native checks run `check:portable`, build the platform installer into `
 > **Warning:** Full Windows verification (`check:win` or `package:verify` with `--disposable-vm-allow-omxterm-replacement`) runs the NSIS installer and can replace an existing OMXTerm installation on the machine. Run it only in a disposable VM with a recovery snapshot ([Windows release procedure](release.md#windows-arm64-and-x64)). To verify only the unpacked Windows app directory without running the installer, use:
 >
 > ```powershell
-> npm run package:win
+> npm run package:win        # ARM64; use npm run package:win:x64 on x64
 > npm run package:verify -- --windows-unpacked-only
 > ```
 

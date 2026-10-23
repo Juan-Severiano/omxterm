@@ -13,7 +13,8 @@ const supportedEnvironment =
   process.arch === "arm64";
 
 const windowsEnvironment =
-  process.platform === "win32" && process.arch === "arm64";
+  process.platform === "win32" &&
+  (process.arch === "arm64" || process.arch === "x64");
 
 describe.skipIf(!supportedEnvironment)("real local PTY", () => {
   it("starts the OS-configured interactive login shell in home and carries input/output", async () => {

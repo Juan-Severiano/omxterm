@@ -42,7 +42,7 @@ source/test boundaries and known limitations.
 | 0031 | [Keep Linux installer choices small and local](0031-keep-linux-installer-choices-small-and-local.md)                           |
 | 0032 | [Report native exec failures outside Terminal Payload](0032-report-native-exec-failures-outside-terminal-payload.md)           |
 | 0033 | [Contain native resize failures](0033-contain-native-resize-failures-without-completing-sessions.md)                           |
-| 0034 | [Support native Windows x64 packages](0034-support-native-windows-x64-packages.md)                                              |
+| 0034 | [Support native Windows x64 packages](0034-support-native-windows-x64-packages.md)                                             |
 
 ## Related boundaries
 

@@ -128,15 +128,15 @@ Terminal bells (`BEL`) are silent. When a session rings the bell, OMXTerm adds a
 
 See the [installation guide](installation.md) for your platform:
 
-| Symptom                                                      | Solution                                                                                                                    |
-| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| macOS warns about an unverified developer                    | Open **System Settings → Privacy & Security** and click **Open Anyway** ([details](installation.md#first-launch-on-macos)). |
-| Linux says `Permission denied`                               | Run `chmod +x OMXTerm-*.AppImage` first, and make sure the file is on a partition that allows executing programs.           |
-| Linux reports a FUSE or mount error                          | Launch with `./OMXTerm-*.AppImage --appimage-extract-and-run` or install with `linux_install.sh`.                           |
-| Linux reports `GLIBC_2.42 not found`                         | Your distribution is too old for the prebuilt AppImage. It needs glibc 2.42+ (for example Fedora 43+ or Ubuntu 25.10+).     |
-| Linux reports an executable format error                     | Check `uname -m` — prebuilt packages require `aarch64` (ARM64).                                                             |
-| Windows reports a missing runtime DLL or `ERR_DLOPEN_FAILED` | Install the Microsoft Visual C++ Redistributable for your architecture (ARM64 or x64), see [installation](installation.md#windows).                                      |
-| Checksum verification fails                                  | Ensure both the installer and `.sha256` file were downloaded from the same release.                                         |
+| Symptom                                                      | Solution                                                                                                                            |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| macOS warns about an unverified developer                    | Open **System Settings → Privacy & Security** and click **Open Anyway** ([details](installation.md#first-launch-on-macos)).         |
+| Linux says `Permission denied`                               | Run `chmod +x OMXTerm-*.AppImage` first, and make sure the file is on a partition that allows executing programs.                   |
+| Linux reports a FUSE or mount error                          | Launch with `./OMXTerm-*.AppImage --appimage-extract-and-run` or install with `linux_install.sh`.                                   |
+| Linux reports `GLIBC_2.42 not found`                         | Your distribution is too old for the prebuilt AppImage. It needs glibc 2.42+ (for example Fedora 43+ or Ubuntu 25.10+).             |
+| Linux reports an executable format error                     | Check `uname -m` — prebuilt packages require `aarch64` (ARM64).                                                                     |
+| Windows reports a missing runtime DLL or `ERR_DLOPEN_FAILED` | Install the Microsoft Visual C++ Redistributable for your architecture (ARM64 or x64), see [installation](installation.md#windows). |
+| Checksum verification fails                                  | Ensure both the installer and `.sha256` file were downloaded from the same release.                                                 |
 
 Still having trouble? [Open a bug report](../CONTRIBUTING.md#report-a-problem) with your OS, OMXTerm version, and the error message.
 

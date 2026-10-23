@@ -6,8 +6,9 @@ import { literalArguments } from "../fixtures/literal-argv";
 import { runNativeFixture } from "../fixtures/run-native-fixture";
 
 const supported =
-  ["darwin", "linux", "win32"].includes(process.platform) &&
-  process.arch === "arm64";
+  (["darwin", "linux", "win32"].includes(process.platform) &&
+    process.arch === "arm64") ||
+  (process.platform === "win32" && process.arch === "x64");
 const prefix = "__OMXTERM_LITERAL_ARGV__";
 
 describe.skipIf(!supported)("literal explicit-command native argv", () => {

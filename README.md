@@ -158,7 +158,7 @@ welcome!
   [CONTRIBUTING.md](CONTRIBUTING.md) and the
   [documentation index](docs/README.md), including open efforts to add
   [Linux x64](https://github.com/luizomf/omxterm/issues/223) packages.
-  Windows x64 builds from source; its prebuilt installer ships with the next release.
+  Windows x64 builds from source; prebuilt installers await native release qualification.
 
 ## License
 

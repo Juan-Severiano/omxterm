@@ -67,8 +67,8 @@ OMXTerm:
   packaged macOS Dock, Finder, application-switcher, and DMG surfaces;
 - reads strict, versioned JSON configuration and writes bounded local JSONL
   operational logs;
-- packages ready-to-run arm64 artifacts from an accepted version: DMG for macOS,
-  AppImage for Linux, and NSIS for Windows. Linux releases additionally provide
+- packages ready-to-run artifacts from an accepted version: ARM64 DMG for macOS,
+  ARM64 AppImage for Linux, and ARM64/x64 NSIS for Windows. Linux releases additionally provide
   an optional versioned per-user AppImage desktop installer and its checksum;
   running the AppImage directly remains supported.
 
