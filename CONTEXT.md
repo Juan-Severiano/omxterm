@@ -11,7 +11,7 @@ This glossary explains terms used in the code and documentation. The
 ## Platform and architecture
 
 **Supported Platform** — An operating-system/architecture target with maintained
-native packages and tests: macOS ARM64, Linux ARM64 and Windows ARM64. Linux
+native packages and tests: macOS ARM64, Linux ARM64, Windows ARM64 and Windows x64. Linux
 uses X11/XWayland.
 
 **Terminal Surface** — The portable DOM module that renders and operates the
@@ -162,7 +162,7 @@ clipboard, configuration and environment contents, commands and titles.
 requests. Child processes retain normal network access; explicitly activated web
 links open through the OS.
 
-**Release Artifact** — An exact native ARM64 package (DMG, AppImage or NSIS)
+**Release Artifact** — An exact native package (ARM64, or x64 on Windows) (DMG, AppImage or NSIS)
 published with its source tag, checksum and native verification evidence.
 Artifacts have no verified publisher identity; the macOS app has an ad-hoc
 integrity seal, not Developer ID signing or notarization. See the

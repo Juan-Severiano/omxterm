@@ -85,7 +85,11 @@ const allowedLinuxNodePtyBuildEntries = new Set([
   "/node_modules/node-pty/build/Release/pty.node",
 ]);
 
-export function inspectAsarEntries(entries, platform = "darwin") {
+export function inspectAsarEntries(
+  entries,
+  platform = "darwin",
+  arch = "arm64",
+) {
   if (platform !== "darwin" && platform !== "linux" && platform !== "win32")
     throw new Error(`Unsupported packaged platform: ${platform}`);
   // @electron/asar lists entries with the host separator on Windows.
@@ -119,8 +123,8 @@ export function inspectAsarEntries(entries, platform = "darwin") {
       (platform === "win32" && entry.endsWith(".pdb")) ||
       (platform === "win32" &&
         entry.includes("/node_modules/node-pty/prebuilds/") &&
-        entry !== "/node_modules/node-pty/prebuilds/win32-arm64" &&
-        !entry.startsWith("/node_modules/node-pty/prebuilds/win32-arm64/")),
+        entry !== `/node_modules/node-pty/prebuilds/win32-${arch}` &&
+        !entry.startsWith(`/node_modules/node-pty/prebuilds/win32-${arch}/`)),
   );
   return { missing, forbidden };
 }
@@ -196,10 +200,11 @@ async function assertSameFile(source, packaged) {
     );
 }
 
-const PE_MACHINE_ARM64 = 0xaa64;
+// IMAGE_FILE_MACHINE_ARM64 and IMAGE_FILE_MACHINE_AMD64, keyed by the Node arch.
+const peMachines = { arm64: 0xaa64, x64: 0x8664 };
 
 // Windows has no `file` command; the PE COFF header states the machine
-// type directly (IMAGE_FILE_MACHINE_ARM64 = 0xAA64).
+// type directly.
 async function readPeMachine(file) {
   const data = await readFile(file);
   if (data.length < 0x40 || data.readUInt16LE(0) !== 0x5a4d)
@@ -226,12 +231,12 @@ async function inspectLinuxAppImageDependencies(appImagePath) {
   inspectElfDynamicDependencies(stdout);
 }
 
-async function inspectArchitecture(file, label, platform) {
+async function inspectArchitecture(file, label, platform, arch = process.arch) {
   if (platform === "win32") {
     const machine = await readPeMachine(file);
-    if (machine !== PE_MACHINE_ARM64)
+    if (machine !== peMachines[arch])
       throw new Error(
-        `${label} is not an arm64-only PE: machine 0x${machine.toString(16)}`,
+        `${label} is not an ${arch}-only PE: machine 0x${machine.toString(16)}`,
       );
     return;
   }
@@ -395,7 +400,7 @@ async function inspectApplicationVersion({
     const installer = path.join(
       projectRoot,
       "release",
-      `OMXTerm-${expectedVersion}-arm64.exe`,
+      `OMXTerm-${expectedVersion}-${process.arch}.exe`,
     );
     await stat(installer);
     return;
@@ -413,10 +418,15 @@ async function inspectApplicationVersion({
     );
 }
 
+// electron-builder names the x64 directory without an architecture suffix.
+function windowsUnpackedDirectory(arch = process.arch) {
+  return arch === "x64" ? "win-unpacked" : `win-${arch}-unpacked`;
+}
+
 async function defaultApplicationPath() {
   if (process.platform === "darwin") return defaultMacApplicationPath;
   if (process.platform === "win32")
-    return path.join(projectRoot, "release", "win-arm64-unpacked");
+    return path.join(projectRoot, "release", windowsUnpackedDirectory());
   return path.join(
     projectRoot,
     "release",
@@ -716,10 +726,11 @@ export async function verifyPackagedApplication(
     (process.platform !== "darwin" &&
       process.platform !== "linux" &&
       process.platform !== "win32") ||
-    process.arch !== "arm64"
+    (process.arch !== "arm64" &&
+      !(process.platform === "win32" && process.arch === "x64"))
   )
     throw new Error(
-      "Packaged startup verification requires arm64 macOS, Linux, or Windows",
+      "Packaged startup verification requires arm64 macOS, Linux, or Windows, or x64 Windows",
     );
 
   const platform = process.platform;
@@ -852,7 +863,7 @@ export async function verifyPackagedApplication(
       ...(platform === "darwin"
         ? ["prebuilds", "darwin-arm64"]
         : platform === "win32"
-          ? ["prebuilds", "win32-arm64"]
+          ? ["prebuilds", `win32-${process.arch}`]
           : ["build", "Release"]),
     );
 
@@ -941,6 +952,7 @@ export async function verifyPackagedApplication(
     const asarInspection = inspectAsarEntries(
       await listPackage(asar),
       platform,
+      process.arch,
     );
     if (asarInspection.missing.length > 0)
       throw new Error(
@@ -1117,7 +1129,7 @@ export async function verifyPackagedApplication(
         installer: path.join(
           projectRoot,
           "release",
-          `OMXTerm-${await sourceVersion()}-arm64.exe`,
+          `OMXTerm-${await sourceVersion()}-${process.arch}.exe`,
         ),
         unpackedRoot: applicationRoot,
         projectRoot,
@@ -1164,7 +1176,7 @@ if (
     )
     .then(({ applicationPath, records, verification }) => {
       console.log(
-        `${verification}: verified packaged arm64 startup: ${applicationPath} (${records} operational events)`,
+        `${verification}: verified packaged ${process.arch} startup: ${applicationPath} (${records} operational events)`,
       );
     })
     .catch((cause) => {

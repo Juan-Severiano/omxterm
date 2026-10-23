@@ -54,4 +54,16 @@ describe("release version consistency", () => {
       expect(`${artifactName}.sha256`).toBe(`${expectedArtifactName}.sha256`);
     },
   );
+
+  it("derives the exact Windows x64 NSIS artifact and checksum names", () => {
+    const expectedArtifactName = `OMXTerm-${packageMetadata.version}-x64.exe`;
+    const artifactName = builderValue("artifactName")
+      .replace("${productName}", builderValue("productName"))
+      .replace("${version}", packageMetadata.version)
+      .replace("${arch}", "x64")
+      .replace("${ext}", "exe");
+
+    expect(artifactName).toBe(expectedArtifactName);
+    expect(`${artifactName}.sha256`).toBe(`${expectedArtifactName}.sha256`);
+  });
 });

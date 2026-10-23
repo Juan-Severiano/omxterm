@@ -409,3 +409,39 @@ describe("Restty-only packaged runtime", () => {
     ).toEqual(["/node_modules/@xterm/xterm/lib/xterm.js"]);
   });
 });
+
+describe("Windows native runtime architecture", () => {
+  it.each([
+    ["x64", "arm64"],
+    ["arm64", "x64"],
+  ] as const)(
+    "accepts only the win32-%s native runtime when verifying that architecture",
+    (arch, other) => {
+      expect(
+        inspectAsarEntries(
+          [
+            ...requiredEntries,
+            `/node_modules/node-pty/prebuilds/win32-${arch}`,
+            `/node_modules/node-pty/prebuilds/win32-${arch}/pty.node`,
+          ],
+          "win32",
+          arch,
+        ),
+      ).toEqual({ missing: [], forbidden: [] });
+      expect(
+        inspectAsarEntries(
+          [
+            ...requiredEntries,
+            `/node_modules/node-pty/prebuilds/win32-${other}/pty.node`,
+            `/node_modules/node-pty/prebuilds/win32-${arch}/pty.pdb`,
+          ],
+          "win32",
+          arch,
+        ).forbidden,
+      ).toEqual([
+        `/node_modules/node-pty/prebuilds/win32-${other}/pty.node`,
+        `/node_modules/node-pty/prebuilds/win32-${arch}/pty.pdb`,
+      ]);
+    },
+  );
+});

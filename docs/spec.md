@@ -19,7 +19,7 @@ shell in a native window with a hideable title area and gives the Terminal
 Surface all remaining content space. SSH brokering, AI assistance, persistent
 session management, and IDE features are outside the product scope.
 
-The Supported Platforms are macOS arm64, Linux arm64, and Windows arm64. Linux
+The Supported Platforms are macOS arm64, Linux arm64, Windows arm64, and Windows x64 (ADR 0034). Linux
 rendering defaults to X11 and requires XWayland when the desktop session is
 Wayland; native Wayland rendering is not currently claimed. An explicit Electron
 `--ozone-platform` or `--ozone-platform-hint` switch supplied before a Launch
@@ -32,7 +32,7 @@ launcher (`npm run dev`) supplies it before Electron bootstrap, not only after
 application main starts. This is a fixed launch policy, not a fallback or
 configurable mode. OMXTerm leaves host security policy unchanged and installs no
 privileged sandbox helper. Sandboxed Linux support is outside the current
-maintenance scope (ADR 0024). x64, Intel macOS, and other operating systems are
+maintenance scope (ADR 0024). Linux x64, Intel macOS, and other operating systems are
 unsupported.
 
 ## Product scope
@@ -1126,7 +1126,7 @@ in main.
 ## Release contract
 
 OMXTerm uses the MIT License and follows the [versioning policy](versioning.md).
-Packages are built natively on ARM64 macOS, Linux and Windows, using native
+Packages are built natively on ARM64 macOS, Linux and Windows, and on x64 Windows, using native
 filesystems rather than VM shared folders. The formats are DMG, AppImage and
 NSIS respectively. Linux also provides `linux_install.sh` and
 `linux_install.sh.sha256`; the helper's embedded version matches the release.

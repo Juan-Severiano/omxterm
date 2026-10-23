@@ -42,6 +42,7 @@ source/test boundaries and known limitations.
 | 0031 | [Keep Linux installer choices small and local](0031-keep-linux-installer-choices-small-and-local.md)                           |
 | 0032 | [Report native exec failures outside Terminal Payload](0032-report-native-exec-failures-outside-terminal-payload.md)           |
 | 0033 | [Contain native resize failures](0033-contain-native-resize-failures-without-completing-sessions.md)                           |
+| 0034 | [Support native Windows x64 packages](0034-support-native-windows-x64-packages.md)                                              |
 
 ## Related boundaries
 
@@ -49,4 +50,4 @@ source/test boundaries and known limitations.
 - Portable Surface/fonts/protocols: 0008, 0012, 0022, 0025.
 - User-owned configuration and live application: 0002, 0003, 0025, 0029, 0030.
 - Renderer privilege and explicit payload actions: 0006, 0009–0011, 0021, 0024, 0026.
-- Native distribution, verification and installers: 0015, 0019, 0020, 0023, 0031.
+- Native distribution, verification and installers: 0015, 0019, 0020, 0023, 0031, 0034.

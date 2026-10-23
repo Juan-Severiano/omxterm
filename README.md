@@ -157,8 +157,8 @@ welcome!
 - Want to build from source or contribute code? Read
   [CONTRIBUTING.md](CONTRIBUTING.md) and the
   [documentation index](docs/README.md), including open efforts to add
-  [Linux x64](https://github.com/luizomf/omxterm/issues/223) and
-  [Windows x64](https://github.com/luizomf/omxterm/issues/224) packages.
+  [Linux x64](https://github.com/luizomf/omxterm/issues/223) packages.
+  Windows x64 builds from source; its prebuilt installer ships with the next release.
 
 ## License
 

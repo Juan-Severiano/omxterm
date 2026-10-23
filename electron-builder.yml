@@ -128,18 +128,16 @@ win:
     - "!node_modules/node-pty/deps/**"
     - "!node_modules/node-pty/prebuilds/darwin-arm64/**"
     - "!node_modules/node-pty/prebuilds/darwin-x64/**"
-    - "!node_modules/node-pty/prebuilds/win32-x64/**"
-    - "!node_modules/node-pty/prebuilds/win32-arm64/*.pdb"
+    - "!node_modules/node-pty/prebuilds/win32-!(${arch})/**"
+    - "!node_modules/node-pty/prebuilds/win32-*/*.pdb"
     - "!node_modules/node-pty/scripts/**"
     - "!node_modules/node-pty/src/**"
     - "!node_modules/node-pty/typings/**"
     - "!node_modules/node-pty/lib/**/*.test.js"
   asarUnpack:
-    - node_modules/node-pty/prebuilds/win32-arm64/**
+    - node_modules/node-pty/prebuilds/win32-${arch}/**
   target:
     - target: nsis
-      arch:
-        - arm64
 nsis:
   oneClick: true
   perMachine: false

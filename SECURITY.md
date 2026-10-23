@@ -35,6 +35,6 @@ Commands run with your account's permissions.
 Windows installer verification can replace an existing installation, even with
 a temporary destination. It requires an authorized disposable VM, a recovery
 snapshot, and the explicit CLI opt-in in the
-[Windows release procedure](docs/release.md#windows-arm64).
+[Windows release procedure](docs/release.md#windows-arm64-and-x64).
 [Native fixture interruption tests](docs/development.md#interruption-regressions)
 also require an authorized disposable VM and an OS-appropriate recovery method.

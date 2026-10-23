@@ -1,6 +1,6 @@
 # Working on OMXTerm
 
-OMXTerm is an open-source desktop terminal for ARM64 macOS, Linux, and Windows, built with Electron, TypeScript, a portable DOM + Restty Terminal Surface (Ghostty WASM core), and a local `node-pty` Adapter.
+OMXTerm is an open-source desktop terminal for ARM64 macOS, Linux, and Windows (ARM64 and x64), built with Electron, TypeScript, a portable DOM + Restty Terminal Surface (Ghostty WASM core), and a local `node-pty` Adapter.
 
 ## Quick commands
 

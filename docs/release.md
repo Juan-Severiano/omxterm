@@ -107,9 +107,11 @@ npm run check:linux
 
 This builds `OMXTerm-<version>-arm64.AppImage`, `linux_install.sh`, and both `.sha256` files in `release/`, and verifies AppImage contents, `--no-sandbox` launcher configuration, and per-user helper installation in an isolated home directory.
 
-### Windows ARM64
+### Windows ARM64 and x64
 
-> **Warning:** Full Windows NSIS verification installs and uninstalls the real package and can replace an existing OMXTerm installation on the system ([ADR 0023](adr/0023-verify-exact-nsis-only-in-authorized-disposable-vms.md)). Always run it inside a disposable Windows 11 ARM64 VM with a clean recovery snapshot.
+Build and verify each Windows architecture natively on a host of that architecture. `check:win` picks `package-built:win` (ARM64) or `package-built:win:x64` (x64) from the host. The x64 installer is `OMXTerm-<version>-x64.exe`; the x64 unpacked directory is `release/win-unpacked`.
+
+> **Warning:** Full Windows NSIS verification installs and uninstalls the real package and can replace an existing OMXTerm installation on the system ([ADR 0023](adr/0023-verify-exact-nsis-only-in-authorized-disposable-vms.md)). Always run it inside a disposable Windows 11 VM of the architecture being verified (ARM64 or x64) with a clean recovery snapshot.
 
 In an interactive desktop PowerShell session with [Windows prerequisites](development.md#windows):
 
@@ -121,7 +123,7 @@ npm run check:win -- --disposable-vm-allow-omxterm-replacement
 For unpacked-only diagnostics without running the NSIS installer:
 
 ```powershell
-npm run package:win
+npm run package:win        # or: npm run package:win:x64
 npm run package:verify -- --windows-unpacked-only
 ```
 
@@ -142,7 +144,7 @@ sha256sum --check linux_install.sh.sha256
 
 ```powershell
 # Windows
-$name = "OMXTerm-<version>-arm64.exe"
+$name = "OMXTerm-<version>-arm64.exe"   # or OMXTerm-<version>-x64.exe
 "$((Get-FileHash $name -Algorithm SHA256).Hash.ToLower())  $name" |
   Out-File -Encoding ascii "$name.sha256"
 Get-Content "$name.sha256"
@@ -150,12 +152,13 @@ Get-Content "$name.sha256"
 
 ## Publication
 
-Create tag `vX.Y.Z` and publish the GitHub Release in `luizomf/omxterm` with all eight files attached:
+Create tag `vX.Y.Z` and publish the GitHub Release in `luizomf/omxterm` with every file attached (ten when Windows x64 is released):
 
 - `OMXTerm-<version>-arm64.dmg` and `OMXTerm-<version>-arm64.dmg.sha256`
 - `OMXTerm-<version>-arm64.AppImage` and `OMXTerm-<version>-arm64.AppImage.sha256`
 - `linux_install.sh` and `linux_install.sh.sha256`
 - `OMXTerm-<version>-arm64.exe` and `OMXTerm-<version>-arm64.exe.sha256`
+- `OMXTerm-<version>-x64.exe` and `OMXTerm-<version>-x64.exe.sha256` (Windows x64)
 
 Include release notes covering new features, bug fixes, any configuration changes, SHA-256 checksums, and first-launch Gatekeeper/SmartScreen notes:
 

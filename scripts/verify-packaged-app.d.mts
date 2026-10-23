@@ -6,6 +6,7 @@ export interface AsarInspection {
 export function inspectAsarEntries(
   entries: string[],
   platform?: "darwin" | "linux" | "win32",
+  arch?: "arm64" | "x64",
 ): AsarInspection;
 
 export function inspectForbiddenPackagedEntries(entries: string[]): string[];

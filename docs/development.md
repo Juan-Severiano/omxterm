@@ -6,7 +6,7 @@ See the [Restty guide](restty-development.md) for Terminal Surface internals and
 
 ## Platform prerequisites
 
-Development targets native ARM64 macOS, Linux, and Windows with **Node.js 22.13+ (22.x) or 24+** and npm. When working inside a virtual machine, clone and build on the guest's native filesystem rather than a shared host folder.
+Development targets native ARM64 macOS, Linux, and Windows (ARM64 or x64) with **Node.js 22.13+ (22.x) or 24+** and npm. When working inside a virtual machine, clone and build on the guest's native filesystem rather than a shared host folder.
 
 ### macOS
 
@@ -44,7 +44,7 @@ OMXTerm runs with `--no-sandbox` on Linux ([ADR 0024](adr/0024-disable-the-chrom
 
 1. Enable **Developer Mode** in Windows Settings before cloning or running tests so non-elevated processes can create symbolic links.
 2. Clone with `git clone -c core.autocrlf=false -c core.symlinks=true ...` to preserve LF line endings and repository symlinks.
-3. Install the **ARM64 Microsoft Visual C++ Redistributable** (and C++ build tools if building native addons from source).
+3. Install the Microsoft Visual C++ Redistributable that matches your machine (**ARM64** or **x64**), and C++ build tools if building native addons from source. Without it, `npm ci` fails while loading native modules.
 4. Run development and test commands as a normal (non-Administrator) user inside an interactive desktop session (not a headless SSH Session 0).
 
 To verify that your user account can create symlinks before running `npm ci`, run in a non-elevated PowerShell window:
@@ -160,8 +160,9 @@ Complete native checks run `check:portable`, build the platform installer into `
 | macOS ARM64   | `npm run check`                                                  |
 | Linux ARM64   | `npm run check:linux`                                            |
 | Windows ARM64 | `npm run check:win -- --disposable-vm-allow-omxterm-replacement` |
+| Windows x64   | `npm run check:win -- --disposable-vm-allow-omxterm-replacement` |
 
-> **Warning:** Full Windows verification (`check:win` or `package:verify` with `--disposable-vm-allow-omxterm-replacement`) runs the NSIS installer and can replace an existing OMXTerm installation on the machine. Run it only in a disposable VM with a recovery snapshot ([Windows release procedure](release.md#windows-arm64)). To verify only the unpacked Windows app directory without running the installer, use:
+> **Warning:** Full Windows verification (`check:win` or `package:verify` with `--disposable-vm-allow-omxterm-replacement`) runs the NSIS installer and can replace an existing OMXTerm installation on the machine. Run it only in a disposable VM with a recovery snapshot ([Windows release procedure](release.md#windows-arm64-and-x64)). To verify only the unpacked Windows app directory without running the installer, use:
 >
 > ```powershell
 > npm run package:win

@@ -97,9 +97,9 @@ sha256sum --check OMXTerm-0.20.2-arm64.AppImage.sha256
 
 ## Windows
 
-You need a Windows 11 PC with an ARM processor (check **Settings → System → About**).
+You need a Windows 11 PC with an ARM64 or x64 (Intel/AMD) processor (check **System type** in **Settings → System → About**). Use the `-arm64.exe` installer on ARM and the `-x64.exe` installer on Intel/AMD once a release provides it.
 
-1. Install the [Microsoft Visual C++ Redistributable for ARM64](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist) if you don't have it yet.
+1. Install the Microsoft Visual C++ Redistributable for your architecture (ARM64 or x64) if you don't have it yet. See [Microsoft's download page](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist).
 2. Download and run the installer (`OMXTerm-0.20.2-arm64.exe`).
 3. If SmartScreen warns about an unrecognized app, click **More info → Run anyway**.
 4. Launch **OMXTerm** from the Start menu.
